@@ -67,3 +67,13 @@ test("card notes header has no stray marker", () => {
   const none = formatCard({ character: "X", key: "1", chain: [{ target: "h", damage: "5", startup: "i10" }] });
   assert.match(none, /📌 Notes: —$/);
 });
+
+test("list-valued fields: crush, alternative names, unblockable", async () => {
+  const { listText, blockText } = await import("../src/format.js");
+  assert.equal(listText("&lt;div class=&quot;plainlist&quot;&gt;\n* ,js25~62\n* fs63~65&lt;/div&gt;", ", "), "js25~62, fs63~65");
+  assert.equal(listText(",js13~41 fs42~44", ", "), "js13~41 fs42~44");
+  assert.equal(listText("&lt;div class=&quot;dotlist&quot;&gt;\n\n* Overhead Toss\n* Jumping Flip\n&lt;/div&gt;", " / "), "Overhead Toss / Jumping Flip");
+  assert.equal(listText("Kongo Blast &gt; Phoenix Smasher", " / "), "Kongo Blast > Phoenix Smasher");
+  assert.equal(blockText("!"), "! (unblockable)");
+  assert.equal(blockText("-12"), "-12");
+});

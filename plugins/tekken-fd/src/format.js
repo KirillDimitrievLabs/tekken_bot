@@ -49,6 +49,23 @@ export function noteItems(notes) {
   return items.map(cleanInline).filter((it) => it && it !== "?");
 }
 
+/**
+ * A field that Wavu sometimes stores as a wiki list (crush frames, alternative move names):
+ * list → items joined by `sep`; plain value → cleaned text. Leading "," (later hit of a string) dropped.
+ */
+export function listText(value, sep) {
+  if (!value) return "";
+  const raw = decodeEntities(value);
+  const items = /class="(?:plain|dot)list"|^\s*\*/m.test(raw) ? noteItems(value) : [cleanInline(value)];
+  return items.map((it) => it.replace(/^,\s*/, "")).filter(Boolean).join(sep);
+}
+
+/** Block value: Wavu writes "!" for moves that can't be blocked (throws, unblockables). */
+export function blockText(value) {
+  const v = cleanInline(value);
+  return v === "!" ? "! (unblockable)" : v;
+}
+
 /** Split a Wavu multi-part field (",h" / "m,m" / "11") into parts, dropping empties. */
 function parts(value) {
   return cleanInline(value).split(",").map((p) => p.trim()).filter(Boolean);
@@ -69,16 +86,17 @@ export function formatCard({ character, key, chain }) {
     `🤹🏻 Character: ${character}`,
     `🦾 command: ${key}`,
   ];
-  if (move.name) lines.push(`🏷 name: ${cleanInline(move.name)}`);
+  if (move.name) lines.push(`🏷 name: ${listText(move.name, " / ")}`);
   lines.push(
     `🤜🏿 hit level: ${hitLevels.join(", ")}`,
     `1️⃣ damage: ${damage.join(", ")}`,
     `ℹ️ startup: ${startup.join(", ")}`,
-    `🟦 on block: ${cleanInline(move.block)}`,
+    `🟦 on block: ${blockText(move.block)}`,
     `🟥 on hit: ${cleanInline(move.hit)}`,
     `⚡️ on counter hit: ${cleanInline(move.ch)}`,
   );
-  if (move.crush) lines.push(`🛡 crush: ${cleanInline(move.crush)}`);
+  const crush = listText(move.crush, ", ");
+  if (crush) lines.push(`🛡 crush: ${crush}`);
   lines.push(notes.length ? "📌 Notes:" : "📌 Notes: —");
   for (const note of notes) lines.push(`🗒  ${note}`);
   return lines.join("\n");

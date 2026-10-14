@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { cleanInline, noteItems } from "./format.js";
+import { listText, noteItems } from "./format.js";
 import { looseKey, moveKeyFromId, strictKey } from "./notation.js";
 
 const SCHEMA = `
@@ -49,7 +49,7 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         if (seen.has(m.id)) continue; // Wavu duplicate rows: first (most complete after dedupe) wins
         seen.add(m.id);
         const key = moveKeyFromId(m.id, character);
-        const name = m.name ? cleanInline(m.name) : null;
+        const name = m.name ? listText(m.name, " / ") : null;
         const aliases = altKeys(m.alias, character);
         const alts = altKeys(m.alt, character);
         const v = (x) => x ?? null;
