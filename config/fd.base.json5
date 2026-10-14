@@ -1,0 +1,22 @@
+// tekken-fd plugin + isolated "fd" agent. Applied by scripts/apply-config.sh.
+{
+  plugins: {
+    load: { paths: ["/opt/clan-bots/plugins/tekken-fd"] },
+    entries: { "tekken-fd": { enabled: true, config: { repoDir: "/opt/clan-bots" } } },
+  },
+  agents: {
+    entries: {
+      fd: {
+        name: "Frame Data",
+        identity: { name: "Frame Data" },
+        workspace: "/home/node/.openclaw/workspace-fd",
+        agentDir: "/home/node/.openclaw/agents/fd/agent",
+        model: "openai/gpt-6-luna",
+        models: { "openai/gpt-6-luna": { agentRuntime: { id: "openclaw" } } },
+        skills: [],
+        tools: { allow: ["tekken_frame_data", "tekken_pick_move"] },
+        groupChat: { mentionPatterns: ["^\\s*!fd\\b"], historyLimit: 10 },
+      },
+    },
+  },
+}

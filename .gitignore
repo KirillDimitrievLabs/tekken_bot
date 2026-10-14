@@ -1,0 +1,6 @@
+*.sqlite
+*.sqlite-*
+*.tmp-*
+node_modules/
+.env
+*.log

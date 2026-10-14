@@ -1,0 +1,10 @@
+{
+  "name": "@clan-bots/tekken-fd",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tekken 8 frame data (Wavu Wiki) for OpenClaw Telegram groups",
+  "type": "module",
+  "scripts": { "test": "node --test test/*.test.js" },
+  "openclaw": { "extensions": ["./index.js"] },
+  "engines": { "node": ">=24" }
+}

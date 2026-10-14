@@ -1,0 +1,19 @@
+// Route the clan group to the "fd" agent. __CLAN_CHAT_ID__ is filled in by scripts/apply-config.sh.
+// NOTE: `bindings` is an array — patching replaces it whole; keep other bindings here if you add any.
+{
+  bindings: [
+    { agentId: "fd", match: { channel: "telegram", peer: { kind: "group", id: "__CLAN_CHAT_ID__" } } },
+  ],
+  channels: {
+    telegram: {
+      groups: {
+        "__CLAN_CHAT_ID__": {
+          enabled: true,
+          groupPolicy: "open",
+          requireMention: true,
+          tools: { allow: ["tekken_frame_data", "tekken_pick_move"] },
+        },
+      },
+    },
+  },
+}
