@@ -5,12 +5,14 @@
 //   tekken_pick_move   {id} | {notFound}   posts the card for a chosen id, or a "did you mean" reply
 // Owner commands: /fd_sync [dry|force], /fd_rebuild, /fd_status, /fd_check
 // Service: daily Wavu change watcher → DM to the owner.
+// Hook: before_dispatch fast path — "!fd <char> <move>" that resolves exactly is answered without the model.
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
+import { fastResolve } from "./src/fastpath.js";
 import { readMeta } from "./src/snapshot.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
@@ -27,6 +29,7 @@ const configSchema = {
       stateDir: { type: "string" },
       ownerChatId: { type: "string" },
       watcher: { type: "boolean" },
+      fastPathAgents: { type: "array", items: { type: "string" } },
     },
   },
   safeParse(value) {
@@ -77,6 +80,24 @@ export default {
     };
 
     const cardFor = (move) => formatCard({ character: move.character, key: move.key, chain: index.chain(move.id) });
+    // Fast path: exact queries skip the agent entirely (no model round trips).
+    const fastAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
+    api.on("before_dispatch", (event) => {
+      const sessionKey = String(event?.sessionKey ?? "");
+      if (!fastAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined;
+      const started = Date.now();
+      try {
+        ensureIndex();
+        const hit = fastResolve(index, event.content ?? event.body, ALIASES);
+        if (!hit) return undefined; // ambiguous / unknown → the fd agent reasons about it
+        api.logger?.info?.(`tekken-fd fast path: ${hit.move.id} in ${Date.now() - started}ms`);
+        return { handled: true, text: cardFor(hit.move) };
+      } catch (err) {
+        api.logger?.warn?.(`tekken-fd fast path failed, deferring to agent: ${err.message}`);
+        return undefined;
+      }
+    });
+
     const candidateLines = (moves) => moves.map((m) => `- id=${m.id} | input=${m.key} | name=${m.name ?? "-"} | hit=${m.target ?? "-"}`).join("\n");
 
     async function deliver(ctx, card, details) {
