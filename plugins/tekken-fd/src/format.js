@@ -23,15 +23,30 @@ export function cleanInline(value) {
   return s.replace(/\s+/g, " ").trim();
 }
 
-/** Notes field → list of plain-text bullet items. */
+const BULLET = /^\s*(?:[*#:]\s*)+/;
+
+/**
+ * Notes field → list of plain-text items.
+ * Wavu notes are a wiki list ("* item"), wrapped in <div class="plainlist"> or {{Plainlist}},
+ * where an item may be a property tag (<div class="movedata-icon …">Balcony Break</div>) and may
+ * continue on the next lines. Items are grouped by bullet, never split at tags.
+ */
 export function noteItems(notes) {
   if (!notes) return [];
-  let s = decodeEntities(notes);
-  s = s.replace(/<br\s*\/?>/gi, "\n").replace(/<\/?(div|p|li|ul)[^>]*>/gi, "\n");
-  return s
-    .split("\n")
-    .map((line) => cleanInline(line.replace(/^\s*[*#:]+\s*/, "")))
-    .filter(Boolean);
+  const text = decodeEntities(notes)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, "") // tags vanish in place: "<div…>Weapon</div>?" → "Weapon?"
+    .replace(/\{\{\s*plainlist\s*\|?/gi, "")
+    .replace(/\}\}/g, "");
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const hasBullets = lines.some((l) => BULLET.test(l));
+  const items = [];
+  for (const line of lines) {
+    if (!hasBullets || BULLET.test(line)) items.push(line.replace(BULLET, ""));
+    else if (items.length) items[items.length - 1] += ` ${line}`; // continuation of the current bullet
+    else items.push(line);
+  }
+  return items.map(cleanInline).filter((it) => it && it !== "?");
 }
 
 /** Split a Wavu multi-part field (",h" / "m,m" / "11") into parts, dropping empties. */
@@ -64,7 +79,7 @@ export function formatCard({ character, key, chain }) {
     `⚡️ on counter hit: ${cleanInline(move.ch)}`,
   );
   if (move.crush) lines.push(`🛡 crush: ${cleanInline(move.crush)}`);
-  lines.push(`📌 Notes: ${notes.length ? "🗒" : "—"}`);
+  lines.push(notes.length ? "📌 Notes:" : "📌 Notes: —");
   for (const note of notes) lines.push(`🗒  ${note}`);
   return lines.join("\n");
 }
