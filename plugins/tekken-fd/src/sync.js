@@ -107,11 +107,15 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl } = {})
     throw new Error(`index build failed, data restored: ${err.message}`);
   }
   await git(p.repoDir, "add", "--all", "--", rel, ...extras.map((x) => path.relative(p.repoDir, x.file)).filter((f) => fs.existsSync(path.join(p.repoDir, f))));
-  const subject = `data: wavu sync ${syncedAt.slice(0, 10)} (${changes.length} chars changed)`;
+  const changedSources = extras.filter((x) => x.changed).map((x) => x.name.split(" ")[0]);
+  const subject = changes.length
+    ? `data: wavu sync ${syncedAt.slice(0, 10)} (${changes.length} chars changed${changedSources.length ? ` + ${changedSources.join(", ")}` : ""})`
+    : `data: sources sync ${syncedAt.slice(0, 10)} (${changedSources.join(", ")})`;
   await git(p.repoDir, "commit", "--quiet", "-m", subject, "-m", summarize(changes, 100));
   const commit = await git(p.repoDir, "rev-parse", "--short", "HEAD");
   const revertHint = warn ? `\nTo undo: git revert ${commit}, then /fd_rebuild.` : "";
-  return { changed: true, changes, totals, commit, audit, digest, message: withWarn(`Synced ${totals.moves} moves. ${changes.length} character(s) changed: ${summarize(changes)}. Commit ${commit}.`) + revertHint };
+  const what = changes.length ? `${changes.length} character(s) changed: ${summarize(changes)}.` : "Frame data unchanged.";
+  return { changed: true, changes, totals, commit, audit, digest, message: withWarn(`Synced ${totals.moves} moves. ${what} Commit ${commit}.`) + revertHint };
 }
 
 export async function lastDataCommit(repoDir, dataDir) {
