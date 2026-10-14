@@ -9,6 +9,7 @@ import { formatMatchup } from "../matchup.js";
 import { ProgressBoard } from "../progress.js";
 import { chatIdFrom, editMessageText, isChatMember, memberDisplayName, sendMessage } from "../telegram.js";
 import { guideCoverage } from "../guides.js";
+import { parseCoachTarget } from "./commands.js";
 import { readState, writeState } from "../watcher.js";
 import { renderGuide } from "./render.js";
 
@@ -174,7 +175,6 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
   function registerCommands() {
     const register = (name, description, handler) => api.registerCommand({ name, description, acceptsArgs: true, requireAuth: true, requiredScopes: ["operator.admin"], handler: ownerOnly(handler) });
     register("coach_dossier", "Owner: inspect the raw coach dossier", async (ctx) => {
-      const { parseCoachTarget } = await import("./commands.js");
       const target = parseCoachTarget(ctx.args, index.characters().map((c) => c.name), {});
       if (target.error) return { text: target.error };
       const d = coach.dossier({ ...target, language: "en", level: "mid" });
@@ -203,6 +203,44 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       const raw = response.text;
       return { text: `Probe: ${Date.now() - started}ms · ${String(raw).length} characters · execution owner ${response.execution?.owner ?? "unreported"} · JSON ${JSON.parse(raw).ok === true ? "ok" : "unexpected"}` };
     }));
+    // Owner test run: generate listed guides in the background and post them to the owner's DM as members
+    // would see them. Works from Telegram or `openclaw agent --message "/coach_test …"`.
+    register("coach_test", "Owner: generate test guides to your DM (vs reina; jin vs reina --lang en)", async (ctx) => {
+      const raw = String(ctx.args ?? "");
+      const opts = raw.match(/--(?:lang|level)\s+\S+/gi)?.join(" ") ?? "";
+      const specs = raw.replace(/--(?:lang|level)\s+\S+/gi, "").split(/[;\n]/).map((x) => x.trim()).filter(Boolean);
+      if (!specs.length || specs.length > 10) return { text: "Use /coach_test vs reina; jin vs reina [--lang en|ru] [--level mid|high] (1–10 guides)." };
+      const names = index.characters().map((c) => c.name);
+      const targets = [];
+      for (const spec of specs) {
+        const t = parseCoachTarget(`${spec} ${opts}`, names, {});
+        if (t.error) return { text: `${spec}: ${t.error}` };
+        targets.push(t);
+      }
+      const owner = [...admins()][0];
+      if (!owner) return { text: "No owner chat configured." };
+      if (warming) return { text: "⏳ Coach warm/test already running." };
+      warming = true;
+      (async () => {
+        try {
+          for (let i = 0; i < targets.length; i++) {
+            const target = preferences(owner, targets[i]);
+            await sendMessage(owner, `🧪 Test ${i + 1}/${targets.length}: ${title(target)} (${target.language}, ${target.level}) — generating…`);
+            let result;
+            try { result = await coach.generate(target, { userId: owner, admin: true }); }
+            catch (err) { await sendMessage(owner, `❌ ${title(target)}: ${err.message}`); continue; }
+            const note = result.fallback ? `⚠️ Fallback: ${result.reason}` : `✅ ${result.cached ? "cached" : `generated in ${Math.round((result.latencyMs ?? 0) / 1000)}s`}`;
+            await sendMessage(owner, `${title(target)}: ${note}`);
+            const buttons = result.key ? coachButtons(result.key, target, owner) : [];
+            for (let j = 0; j < result.parts.length; j++) await sendHtml(owner, null, result.parts[j], { buttons: j === 0 ? buttons : [], askerId: String(owner), askerOnly: true });
+          }
+          await sendMessage(owner, `🧪 Coach test finished: ${targets.length} guide(s).`);
+        } catch (err) {
+          api.logger?.warn?.(`coach test failed: ${err.message}`);
+        } finally { warming = false; }
+      })();
+      return { text: `Started ${targets.length} test guide(s); they will arrive in the owner's Telegram DM.` };
+    });
     // Own lock: warming can take up to an hour and must not block /fd_sync, /fd_rebuild or /fd_check.
     register("coach_warm", "Owner: pre-generate clan mains (only on command)", async (ctx) => {
       if (String(ctx.args).trim() !== "mains") return { text: "Use /coach_warm mains." };

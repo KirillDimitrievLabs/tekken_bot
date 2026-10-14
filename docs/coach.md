@@ -16,6 +16,7 @@ the plugin stores no provider credentials.
 * `!tips vs reina` / `!mytips`: approved advice and your submissions.
 * Owner: `/coach_dossier Reina`, `/coach_status`, `/tips_queue`, `/coach_warm mains`.
 * Owner: `/coach_probe` is an optional one-call runtime smoke test, never a benchmark.
+* Owner: `/coach_test vs reina; jin vs reina --lang en` generates up to ten guides in the background and posts them to the owner DM (also from `openclaw agent --message`).
 
 ## Information supplied with every prompt
 

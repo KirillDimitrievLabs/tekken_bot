@@ -288,6 +288,10 @@
     "description": "Owner: generate guides for clan mains"
   },
   {
+    "command": "coach_test",
+    "description": "Owner: generate test guides to your DM"
+  },
+  {
     "command": "tips_queue",
     "description": "Owner: approve, edit or reject clan tips"
   }
