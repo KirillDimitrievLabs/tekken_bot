@@ -95,15 +95,3 @@ up to two `general_knowledge` items from its own Tekken 8 knowledge: a known gam
 mechanic the data does not cover. They obey the same rules (no numbers, only supplied move ids) and
 are shown under "⚠️ General knowledge (unverified)". For rich characters the field must be empty.
 
-## Ranked matchup statistics
-
-`/meta_build [days]` (owner, default 7, max 30) scans Wavu Wank's ranked replay API for the current
-game version, one request per second (about 123 requests per day of data), maps character ids through
-the per-character leaderboards (fetched first; only those players are tracked, to keep memory small), and commits aggregated counts only to `data/wank/t8-matchups.json`
-(no player ids or names). It shares the `/fd_sync` lock and pushes like a sync. CLI: `bin/fd.mjs meta 7`.
-
-Bands use replay rank ids 0–36: all ranks, Tekken King+ (both players ≥ 26) and God of Destruction
-(≥ 30). Win rates are shown from 150 games and called reliable from 500; a rating-adjusted value
-(actual result minus the Glicko expectation from both players' ratings) is stored alongside. Guides
-print the numbers in a header line; the model may only describe them in words (favourable / even /
-hard) and must note that ranked results also reflect player skill and popularity.

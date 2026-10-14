@@ -26,7 +26,6 @@ import { chatIdFrom, deleteMessage, editMessageText, memberName, sendMessage, se
 import { headCommit, lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { ProgressBoard, SYNC_STEPS } from "./src/progress.js";
 import { pushAndWait, pushStatusLine } from "./src/push.js";
-import { buildMeta, META_STEPS } from "./src/meta.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 import { createCoachTransport } from "./src/coach/transport.js";
 
@@ -631,33 +630,6 @@ export default {
       board.flush(true);
       return board;
     }
-
-    api.registerCommand({
-      name: "meta_build",
-      description: "Owner: build ranked matchup win rates from Wavu Wank replays (args: days, default 7)",
-      acceptsArgs: true,
-      requireAuth: true,
-      requiredScopes: ["operator.admin"],
-      // git writes like /fd_sync, so it shares the sync lock (about 15–25 min for 7 days)
-      handler: ownerOnly((ctx) => exclusive("meta build", async () => {
-        const days = Math.min(30, Math.max(1, Number.parseInt(String(ctx.args ?? "").trim(), 10) || 7));
-        const board = syncBoard(ctx, false, { title: `📊 Ranked matchup stats · ${days} day(s)`, steps: META_STEPS });
-        let r;
-        try {
-          r = await buildMeta(p.repoDir, characterNames(), { days, progress: board });
-        } catch (err) {
-          board.skipRest();
-          await board.finish(`❌ Failed: ${err.message}`);
-          throw err;
-        }
-        coachTransport.coach.invalidate();
-        board.update("push", "run", "waiting for the push service");
-        const pushed = await pushAndWait(p.repoDir, await headCommit(p.repoDir));
-        board.update("push", pushed.state, pushed.detail);
-        await board.finish(board.steps.some((s) => s.state === "fail" || s.state === "warn") ? "⚠️ Done with warnings — see above." : "✅ Done.");
-        return { text: r.message };
-      })),
-    });
 
     api.registerCommand({
       name: "fd_rebuild",

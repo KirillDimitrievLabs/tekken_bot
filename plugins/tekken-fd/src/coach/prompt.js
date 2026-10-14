@@ -1,6 +1,6 @@
 import { COUNTER_STYLE, MATCHUP_STYLE } from "./examples/style.js";
 
-export const PROMPT_VERSION = "coach-prompt-v1.2.0";
+export const PROMPT_VERSION = "coach-prompt-v1.3.0";
 
 const COMMON_SCHEMA = {
   summary: "Short specific plan; two or three sentences",
@@ -44,7 +44,6 @@ Include at least the required number of distinct evidence-backed string/low esca
 Each list has at most seven entries. Each prose field is at most nine hundred characters; summary at most six hundred. Use no filler such as 'be patient', 'play smart', 'just block', or motivational text. Each item states a situation, an action and a practical result.
 Only cite supplied guide IDs and tip IDs. Do not invent sources, clan reviews or evaluation scores.
 If coverage is sparse, use low confidence and explicitly state missing evidence in gaps. Missing Heat, string or spacing evidence is a gap, not an invitation to improvise.
-Ranked-stats (when present) are context, not knowledge: you may say in words that a matchup or character is statistically favourable, even or hard, using the supplied verdict, and note that ranked results also reflect player skill. Never write the percentages or game counts; the renderer prints them. Omit stats marked small sample unless you say the sample is small.
 general_knowledge: when REQUIRED COVERAGE says generalKnowledge.allowed is true (the written guides for at least one character are thin), you may add at most generalKnowledge.max items from your own Tekken 8 knowledge that the supplied data does not cover: a character's well-known gameplan, habits, key stance or mechanic. Each item must be specific, must not contradict the dossier, must not contain numbers, and may cite only supplied [[move-id]] tokens. Players see these marked as unverified. When not allowed, return an empty array. Never put general knowledge in any other field.
 Return one JSON object only, with all required keys and no extra keys, markdown or commentary.`;
 

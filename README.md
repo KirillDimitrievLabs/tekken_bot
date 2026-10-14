@@ -90,7 +90,6 @@ Restart the gateway after plugin code changes: `docker compose -f /opt/openclaw/
 | `data/tekkendocs/t8-tags.json` | [TekkenDocs](https://tekkendocs.com) API | second source for homing / step (SSL/SSR/SWL/SWR) / duckable / tornado tags |
 | `data/wavu/t8-guides.json` | Wavu counterplay / strategy / tech pages | grounded coach prose and matchup-specific community knowledge |
 | `data/tips/t8-tips.json` | Admin-approved clan submissions | credited clan advice (display names only) |
-| `data/wank/t8-matchups.json` | [Wavu Wank](https://wank.wavu.wiki) ranked replay API, via `/meta_build` | aggregated ranked matchup win rates (no player data) |
 
 Every sync keeps a source's previous file if a fetch comes back (nearly) empty, writes stable sorted JSON,
 commits the change, rebuilds the index and lists which sources changed. The daily watcher reports edits to

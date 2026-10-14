@@ -107,26 +107,6 @@ function footer(dossier, guide) {
   return authors.length ? `<i>${en ? "Clan tips" : "Советы клана"}: ${authors.map(esc).join(", ")}.</i>` : "";
 }
 
-/** Ranked win-rate line, printed by code from the stats snapshot (the model never writes these numbers). */
-export function rankedHtml(dossier) {
-  const r = dossier.rankedStats;
-  if (!r) return "";
-  const en = getLang(dossier) === "en";
-  const pct = (x) => `${Math.round(x * 100)}%`;
-  const n = (x) => x.toLocaleString(en ? "en" : "ru");
-  const band = (b) => ({ king: "Tekken King+", god: "God of Destruction", all: en ? "all ranks" : "все ранги" })[b] ?? b;
-  const small = (x) => (x.reliable ? "" : en ? ", small sample" : ", мало игр");
-  const period = `${en ? "patch" : "патч"} ${r.gameVersion}`;
-  if (r.mode === "matchup") {
-    const adj = r.adjusted != null ? `; ${en ? "rating-adjusted" : "с поправкой на рейтинг"} ${pct(r.adjusted)}` : "";
-    return `📊 ${en ? "Ranked" : "Рейтинговые игры"} (${band(r.band)}, ${period}): ${esc(r.as)} ${en ? "wins" : "побеждает в"} ${pct(r.winRate)} ${en ? "of" : "из"} ${n(r.games)} ${en ? "games vs" : "игр против"} ${esc(r.opponent)}${adj}${small(r)}`;
-  }
-  const bits = [];
-  if (r.overall) bits.push(`${esc(r.opponent)} ${en ? "wins" : "побеждает в"} ${pct(r.overall.winRate)} ${en ? "of" : "из"} ${n(r.overall.games)} ${en ? "games" : "игр"} (${band(r.overall.band)}${small(r.overall)})`);
-  if (r.worst?.length) bits.push(`${en ? `hardest for ${esc(r.opponent)}` : `сложнее всего против`}: ${r.worst.map((x) => `${esc(x.against)} (${en ? "wins" : "побеждает в"} ${pct(1 - x.winRate)})`).join(", ")}`);
-  return bits.length ? `📊 ${en ? "Ranked" : "Рейтинговые игры"}, ${period}: ${bits.join(" · ")}` : "";
-}
-
 /** Render only a successfully validated guide. HTML is escaped before adding trusted tags. */
 export function renderGuide(index, guide, dossier, { model = "unknown", createdAt = new Date().toISOString(), section = "all" } = {}) {
   const en = getLang(dossier) === "en";
@@ -135,8 +115,6 @@ export function renderGuide(index, guide, dossier, { model = "unknown", createdA
   const confidence = en ? guide.confidence : ({ high: "высокая", medium: "средняя", low: "низкая" }[guide.confidence] ?? guide.confidence);
   const lines = [`🎓 <b>${esc(title)}</b> · ${esc(String(model).replace(/^openai\//, ""))} · ${esc(date)} · ${en ? "confidence" : "уверенность"}: ${esc(confidence)}`];
   const selected = SECTION[section] ?? section;
-  const ranked = rankedHtml(dossier);
-  if (selected === "all" && ranked) lines.push(`<i>${ranked}</i>`);
   if (selected === "all") lines.push(textHtml(index, dossier, guide.summary));
   const keys = selected === "all" ? ORDER : selected === "neutral" && dossier.mode === "matchup" ? ["gameplan", "your_best_tools"] : [selected];
   for (const key of keys) {

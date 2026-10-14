@@ -220,10 +220,8 @@ test("general knowledge: at most two unverified items for thin guides, none for 
   assert.equal(validateGuide({ ...structuredClone(guide), general_knowledge: [] }, dossier).ok, true);
 });
 
-test("renderer labels general knowledge as unverified and prints ranked stats from data", () => {
+test("renderer labels general knowledge as unverified", () => {
   const { dossier, guide, index } = fixture();
-  dossier.rankedStats = { mode: "matchup", as: "Kazuya", opponent: "Reina", gameVersion: 30202, band: "king", games: 12345, winRate: 0.462, adjusted: 0.48, reliable: true };
   const html = renderGuide(index, { ...guide, general_knowledge: ["Reina players like to stay in her stance."] }, dossier).join("\n");
   assert.match(html, /⚠️ General knowledge \(unverified\)/);
-  assert.match(html, /📊 Ranked \(Tekken King\+, patch 30202\): Kazuya wins 46% of 12,345 games vs Reina; rating-adjusted 48%/);
 });

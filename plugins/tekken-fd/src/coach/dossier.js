@@ -6,7 +6,6 @@ import { gapFacts } from "../gaps.js";
 import { bestPunishFor } from "../queries.js";
 import { strictKey } from "../notation.js";
 import { guideCoverage, selectGuides } from "../guides.js";
-import { BANDS, bestBand, matchupStat, verdict } from "../wank.js";
 
 export const DOSSIER_VERSION = "coach-dossier-v1";
 export const DOSSIER_LIMITS = Object.freeze({ rows: 12, characterChars: 42000, counterChars: 160000, matchupChars: 280000, guideChars: 80000 });
@@ -99,7 +98,7 @@ function punishLine(row) {
 }
 
 /** Build a bounded dossier from indexed facts, command-synced guides and approved tips. */
-export function buildDossier(index, { as = null, opponent, language = "ru", level = "mid", guides = {}, tips = [], stats = null } = {}) {
+export function buildDossier(index, { as = null, opponent, language = "ru", level = "mid", guides = {}, tips = [] } = {}) {
   if (!opponent) throw new Error("opponent is required");
   const known = new Set(index.characters().map((c) => c.name));
   if (!known.has(opponent) || (as && !known.has(as))) throw new Error("unknown coach character");
@@ -234,8 +233,6 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   }
   // Required facts survive source budgets and are explicit for both modes.
   blocks.push(`<data kind="required-answers">\n## Priority unsafe moves\n${requiredUnsafe.map(punishLine).join("\n")}\n## Evidence-backed low/string escapes\n${escapeAnswers.map((e) => `[[${e.move}]] · ${e.kind} · actions ${e.actions.join(",")} · ${e.answer ? `response candidate [[${e.answer}]] · ` : ""}${e.window != null ? `window ${e.window} · ` : ""}${e.kind === "string" ? stringFacts(allMap.get(e.move), facts.get(e.move)) : "crouch block; punish after block only if the indexed window and reach permit"}`).join("\n")}\n</data>`);
-  const rankedStats = rankedContext(stats, as, opponent, [...known]);
-  if (rankedStats) blocks.push(`<data kind="ranked-stats">\n${rankedLines(rankedStats).join("\n")}\n</data>`);
   // Full rows are tracked after category caps, so every extra source-linked move gets current facts.
   const fullFactIds = new Set([...blocks.join("\n").matchAll(/^\[\[([^\]]+)\]\][^\n]* · startup /gm)].map((m) => m[1]));
   // Source blocks are independently bounded; neither Wavu prose nor tips can close the data delimiter.
@@ -315,13 +312,13 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   const sources = [...new Map(includedGuides.map((s) => [s.page, { page: s.page, url: s.url, license: s.license, kind: s.kind }])).values()];
   const provenance = [...moves].map(([id, m]) => fingerprint(m, facts.get(id)));
   const tipsHash = hashOf(approved);
-  const hash = hashOf({ version: DOSSIER_VERSION, mode, as, opponent, language, level, text, provenance, tipsHash, rankedStats });
+  const hash = hashOf({ version: DOSSIER_VERSION, mode, as, opponent, language, level, text, provenance, tipsHash });
   // Model may add up to two clearly labelled general-knowledge items when the written guides are thin.
   const thin = characters.filter((c) => (coverageChars[c].includedLevel ?? coverageChars[c].level) !== "rich");
   const selectionOmissions = characters.flatMap((character) => guideSelection[character].report.omittedSections.map((s) => ({ character, ...s })));
   const globalOmissions = selected.filter((s) => !guideIds.includes(s.id)).map((s) => ({ id: s.id, page: s.page, kind: s.kind, reason: "aggregate-budget", characters: s.text.length }));
   return { version: DOSSIER_VERSION, mode, as, opponent, language, level, text, moves, characterNames: [...known].sort(),
-    rankedStats, generalKnowledge: { allowed: thin.length > 0, max: thin.length ? 2 : 0, thinCharacters: thin }, allowedIds: referencedIds, tips: approved.filter((t) => tipIds.includes(t.id)),
+    generalKnowledge: { allowed: thin.length > 0, max: thin.length ? 2 : 0, thinCharacters: thin }, allowedIds: referencedIds, tips: approved.filter((t) => tipIds.includes(t.id)),
     facts: new Map([...moves.keys()].map((id) => [id, facts.get(id)])), hash, tipsHash, coverage, dataVersion,
     requiredUnsafe, escapeAnswers, interactions, sections, guideIds, tipIds, sources, omittedSources: selectionOmissions.length + globalOmissions.length,
     guideSelection: Object.fromEntries(characters.map((c) => [c, guideSelection[c].report])), omittedGuideSections: [...selectionOmissions, ...globalOmissions],
@@ -329,40 +326,3 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
     truncated: omitted.length > 0 || selectionOmissions.length > 0 || selected.some((s) => s.truncated) || Object.values(sections).some((s) => s.available > s.rows) };
 }
 
-/**
- * Ranked win-rate context from the aggregated Wavu Wank snapshot (no player data). Matchup mode: A's
- * win rate against B. Counter mode: the opponent's overall win rate and its best/worst matchups.
- */
-function rankedContext(stats, as, opponent, names) {
-  if (!stats?.matchups) return null;
-  const period = { from: stats.from, to: stats.to, gameVersion: stats.gameVersion };
-  if (as) {
-    if (as === opponent) return null;
-    const s = bestBand(stats, as, opponent);
-    return s ? { mode: "matchup", as, opponent, ...period, ...s, verdict: verdict(s.winRate) } : null;
-  }
-  const overall = bestBand(stats, opponent);
-  let rows = [];
-  for (const band of ["king", "all"]) {
-    rows = names.filter((n) => n !== opponent).map((n) => ({ against: n, ...matchupStat(stats, opponent, n, band) })).filter((r) => r.reliable);
-    if (rows.length >= 6) { rows = rows.map((r) => ({ ...r, band })); break; }
-  }
-  rows.sort((a, b) => b.winRate - a.winRate);
-  if (!overall && !rows.length) return null;
-  return { mode: "counter", opponent, ...period, overall: overall ? { ...overall, verdict: verdict(overall.winRate) } : null,
-    best: rows.slice(0, 3), worst: rows.slice(-3).reverse() };
-}
-
-function rankedLines(r) {
-  const pct = (x) => `${(x * 100).toFixed(1)}%`;
-  const band = (b) => BANDS[b]?.label.en ?? b;
-  const head = `Ranked results, game version ${r.gameVersion}, ${String(r.from).slice(0, 10)} to ${String(r.to).slice(0, 10)}. Context only: these reflect player skill and popularity as well as the matchup. Describe them only in words; the renderer prints the numbers.`;
-  if (r.mode === "matchup") {
-    return [head, `${r.as} vs ${r.opponent} (${band(r.band)}): ${r.as} wins ${pct(r.winRate)} of ${r.games} games${r.adjusted != null ? `, ${pct(r.adjusted)} after adjusting for both players' ratings` : ""} → ${r.verdict}${r.reliable ? "" : " (small sample: say so or omit)"}.`];
-  }
-  const lines = [head];
-  if (r.overall) lines.push(`${r.opponent} overall (${band(r.overall.band)}): wins ${pct(r.overall.winRate)} of ${r.overall.games} games → ${r.overall.verdict}${r.overall.reliable ? "" : " (small sample)"}.`);
-  if (r.best.length) lines.push(`${r.opponent} does best against: ${r.best.map((x) => `${x.against} ${pct(x.winRate)} (${band(x.band)})`).join(", ")}.`);
-  if (r.worst.length) lines.push(`${r.opponent} struggles most against: ${r.worst.map((x) => `${x.against} ${pct(x.winRate)} (${band(x.band)})`).join(", ")}.`);
-  return lines;
-}
