@@ -126,3 +126,12 @@ test("help lists the coach commands and says which ones take time", async () => 
   assert.match(HELP_HTML, /⏳ <b>Takes time:<\/b>.*3–8 minutes/);
   assert.match(HELP_HTML, /Everything else answers in a second/);
 });
+
+test("/start is the Russian guide for clan members: commands, coach timing, how to improve the bot", async () => {
+  const { START_HTML } = await import("../src/bot.js");
+  const { isWellFormed, toPlain } = await import("../src/render.js");
+  const text = toPlain(START_HTML);
+  for (const s of ["в личку", "!fd казуя df1", "!vs рейна", "!coach казуя vs рейна", "⏳ 3–8 минут", "!tip vs рейна", "👍 / 👎 / ⚠️", "!coachlang ru", "!help"]) assert.ok(text.includes(s), s);
+  assert.ok(isWellFormed(START_HTML));
+  assert.ok(text.length < 4000);
+});

@@ -13,7 +13,7 @@ import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { AliasStore, parseAliasReply } from "./src/aliases.js";
 import { isHelpCommand } from "./src/fastpath.js";
-import { createBot, HELP_HTML, MENTION_PATTERN } from "./src/bot.js";
+import { createBot, HELP_HTML, MENTION_PATTERN, START_HTML } from "./src/bot.js";
 import { MoveAliasStore } from "./src/nicknames.js";
 import { Mains } from "./src/mains.js";
 import { makeQuestion, Quiz, questionHtml, REVEAL_AFTER_MS } from "./src/quiz.js";
@@ -309,7 +309,8 @@ export default {
         // 2) /start and /help
         if (isHelpCommand(body) && (isPublic || !isAdmin)) {
           stats.record("help");
-          return done(await answer(event, ctx, HELP_HTML));
+          // /start: the Russian guide for clan members; /help: the command list
+          return done(await answer(event, ctx, /^\s*\/start/i.test(String(body)) ? START_HTML : HELP_HTML));
         }
         // 3) bot commands
         const isMain = /^\s*!(?:main|ьфшт)(?=\s|$)/i.test(String(body));
@@ -691,7 +692,7 @@ export default {
     // Telegram command menus: everyone sees /start and /help; admins see the full list
     // (config/telegram-admin-commands.json) in their DM and in configured groups.
     const PUBLIC_COMMANDS = [
-      { command: "start", description: "How to use the frame data bot" },
+      { command: "start", description: "Как пользоваться ботом" },
       { command: "help", description: "All commands with examples (!fd, !punish, !mu, !quiz …)" },
     ];
     async function syncCommandMenus() {

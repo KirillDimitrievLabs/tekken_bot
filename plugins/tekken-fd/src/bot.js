@@ -8,7 +8,7 @@ import { formatMatchup } from "./matchup.js";
 import { fixLayout } from "./nicknames.js";
 import { filterHelp, formatHeat, formatList, formatPunish, formatUnsafe, formatWall, minus, resolveFilter } from "./queries.js";
 import { questionHtml, makeQuestion } from "./quiz.js";
-import { b, cardHtml, code, mk, esc, LEGEND_HTML } from "./render.js";
+import { b, cardHtml, code, details, mk, esc, LEGEND_HTML } from "./render.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 import { formatThrows } from "./throws.js";
 import { formatWhiff } from "./whiff.js";
@@ -86,6 +86,49 @@ HELP.mytips = HELP.tip;
 HELP.top = HELP.quiz;
 HELP.wall = HELP.heat;
 HELP.mains = HELP.main;
+
+/** /start: how clan members use the bot and help improve it (Russian, private chat). */
+export const START_HTML = [
+  `🤖 ${b("Бот с фреймдатой Tekken 8 и тренер по матчапам")}`,
+  "Пишите боту в личку. Команды начинаются с «!». Русская раскладка работает (!ав = !fd), персонажей можно писать по-русски и прозвищами: казуя, рейна, фенг, кинг.",
+  "",
+  `📋 ${b("Фреймдата — отвечает сразу")}`,
+  `${code("!fd казуя df1")} — карточка приёма: стартап, блок, хит, урон`,
+  `${code("!punish рейна -13")} — чем наказывать на −13`,
+  `${code("!unsafe джин")} — что у персонажа наказуемо на блоке`,
+  `${code("!mu ларс vs джин")} — чем ваш персонаж наказывает его приёмы`,
+  `${code("!beat казуя df+2 as ларс")} — как отвечать на конкретный приём`,
+  `${code("!main рейна")} — запомнить вашего мейна, тогда персонажа можно не писать: ${code("!punish -13")}`,
+  details([
+    `${code("!list стив low")} — приёмы по свойству (low, homing, launcher, pc, heat…)`,
+    `${code("!gaps джин")} · ${code("!ss казуя")} · ${code("!whiff казуя df+2 as ларс")} — дыры в строках, сайдстеп, наказание промахов`,
+    `${code("!throws кинг")} · ${code("!heat рейна")} · ${code("!wall рейна")} — броски, Heat, стена`,
+    `${code("!quiz")} — викторина по фреймдате · ${code("!legend")} — что значат значки`,
+    "Несколько запросов в одном сообщении — через «;» или с новой строки.",
+  ].join("\n")),
+  "",
+  `🎓 ${b("Тренер — ⏳ 3–8 минут")}`,
+  `${code("!vs рейна")} — гайд «как играть против персонажа»: как он играет, стойки, опасные приёмы, наказания, защита, ошибки, тренировки`,
+  `${code("!coach казуя vs рейна")} — гайд по матчапу за вашего персонажа`,
+  details([
+    "Пока гайд пишется, бот показывает прогресс. Если такой гайд уже кто-то запрашивал, он придёт сразу.",
+    "Кнопки под гайдом переключают разделы в том же сообщении. «📖 Полный гайд» открывает весь гайд одной страницей.",
+    `${code("!coachlang ru")} — гайды на русском (по умолчанию английский) · ${code("!coachlevel mid")} — попроще (по умолчанию high)`,
+    "Лимит — 5 новых гайдов в день на человека, готовые гайды без ограничений.",
+    "Пункты «⚠️ Общие знания (не проверено)» — догадки модели, проверяйте их в практике.",
+  ].join("\n")),
+  "",
+  `🛠 ${b("Как сделать бота лучше")}`,
+  "• Оценивайте гайды кнопками 👍 / 👎 / ⚠️ — плохие и ошибочные гайды я перепроверю и перегенерирую.",
+  `• Делитесь опытом: ${code("!tip vs рейна: ваш совет")} — совет против персонажа, ${code("!tip казуя vs рейна #defense: ваш совет")} — совет для матчапа (20–400 символов). После одобрения админом совет попадает в гайды.`,
+  details([
+    "Темы советов: #defense #punish #neutral #pressure #wall #heat #oki (необязательно).",
+    `${code("!tips vs рейна")} — одобренные советы, голосуйте 👍 за полезные · ${code("!mytips")} — ваши советы и их статус`,
+    "Бот не понял приём? Он предложит варианты — нажмите правильный. Если вариантов нет, напишите мне, и я научу бота этому названию.",
+  ].join("\n")),
+  "",
+  `<i>Все команды с примерами: ${code("!help")} · ${code("!help vs")}</i>`,
+].join("\n");
 
 export const HELP_HTML = [
   `🤖 ${b("Tekken 8 frame data")}`,
