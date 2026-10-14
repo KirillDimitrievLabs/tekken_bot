@@ -87,3 +87,23 @@ configuration. The config script backs up the existing config and validates patc
 The owner must approve the configuration application and shared gateway restart under the
 pasted plan's instruction: “Ask the owner before any system-wide change.” Real OAuth runtime
 completion has not been claimed verified until activation and an explicit smoke call succeed.
+
+## General knowledge (unverified)
+
+When the written Wavu guides for a character in the request are thin (not "rich"), the model may add
+up to two `general_knowledge` items from its own Tekken 8 knowledge: a known gameplan, habit or
+mechanic the data does not cover. They obey the same rules (no numbers, only supplied move ids) and
+are shown under "⚠️ General knowledge (unverified)". For rich characters the field must be empty.
+
+## Ranked matchup statistics
+
+`/meta_build [days]` (owner, default 7, max 30) scans Wavu Wank's ranked replay API for the current
+game version, one request per second (about 123 requests per day of data), maps character ids through
+the per-character leaderboards, and commits aggregated counts only to `data/wank/t8-matchups.json`
+(no player ids or names). It shares the `/fd_sync` lock and pushes like a sync. CLI: `bin/fd.mjs meta 7`.
+
+Bands use replay rank ids 0–36: all ranks, Tekken King+ (both players ≥ 26) and God of Destruction
+(≥ 30). Win rates are shown from 150 games and called reliable from 500; a rating-adjusted value
+(actual result minus the Glicko expectation from both players' ratings) is stored alongside. Guides
+print the numbers in a header line; the model may only describe them in words (favourable / even /
+hard) and must note that ranked results also reflect player skill and popularity.

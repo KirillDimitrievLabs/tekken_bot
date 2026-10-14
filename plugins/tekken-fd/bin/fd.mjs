@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // Server-side CLI (same pipeline as the /fd_* commands):
-//   node bin/fd.mjs sync [--dry] [--force] | rebuild | check | audit
+//   node bin/fd.mjs sync [--dry] [--force] | meta [days] | rebuild | check | audit
 // Env: FD_REPO_DIR (default /opt/clan-bots), FD_STATE_DIR (default $OPENCLAW_STATE_DIR/tekken-fd)
 import fs from "node:fs";
 import path from "node:path";
 import { headCommit, paths, rebuild, sync } from "../src/sync.js";
 import { ProgressBoard, SYNC_STEPS } from "../src/progress.js";
 import { pushAndWait } from "../src/push.js";
+import { buildMeta, META_STEPS } from "../src/meta.js";
 import { readSnapshots } from "../src/snapshot.js";
 import { auditSnapshots, summarizeAudit } from "../src/audit.js";
 import { checkOnce, writeState } from "../src/watcher.js";
@@ -37,6 +38,14 @@ try {
   } else if (cmd === "rebuild") {
     const r = rebuild(p);
     console.log(`Index rebuilt: ${r.moves} moves, ${r.characters} characters → ${p.dbPath}`);
+  } else if (cmd === "meta") {
+    const days = Number.parseInt(flags[0], 10) || 7;
+    const board = new ProgressBoard(`ranked matchup stats · ${days} day(s)`, META_STEPS, { minIntervalMs: 30_000, show: async (t) => console.error(`${t}\n`) });
+    const r = await buildMeta(repoDir, [...readSnapshots(p.dataDir).keys()], { days, progress: board });
+    const pushed = await pushAndWait(repoDir, await headCommit(repoDir));
+    board.update("push", pushed.state, pushed.detail);
+    await board.finish("");
+    console.log(r.message);
   } else if (cmd === "audit") {
     const r = auditSnapshots(readSnapshots(p.dataDir));
     console.log(summarizeAudit(r, 50) || `✅ No unparsed markup in ${r.moves} moves.`);
@@ -45,7 +54,7 @@ try {
     const r = await checkOnce({ statePath: p.statePath, characters, ownerChatId: null });
     console.log(r.characters.length ? `Edited since ${r.since}: ${r.characters.join(", ")}` : `No edits since ${r.since}`);
   } else {
-    console.log("usage: fd.mjs sync [--dry] [--force] | rebuild | check | audit");
+    console.log("usage: fd.mjs sync [--dry] [--force] | meta [days] | rebuild | check | audit");
     process.exitCode = cmd === "help" ? 0 : 2;
   }
 } catch (err) {

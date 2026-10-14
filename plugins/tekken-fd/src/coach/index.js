@@ -5,6 +5,7 @@ import { CoachCache, cacheKey } from "./cache.js";
 import { buildPrompt, PROMPT_VERSION } from "./prompt.js";
 import { validateGuide } from "./validate.js";
 import { renderGuide, renderFallback } from "./render.js";
+import { readStats, statsPath } from "../meta.js";
 
 const read = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return {}; } };
 const DOSSIER_MEMO = 24;
@@ -36,17 +37,16 @@ export class Coach {
    */
   dossier(target) {
     const tips = this.tips?.approved(target.as, target.opponent) ?? [];
-    let guidesStamp = 0;
-    try { guidesStamp = fs.statSync(this.guidesFile()).mtimeMs; } catch { /* no guides yet */ }
+    const stamp = (file) => { try { return fs.statSync(file).mtimeMs; } catch { return 0; } };
     const key = JSON.stringify([target.as ?? null, target.opponent, target.language ?? null, target.level ?? null,
-      this.index.meta?.()?.syncedAt ?? "", guidesStamp, tips]);
+      this.index.meta?.()?.syncedAt ?? "", stamp(this.guidesFile()), stamp(statsPath(this.repoDir)), tips]);
     const hit = this.dossiers.get(key);
     if (hit) {
       this.dossiers.delete(key); // LRU: move to the end
       this.dossiers.set(key, hit);
       return hit;
     }
-    const built = buildDossier(this.index, { ...target, guides: this.guides(), tips });
+    const built = buildDossier(this.index, { ...target, guides: this.guides(), tips, stats: readStats(this.repoDir) });
     this.dossiers.set(key, built);
     while (this.dossiers.size > DOSSIER_MEMO) this.dossiers.delete(this.dossiers.keys().next().value);
     return built;

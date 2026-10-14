@@ -26,7 +26,7 @@ function fixture(mode = "matchup") {
     heat_and_wall: "Heat and wall evidence is missing; test the cited punish at the wall.",
     common_mistakes: ["Using a punish without checking reach."],
     lab_drill: [`Record [[${threats[0]}]] and its stop option; shuffle and practice the punish.`],
-    confidence: "medium", gaps: ["Reach has not been verified."], used_tips: ["t_0042"], used_guides: ["Reina counterplay#Defense"],
+    confidence: "medium", gaps: ["Reach has not been verified."], used_tips: ["t_0042"], used_guides: ["Reina counterplay#Defense"], general_knowledge: [],
   };
   if (mode === "matchup") Object.assign(guide, { gameplan: "Play at the range where the cited punish reaches.", your_best_tools: [{ move: `[[${standing}]]`, why: "The forward punish table supplies this answer." }], stop_doing: [{ move: `[[${standing}]]`, why: `The reverse table supplies [[${threats[0]}]].` }] });
   else Object.assign(guide, { neutral: "Wait for a whiff at the spacing you tested.", lows: [] });
@@ -206,4 +206,24 @@ test("Russian sidestep/sidewalk phrasing in any verb form is recognised", () => 
   for (const [text, action] of [["шагните вправо", "SSR"], ["шагом влево", "SSL"], ["степом вправо", "SSR"], ["обходите влево", "SWL"], ["обходом вправо", "SWR"]]) {
     assert.ok(ACTIONS[action].test(text), text);
   }
+});
+
+test("general knowledge: at most two unverified items for thin guides, none for rich, no numbers", () => {
+  const { dossier, guide } = fixture();
+  const items = ["Reina players like to stay in her stance after blocked strings.", "She often ends pressure with a low; expect it after plus frames.", "A third point."];
+  dossier.generalKnowledge = { allowed: true, max: 2 };
+  assert.equal(validateGuide({ ...structuredClone(guide), general_knowledge: items.slice(0, 2) }, dossier).ok, true);
+  assert.match(validateGuide({ ...structuredClone(guide), general_knowledge: items }, dossier).errors.join(";"), /at most 2/);
+  assert.match(validateGuide({ ...structuredClone(guide), general_knowledge: ["Her df+2 is minus 13."] }, dossier).errors.join(";"), /numeric prose/);
+  dossier.generalKnowledge = { allowed: false, max: 0 };
+  assert.match(validateGuide({ ...structuredClone(guide), general_knowledge: items.slice(0, 1) }, dossier).errors.join(";"), /must be empty/);
+  assert.equal(validateGuide({ ...structuredClone(guide), general_knowledge: [] }, dossier).ok, true);
+});
+
+test("renderer labels general knowledge as unverified and prints ranked stats from data", () => {
+  const { dossier, guide, index } = fixture();
+  dossier.rankedStats = { mode: "matchup", as: "Kazuya", opponent: "Reina", gameVersion: 30202, band: "king", games: 12345, winRate: 0.462, adjusted: 0.48, reliable: true };
+  const html = renderGuide(index, { ...guide, general_knowledge: ["Reina players like to stay in her stance."] }, dossier).join("\n");
+  assert.match(html, /⚠️ General knowledge \(unverified\)/);
+  assert.match(html, /📊 Ranked \(Tekken King\+, patch 30202\): Kazuya wins 46% of 12,345 games vs Reina; rating-adjusted 48%/);
 });

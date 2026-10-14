@@ -5,10 +5,10 @@ import { refsOf } from "./validate.js";
 
 export const esc = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const TITLES = {
-  en: { gameplan: "Gameplan", your_best_tools: "Your best tools", stop_doing: "Stop doing", key_threats: "Key threats", defense: "Defense", punish: "Punish", lows: "Lows", their_turn: "Their turn", neutral: "Neutral", heat_and_wall: "Heat / wall", common_mistakes: "Common mistakes", lab_drill: "Lab drill", gaps: "Evidence gaps" },
-  ru: { gameplan: "План на матч", your_best_tools: "Ваши лучшие инструменты", stop_doing: "От чего отказаться", key_threats: "Главные угрозы", defense: "Защита", punish: "Наказание", lows: "Лоу", their_turn: "Ход соперника", neutral: "Нейтрал", heat_and_wall: "Heat / стена", common_mistakes: "Частые ошибки", lab_drill: "Тренировка", gaps: "Пробелы в данных" },
+  en: { gameplan: "Gameplan", your_best_tools: "Your best tools", stop_doing: "Stop doing", key_threats: "Key threats", defense: "Defense", punish: "Punish", lows: "Lows", their_turn: "Their turn", neutral: "Neutral", heat_and_wall: "Heat / wall", common_mistakes: "Common mistakes", lab_drill: "Lab drill", general_knowledge: "⚠️ General knowledge (unverified)", gaps: "Evidence gaps" },
+  ru: { gameplan: "План на матч", your_best_tools: "Ваши лучшие инструменты", stop_doing: "От чего отказаться", key_threats: "Главные угрозы", defense: "Защита", punish: "Наказание", lows: "Лоу", their_turn: "Ход соперника", neutral: "Нейтрал", heat_and_wall: "Heat / стена", common_mistakes: "Частые ошибки", lab_drill: "Тренировка", general_knowledge: "⚠️ Общие знания (не проверено)", gaps: "Пробелы в данных" },
 };
-const ORDER = ["gameplan", "your_best_tools", "stop_doing", "key_threats", "defense", "punish", "lows", "their_turn", "neutral", "heat_and_wall", "common_mistakes", "lab_drill", "gaps"];
+const ORDER = ["gameplan", "your_best_tools", "stop_doing", "key_threats", "defense", "punish", "lows", "their_turn", "neutral", "heat_and_wall", "common_mistakes", "lab_drill", "general_knowledge", "gaps"];
 const SECTION = { heat: "heat_and_wall", wall: "heat_and_wall", drill: "lab_drill" };
 const getLang = (dossier) => dossier.language === "en" ? "en" : "ru";
 // sendHtml() falls back to truncated plain text above 4000 visible characters; raw HTML is
@@ -107,6 +107,26 @@ function footer(dossier, guide) {
   return authors.length ? `<i>${en ? "Clan tips" : "Советы клана"}: ${authors.map(esc).join(", ")}.</i>` : "";
 }
 
+/** Ranked win-rate line, printed by code from the stats snapshot (the model never writes these numbers). */
+export function rankedHtml(dossier) {
+  const r = dossier.rankedStats;
+  if (!r) return "";
+  const en = getLang(dossier) === "en";
+  const pct = (x) => `${Math.round(x * 100)}%`;
+  const n = (x) => x.toLocaleString(en ? "en" : "ru");
+  const band = (b) => ({ king: "Tekken King+", god: "God of Destruction", all: en ? "all ranks" : "все ранги" })[b] ?? b;
+  const small = (x) => (x.reliable ? "" : en ? ", small sample" : ", мало игр");
+  const period = `${en ? "patch" : "патч"} ${r.gameVersion}`;
+  if (r.mode === "matchup") {
+    const adj = r.adjusted != null ? `; ${en ? "rating-adjusted" : "с поправкой на рейтинг"} ${pct(r.adjusted)}` : "";
+    return `📊 ${en ? "Ranked" : "Рейтинговые игры"} (${band(r.band)}, ${period}): ${esc(r.as)} ${en ? "wins" : "побеждает в"} ${pct(r.winRate)} ${en ? "of" : "из"} ${n(r.games)} ${en ? "games vs" : "игр против"} ${esc(r.opponent)}${adj}${small(r)}`;
+  }
+  const bits = [];
+  if (r.overall) bits.push(`${esc(r.opponent)} ${en ? "wins" : "побеждает в"} ${pct(r.overall.winRate)} ${en ? "of" : "из"} ${n(r.overall.games)} ${en ? "games" : "игр"} (${band(r.overall.band)}${small(r.overall)})`);
+  if (r.worst?.length) bits.push(`${en ? `hardest for ${esc(r.opponent)}` : `сложнее всего против`}: ${r.worst.map((x) => `${esc(x.against)} (${en ? "wins" : "побеждает в"} ${pct(1 - x.winRate)})`).join(", ")}`);
+  return bits.length ? `📊 ${en ? "Ranked" : "Рейтинговые игры"}, ${period}: ${bits.join(" · ")}` : "";
+}
+
 /** Render only a successfully validated guide. HTML is escaped before adding trusted tags. */
 export function renderGuide(index, guide, dossier, { model = "unknown", createdAt = new Date().toISOString(), section = "all" } = {}) {
   const en = getLang(dossier) === "en";
@@ -115,6 +135,8 @@ export function renderGuide(index, guide, dossier, { model = "unknown", createdA
   const confidence = en ? guide.confidence : ({ high: "высокая", medium: "средняя", low: "низкая" }[guide.confidence] ?? guide.confidence);
   const lines = [`🎓 <b>${esc(title)}</b> · ${esc(String(model).replace(/^openai\//, ""))} · ${esc(date)} · ${en ? "confidence" : "уверенность"}: ${esc(confidence)}`];
   const selected = SECTION[section] ?? section;
+  const ranked = rankedHtml(dossier);
+  if (selected === "all" && ranked) lines.push(`<i>${ranked}</i>`);
   if (selected === "all") lines.push(textHtml(index, dossier, guide.summary));
   const keys = selected === "all" ? ORDER : selected === "neutral" && dossier.mode === "matchup" ? ["gameplan", "your_best_tools"] : [selected];
   for (const key of keys) {

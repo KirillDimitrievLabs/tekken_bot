@@ -28,7 +28,7 @@ function cannedGuide(input) {
     lows: [], their_turn: "Respect [[Kazuya-1]] on block and check the followup in practice.", neutral: "Bait [[Kazuya-b+4]] outside its tested range.",
     heat_and_wall: "Heat and wall-specific options are missing from this snapshot.", common_mistakes: [],
     lab_drill: ["Record [[Kazuya-b+4]] and practice a standing block punish; vary the recording."], confidence: "low",
-    gaps: ["Community guides, exact reach and detailed strings are not indexed."], used_tips: [], used_guides: [],
+    gaps: ["Community guides, exact reach and detailed strings are not indexed."], used_tips: [], used_guides: [], general_knowledge: [],
   };
 }
 

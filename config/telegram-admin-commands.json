@@ -280,6 +280,10 @@
     "description": "Owner: coach coverage, cache and access status"
   },
   {
+    "command": "meta_build",
+    "description": "Owner: ranked matchup win rates (args: days, default 7)"
+  },
+  {
     "command": "coach_probe",
     "description": "Owner: test isolated coach completion"
   },

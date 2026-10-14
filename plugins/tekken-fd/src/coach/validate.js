@@ -137,6 +137,10 @@ export function validateGuide(raw, dossier) {
     if (Array.isArray(guide[field]) && new Set(guide[field]).size !== guide[field].length) errors.push(`${field}: duplicate source IDs`);
   }
   if (!Array.isArray(guide.lab_drill) || !guide.lab_drill.length) errors.push("lab_drill must contain a concrete practice instruction");
+  const gk = dossier.generalKnowledge ?? { allowed: false, max: 0 };
+  if (Array.isArray(guide.general_knowledge) && guide.general_knowledge.length > (gk.allowed ? gk.max : 0)) {
+    errors.push(gk.allowed ? `general_knowledge allows at most ${gk.max} items` : "general_knowledge must be empty: the written guides are rich enough");
+  }
 
   const punish = Array.isArray(guide.punish) ? guide.punish.filter(plain) : [];
   const computedPunishes = new Map([...(dossier.interactions?.I1 ?? []), ...(dossier.requiredUnsafe ?? [])].map((r) => [r.move, r]));

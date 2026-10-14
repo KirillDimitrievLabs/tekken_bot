@@ -11,7 +11,7 @@ const validGuide = () => ({
   their_turn: "Respect pressure where the dossier has no escape evidence.", neutral: "Test the spacing before committing.",
   heat_and_wall: "Heat and wall evidence is missing.", common_mistakes: ["Committing without checking spacing."],
   lab_drill: ["Record the cited threats and practice the supported answers."], confidence: "medium", gaps: ["Reach requires practice verification."],
-  used_tips: [], used_guides: [],
+  used_tips: [], used_guides: [], general_knowledge: [],
 });
 
 function temp(t, close = async () => {}) {
