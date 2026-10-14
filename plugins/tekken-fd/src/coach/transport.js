@@ -7,7 +7,8 @@ import { Tips } from "../tips.js";
 import { b, code, esc } from "../render.js";
 import { formatMatchup } from "../matchup.js";
 import { ProgressBoard } from "../progress.js";
-import { chatIdFrom, editMessageText, isChatMember, memberName, sendMessage } from "../telegram.js";
+import { chatIdFrom, editMessageText, isChatMember, memberDisplayName, sendMessage } from "../telegram.js";
+import { guideCoverage } from "../guides.js";
 import { readState, writeState } from "../watcher.js";
 import { renderGuide } from "./render.js";
 
@@ -17,6 +18,7 @@ const sections = [["🛡 Defense", "defense"], ["💥 Punish", "punish"], ["⚔�
 
 export function createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done, ownerOnly, exclusive }) {
   let coach;
+  let warming = false;
   let commitChain = Promise.resolve();
   const commitTip = ({ relativePath, message }) => {
     const action = async () => {
@@ -29,7 +31,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     commitChain = job.catch(() => {});
     return job;
   };
-  const tips = new Tips({ repoDir, stateDir, index, commit: commitTip, onChange: () => coach?.cache.invalidate() });
+  const tips = new Tips({ repoDir, stateDir, index, commit: commitTip, onChange: () => coach?.invalidate() });
   coach = new Coach({ index, repoDir, stateDir, tips, config: api.pluginConfig?.coach ?? {}, logger: api.logger,
     complete: api.runtime?.llm?.complete ? (input) => api.runtime.llm.complete(input) : null });
   const cfg = () => api.pluginConfig?.coach ?? {};
@@ -116,9 +118,10 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     if (r.kind === "coach") { await postGuide(preferences(userId, r.target), userId, chatId, event.messageId); return { handled: true }; }
     if (!await allowed(userId, chatId, { submissions: r.kind === "tip" })) return done(await answer(event, ctx, "Clan tips are available to clan members (admin preview until launch)."));
     if (r.kind === "tip") {
-      const name = await memberName(chatId, userId).catch(() => "Clan member");
+      // Approved tips are pushed to GitHub: credit the first/last name, never the @username or user id.
+      const name = await memberDisplayName(chatId, userId).catch(() => null);
       let tip;
-      try { tip = tips.draft({ ...r.tip, userId, author: /^\d+$/.test(name) ? "Clan member" : name, dataVersion: index.meta().syncedAt }); }
+      try { tip = tips.draft({ ...r.tip, userId, author: name || "Clan member", dataVersion: index.meta().syncedAt }); }
       catch (e) { return done(await answer(event, ctx, `❌ ${esc(e.message)}`)); }
       const detected = tip.detected?.map((m) => `${esc(m.input)} → ${esc(m.character)} ${code(m.key)}${m.startup ? ` (${esc(m.startup)}, ${esc(m.block ?? "?")})` : ""}`).join("\n");
       return done(await answer(event, ctx, `${tipHtml(tip)}${detected ? `\n\nI understood:\n${detected}` : "\nNo unambiguous move references detected; the admin will review the text."}`, { buttons: [[
@@ -183,7 +186,9 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       return { text: `Dossier ${d.hash.slice(0, 12)} · ${d.coverage.level} · ${d.moves.size} move references.` };
     });
     register("coach_status", "Owner: coach coverage, cache and rollout status", async () => {
-      const rows = index.characters().map(({ name }) => { const d = coach.dossier({ opponent: name, as: null, language: "en", level: "mid" }); return `${name}: ${d.coverage.characters[name]?.level ?? "sparse"}`; });
+      // Coverage comes straight from the guide snapshot; building 42 dossiers would block the bot for ~15 s.
+      const guides = coach.guides();
+      const rows = index.characters().map(({ name }) => `${name}: ${guideCoverage(guides[name]).level}`);
       return { text: [`Coach: ${cfg().enabled === true ? "enabled" : "disabled"} · ${cfg().access ?? "admins"}`, `Model: ${cfg().model ?? "openai/gpt-6.1-sol"} · high`, JSON.stringify(coach.cache.stats()), ...rows].join("\n") };
     });
     register("tips_queue", "Owner: pending clan tips, oldest first", async (ctx) => {
@@ -198,27 +203,35 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       const raw = response.text;
       return { text: `Probe: ${Date.now() - started}ms · ${String(raw).length} characters · execution owner ${response.execution?.owner ?? "unreported"} · JSON ${JSON.parse(raw).ok === true ? "ok" : "unexpected"}` };
     }));
-    register("coach_warm", "Owner: pre-generate clan mains (only on command)", async (ctx) => exclusive("coach warm", async () => {
+    // Own lock: warming can take up to an hour and must not block /fd_sync, /fd_rebuild or /fd_check.
+    register("coach_warm", "Owner: pre-generate clan mains (only on command)", async (ctx) => {
       if (String(ctx.args).trim() !== "mains") return { text: "Use /coach_warm mains." };
-      const jobs = new Map();
-      for (const group of clanGroups()) {
-        const roster = mains.roster(group);
-        for (const user of roster) for (const opponent of new Set(roster.map((u) => u.character))) {
-          if (user.character === opponent) continue;
-          const target = preferences(user.userId, { as: user.character, opponent });
-          jobs.set(JSON.stringify(target), target);
-        }
+      if (warming) return { text: "⏳ Coach warm already running." };
+      warming = true;
+      try { return await warmMains(ctx); }
+      catch (err) { return { text: `❌ coach warm failed: ${err.message}` }; }
+      finally { warming = false; }
+    });
+  }
+  async function warmMains(ctx) {
+    const jobs = new Map();
+    for (const group of clanGroups()) {
+      const roster = mains.roster(group);
+      for (const user of roster) for (const opponent of new Set(roster.map((u) => u.character))) {
+        if (user.character === opponent) continue;
+        const target = preferences(user.userId, { as: user.character, opponent });
+        jobs.set(JSON.stringify(target), target);
       }
-      const chatId = chatIdFrom(ctx.originatingTo ?? ctx.to) ?? String(ctx.senderId).replace(/^telegram:/, "");
-      let count = 0, failed = 0;
-      const uncached = [...jobs.values()].filter((target) => !coach.cache.get(coach.keyFor(target), { count: false }));
-      for (const target of uncached.slice(0, 30)) {
-        const result = await coach.generate(target, { userId: ctx.senderId, admin: true });
-        failed += Number(Boolean(result.fallback)); count++;
-        await sendMessage(chatId, `Warm ${count}/${Math.min(uncached.length, 30)}: ${title(target)} · ${result.fallback ? "fallback" : result.cached ? "cached" : "ready"}`);
-      }
-      return { text: `Warmed ${count} guide(s), ${failed} fallbacks.${uncached.length > 30 ? " Command cap 30; rerun for remaining uncached targets." : ""}` };
-    }));
+    }
+    const chatId = chatIdFrom(ctx.originatingTo ?? ctx.to) ?? String(ctx.senderId).replace(/^telegram:/, "");
+    let count = 0, failed = 0;
+    const uncached = [...jobs.values()].filter((target) => !coach.cache.get(coach.keyFor(target), { count: false }));
+    for (const target of uncached.slice(0, 30)) {
+      const result = await coach.generate(target, { userId: ctx.senderId, admin: true });
+      failed += Number(Boolean(result.fallback)); count++;
+      await sendMessage(chatId, `Warm ${count}/${Math.min(uncached.length, 30)}: ${title(target)} · ${result.fallback ? "fallback" : result.cached ? "cached" : "ready"}`);
+    }
+    return { text: `Warmed ${count} guide(s), ${failed} fallbacks.${uncached.length > 30 ? " Command cap 30; rerun for remaining uncached targets." : ""}` };
   }
   return { coach, tips, allowed, handle, action, handleAdminReply, registerCommands, notifyQueue, close: () => coach.close() };
 }

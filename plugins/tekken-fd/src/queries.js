@@ -127,7 +127,6 @@ export function formatPunish(index, character, frames) {
     `🥊 ${b(`${character} — punish ${minus(-frames)}`)}`,
     pick(st, "standing"), pick(cr, "crouching"), maxLine(st, "standing"), maxLine(cr, "crouching"),
     ...st.lines, ...cr.lines,
-    st.curated || cr.curated ? `<i>Source: Wavu “${esc(character)} punishers” (community picks).</i>` : null,
     PUNISH_LEGEND,
   ].filter(Boolean).join("\n");
 }

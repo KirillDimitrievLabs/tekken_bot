@@ -63,6 +63,13 @@ export async function memberName(chatId, userId, opts) {
   return u.username ? `@${u.username}` : [u.first_name, u.last_name].filter(Boolean).join(" ") || String(userId);
 }
 
+/** First/last name only — never the @username or the numeric id (safe to publish). */
+export async function memberDisplayName(chatId, userId, opts) {
+  const r = await call("getChatMember", { chat_id: chatId, user_id: Number(userId) }, opts);
+  const u = r?.user ?? {};
+  return [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || null;
+}
+
 /** Verify membership before authorizing subscription-backed coach calls in DMs. */
 export async function isChatMember(chatId, userId, opts) {
   const r = await call("getChatMember", { chat_id: chatId, user_id: Number(userId) }, opts);

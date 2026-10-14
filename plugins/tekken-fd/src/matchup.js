@@ -29,7 +29,7 @@ export function formatMatchup(index, a, bChar, threshold = -10) {
     ...block(`💥 Damage punish (${damage.length})`, damage),
     ...block(`❌ No punish fast enough (${none.length})`, none.length ? [none.join(" · ")] : []),
     moves.length ? "" : `${bChar} has nothing at ${minus(threshold)} or worse.`,
-    `<i>⭐ = ${esc(a)}'s community-picked punish (Wavu), otherwise computed from frame data.</i>`,
+    `<i>⭐ = ${esc(a)}'s community-picked punish, otherwise computed from frame data.</i>`,
     PUNISH_LEGEND,
   ].filter((x) => x !== "").join("\n");
 }

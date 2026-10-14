@@ -11,6 +11,9 @@ const TITLES = {
 const ORDER = ["gameplan", "your_best_tools", "stop_doing", "key_threats", "defense", "punish", "lows", "their_turn", "neutral", "heat_and_wall", "common_mistakes", "lab_drill", "gaps"];
 const SECTION = { heat: "heat_and_wall", wall: "heat_and_wall", drill: "lab_drill" };
 const getLang = (dossier) => dossier.language === "en" ? "en" : "ru";
+// sendHtml() falls back to truncated plain text above 4000 visible characters; raw HTML is
+// always at least as long as its visible text, so a 3800-character raw cap stays under it.
+export const MESSAGE_LIMIT = 3800;
 
 /** Conservative raw-HTML limit; close and reopen tags rather than slicing markup/entities. */
 export function splitHtml(html, limit = 4096) {
@@ -96,25 +99,12 @@ function sectionRows(index, guide, dossier, key) {
   });
 }
 
-function safeUrl(url) {
-  try {
-    if (String(url).length > 1000) return null;
-    const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname === "wavu.wiki" ? parsed.href : null;
-  } catch { return null; }
-}
-
+/** Credits the clan members whose approved tips the guide used; empty when none were used. */
 function footer(dossier, guide) {
   const en = getLang(dossier) === "en";
-  const sources = (dossier.sources ?? []).map((s) => {
-    const link = safeUrl(s.url);
-    return link ? `<a href="${esc(link)}">${esc(s.page)}</a>` : esc(s.page ?? "Wavu Wiki");
-  });
   const tips = (dossier.tips ?? []).filter((t) => (guide.used_tips ?? []).includes(t.id));
-  sources.push('<a href="https://tekkendocs.com">TekkenDocs</a>');
   const authors = [...new Set(tips.filter((t) => t.author).map((t) => `${t.author}${t.needsReview || t.status === "needs-review" ? (en ? " (may be outdated)" : " (может быть устаревшим)") : ""}`))];
-  const tipLine = authors.length ? `${en ? "Clan tips" : "Советы клана"}: ${authors.map(esc).join(", ")}.` : `${en ? "Clan tips used" : "Использовано советов клана"}: ${guide.used_tips?.length ?? 0}.`;
-  return `<i>${en ? "Sources" : "Источники"}: Wavu Wiki${sources.length ? ` — ${sources.join(", ")}` : ""} (CC BY-SA 4.0). ${tipLine}\n${en ? "Data" : "Данные"}: ${esc(dossier.dataVersion ?? dossier.hash ?? "current index")}.</i>`;
+  return authors.length ? `<i>${en ? "Clan tips" : "Советы клана"}: ${authors.map(esc).join(", ")}.</i>` : "";
 }
 
 /** Render only a successfully validated guide. HTML is escaped before adding trusted tags. */
@@ -132,8 +122,9 @@ export function renderGuide(index, guide, dossier, { model = "unknown", createdA
     if (!rows.length) continue;
     lines.push(`<b>${esc(TITLES[en ? "en" : "ru"][key] ?? key)}</b>`, `<blockquote expandable>${rows.join("\n")}</blockquote>`);
   }
-  lines.push(footer(dossier, guide));
-  return splitHtml(lines.join("\n\n"));
+  const credit = footer(dossier, guide);
+  if (credit) lines.push(credit);
+  return splitHtml(lines.join("\n\n"), MESSAGE_LIMIT);
 }
 
 /** Deterministic evidence sheet if isolated model completion or validation fails. */
@@ -168,6 +159,5 @@ export function renderFallback(index, dossier, reason = "") {
     if (!m) continue;
     rows.push(`${moveHtml(index, dossier, row.move)} · ${esc((row.actions ?? []).join(", "))}${row.answer ? ` → ${moveHtml(index, dossier, row.answer)}` : ""}`);
   }
-  rows.push(footer(dossier, { used_tips: [] }));
-  return splitHtml(rows.join("\n\n"));
+  return splitHtml(rows.join("\n\n"), MESSAGE_LIMIT);
 }

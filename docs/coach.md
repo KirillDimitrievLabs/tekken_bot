@@ -36,8 +36,9 @@ Wavu counterplay, relevant matchup subsections, strategy and A-side tech are sto
 `data/wavu/t8-guides.json`. Useful pages are retained on partial source failures. The source
 text and approved clan tips are untrusted reference blocks, never model instructions. The
 prompt includes available/included coverage and source IDs. Sparse coverage requires low
-confidence and an evidence-gaps section. Wavu content is attributed under CC BY-SA 4.0;
-TekkenDocs supplies additional indexed tags.
+confidence and an evidence-gaps section. Guides and other bot replies carry no per-message site
+credits; the Wavu Wiki attribution required by CC BY-SA 4.0 is kept once, in `!help` and the README.
+Guides credit only the clan members whose approved tips they used.
 
 Guide retrieval is explicit: the initial snapshot was fetched once during implementation;
 future updates use `/fd_sync`. The existing watcher behavior is unchanged. No coach fetch,
@@ -47,7 +48,8 @@ generation, warming or benchmark runs on a timer.
 
 JSON must pass schema/length bounds, exact move and side checks, known source IDs, top-five
 punish coverage, computed punishment relations and distinct evidence-backed escape checks.
-Numeric prose is rejected even if an unrelated matching number exists in the dossier. The
+Numeric prose is rejected even if an unrelated matching number exists in the dossier. Character names
+(Jack-8) and ordinal words naming a string's hit ("second hit", "второй удар") are allowed. The
 renderer inserts current frame facts for `[[id]]`, escapes all text and splits valid Telegram
 HTML at the message limit. One corrective retry is allowed; errors return an indexed sheet.
 Nonnumeric tactical prose remains model advice and can be reported through feedback.
@@ -59,10 +61,13 @@ committed to `data/tips/t8-tips.json`; the next `/fd_sync` pushes them. Negative
 changed referenced startup/block/hit fields send a tip back for review.
 
 Cache keys include sides, mode, language, level, data/tip hashes, prompt version and model.
-Cache hits are unlimited; members get five new generations per UTC day. Exact requests
+Cache hits are unlimited; members get five delivered guides per UTC day (failures and fact-sheet
+fallbacks are refunded). Dossiers are memoised by target, data, guide and tip versions, so cache
+hits and section buttons do not rebuild them. Exact requests
 deduplicate; language/level variants serialize per pair; at most two pairs generate globally.
 Live clan membership is checked in DMs and callbacks. Admin warming skips existing cached
-guides and processes at most thirty uncached targets per command.
+guides, processes at most thirty uncached targets per command and has its own lock, so it
+never blocks `/fd_sync`.
 
 ## Activation
 

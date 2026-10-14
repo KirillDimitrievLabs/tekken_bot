@@ -50,6 +50,11 @@ export class CoachCache {
       return true;
     } catch (e) { this.db.exec("ROLLBACK"); throw e; }
   }
+  /** Give back a generation that did not produce a guide (failure, fallback, stale data). */
+  refund(userId) {
+    const day = new Date(this.now()).toISOString().slice(0, 10);
+    this.db.prepare("UPDATE coach_limits SET generations=generations-1 WHERE user_id=? AND day=? AND generations>0").run(String(userId), day);
+  }
   preference(userId) {
     return this.db.prepare("SELECT language,level FROM coach_users WHERE user_id=?").get(String(userId)) ?? { language: "en", level: "mid" };
   }

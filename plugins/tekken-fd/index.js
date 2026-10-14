@@ -396,7 +396,10 @@ export default {
           if (t.kind !== "actions") return { handled: true };
           const action = t.actions[i];
           if (!action) return { handled: true };
-          // Coach feedback/voting and admin review buttons check their own permissions.
+          // Asker-only buttons (cards, guides, tip drafts) before any handler; shared buttons
+          // (quiz, tip votes, admin queue) are created with askerOnly: false.
+          if (t.askerOnly && presser !== t.askerId) return { handled: true };
+          // Coach and tip buttons also check membership/admin rights themselves.
           if (await coachTransport.action(action, t, presser)) return { handled: true };
           if (action.type === "quiz") {
             const name = ictx.senderUsername ? `@${ictx.senderUsername}` : await memberName(t.chatId, presser).catch(() => presser);
@@ -405,7 +408,6 @@ export default {
             if (res.reveal) await revealQuiz(action.qid);
             return { handled: true };
           }
-          if (t.askerOnly && presser !== t.askerId) return { handled: true }; // only the person who asked
           if (action.type === "pick") {
             const move = index.move(action.moveId);
             removeTokens(p.statePath, (x) => x.token === token);
@@ -562,15 +564,22 @@ export default {
         let result;
         try {
           result = await sync(p, { dryRun: dry, force: args.includes("force"), progress: board });
-          if (!dry && result.changed) {
-            coachTransport.coach.cache.invalidate();
-            const flagged = await coachTransport.tips.flagChangedMoves(result.digest ?? {});
-            for (const tip of flagged ?? []) await coachTransport.notifyQueue(tip);
-          }
         } catch (err) {
           board.skipRest();
           await board.finish(`❌ Sync failed: ${err.message}`);
           throw err;
+        }
+        // The data is committed at this point: coach/tip follow-ups must not turn it into a failed sync.
+        let tipWarning = "";
+        if (!dry && result.changed) {
+          coachTransport.coach.invalidate();
+          try {
+            const flagged = await coachTransport.tips.flagChangedMoves(result.digest ?? {});
+            for (const tip of flagged ?? []) await coachTransport.notifyQueue(tip);
+          } catch (err) {
+            api.logger?.warn?.(`tekken-fd tip review after sync failed: ${err.message}`);
+            tipWarning = `\n\n⚠️ Tips affected by this patch could not be flagged for review: ${err.message}`;
+          }
         }
         if (!dry) {
           if (!fs.existsSync(p.dbPath)) rebuild(p);
@@ -586,7 +595,7 @@ export default {
         }
         const failed = board.steps.some((s) => s.state === "fail" || s.state === "warn");
         await board.finish(failed ? "⚠️ Done with warnings — see above." : `✅ Done${dry ? " (dry run, nothing saved)" : ""}.`);
-        let reply = `${result.changed ? "✅" : "ℹ️"} ${result.message}`;
+        let reply = `${result.changed ? "✅" : "ℹ️"} ${result.message}${tipWarning}`;
         if (result.digest && hasFrameChanges(result.digest)) {
           const digestText = formatDigest(result.digest);
           if (dry) {
@@ -629,7 +638,7 @@ export default {
       requiredScopes: ["operator.admin"],
       handler: ownerOnly(() => exclusive("rebuild", async () => {
         const r = rebuild(p);
-        coachTransport.coach.cache.invalidate();
+        coachTransport.coach.invalidate();
         return { text: `✅ Index rebuilt: ${r.moves} moves, ${r.characters} characters.` };
       })),
     });

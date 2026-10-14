@@ -4,7 +4,7 @@ import { cleanInline, listText } from "./format.js";
 import { punishOptions, pickOptions, optionLine } from "./queries.js";
 import { b, code, details, esc } from "./render.js";
 
-const TRACKING_NOTE = "<i>Sources: Wavu notes (Homing, “Whiffs vs SSR…”, Duckable) + TekkenDocs tags. Not every move is annotated — “no data” ≠ linear.</i>";
+const TRACKING_NOTE = "<i>Not every move is annotated — “no data” ≠ linear.</i>";
 
 function tracking(tags) {
   const parts = [];

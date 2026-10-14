@@ -62,7 +62,7 @@ test("comprehensive strategy includes generic headings and reports every scoped/
   assert.ok(bounded.report.omittedSections.some((s) => s.reason === "source-budget"));
 });
 
-test("fetch reports partial failures per page and merging preserves previous good pages", async () => {
+test("fetch reports partial failures per page; merging keeps failed pages and drops deleted ones", async () => {
   const updates = [];
   const r = await fetchGuides(["Reina", "Anna"], { pauseMs: 0, withReport: true, onProgress: (p) => updates.push(p), fetchImpl: async (url) => {
     const page = new URL(url).searchParams.get("page");
@@ -77,9 +77,9 @@ test("fetch reports partial failures per page and merging preserves previous goo
   const oldTech = parseGuide("A previous useful technical guide with enough text to retain it.", "Reina", "tech");
   const oldAnna = parseGuide("A previous useful counterplay page with enough text to retain it.", "Anna", "counterplay");
   const merged = mergeGuideSnapshots({ Reina: { tech: oldTech }, Anna: { counterplay: oldAnna } }, r.data, r.report);
-  assert.equal(merged.Reina.tech, oldTech);
-  assert.equal(merged.Anna.counterplay, oldAnna);
-  assert.deepEqual(Object.keys(merged), ["Anna", "Reina"]);
+  assert.equal(merged.Reina.tech, oldTech); // fetch failed: keep the last good copy
+  assert.equal(merged.Anna, undefined); // page no longer exists on Wavu: drop it
+  assert.deepEqual(Object.keys(merged), ["Reina"]);
 });
 
 test("matchup selection prefers the other side and tech retains budget after rich strategy", () => {

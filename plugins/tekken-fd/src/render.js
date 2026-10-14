@@ -49,7 +49,7 @@ export function cardHtml({ character, key, chain, combo = null }) {
     `🎯 level ${esc(levels)} · 💥 dmg ${esc(damage)}`,
   ];
   const more = [];
-  if (combo?.total) more.push(`🚀 combo ${combo.total}${combo.totalHeat && combo.totalHeat > combo.total ? ` · with Heat ${combo.totalHeat}` : ""}${combo.hard ? " · ⚠️ hard route" : ""} <i>(Wavu combos)</i>`);
+  if (combo?.total) more.push(`🚀 combo ${combo.total}${combo.totalHeat && combo.totalHeat > combo.total ? ` · with Heat ${combo.totalHeat}` : ""}${combo.hard ? " · ⚠️ hard route" : ""}`);
   const crush = listText(move.crush, ", ");
   if (crush) more.push(`🛡 crush ${esc(crush)}`);
   const recv = cleanInline(move.recv);

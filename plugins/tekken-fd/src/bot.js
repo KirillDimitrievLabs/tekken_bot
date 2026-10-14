@@ -53,13 +53,13 @@ function splitAs(args) {
 
 const HELP = {
   fd: ["!fd <character> <move> — frame data card", "!fd Fahkumram 312 · !fd kaz df1 · !fd devil jin ws2", "!fd law dragon's tail · !fd kaz hellsweep · !fd jin ewgf", "Several at once: !fd kaz df1; jin d3 (or one per line)", "With !main set: !fd df1"],
-  punish: ["!punish <character> <frames> — best punishers", "!punish kaz -13 · !punish lars 14 · with !main: !punish -14", "⭐ best reliable (Wavu community picks, combo damage) · 💪 more damage but harder · ⚠️ hard input · 🟡 just-frame", "Full list of symbols: !legend"],
+  punish: ["!punish <character> <frames> — best punishers", "!punish kaz -13 · !punish lars 14 · with !main: !punish -14", "⭐ best reliable (community picks, combo damage) · 💪 more damage but harder · ⚠️ hard input · 🟡 just-frame", "Full list of symbols: !legend"],
   unsafe: ["!unsafe <character> [frames] — moves punishable on block", "!unsafe jin · !unsafe jin -13"],
   list: ["!list <character> <filter> — moves with a property", "!list steve lows · !list jin homing · !list kaz hopkick"],
   main: ["!main <character> — set your main (then you can skip it in commands)", "!main · !main off · !mains — who plays what here"],
   mu: ["!mu <you> vs <them> — punish sheet for the matchup", "!mu lars vs jin · with !main: !mu jin"],
   gaps: ["!gaps <character> [string] — interrupts, jails, CH-only follow-ups", "!gaps jin · !gaps jin 1,1,2"],
-  ss: ["!ss <character> — which moves track which way (Wavu data is sparse)", "!ss kaz"],
+  ss: ["!ss <character> — which moves track which way (data is sparse)", "!ss kaz"],
   beat: ["!beat <character> <move> [as <you>] — your answers: duck/crush/power crush/sidestep/punish", "!beat kaz df+2 · !beat kaz df+2 as lars"],
   whiff: ["!whiff <character> <move> [as <you>] — whiff punish window and your options", "!whiff kaz df+2 as lars"],
   throws: ["!throws <character> — every throw with its break", "!throws king"],

@@ -7,6 +7,7 @@ import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import plugin from "../index.js";
 import { toPlain, isWellFormed } from "../src/render.js";
+import { actionData, createToken } from "../src/buttons.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const fx = JSON.parse(fs.readFileSync(new URL("./fixtures/Fahkumram.json", import.meta.url), "utf8"));
@@ -221,4 +222,20 @@ test("Russian layout and Cyrillic names", async () => {
   await send("!fd казуя df1");
   assert.equal(calls.length, 1);
   assert.match(plain(lastSend()), /Kazuya · df\+1/);
+});
+
+test("coach/tip buttons are asker-only like card buttons", async () => {
+  const statePath = path.join(tmp, "state", "state.json");
+  const token = createToken(statePath, { kind: "actions", chatId: GROUP, askerId: FRIEND, askerOnly: true, messageId: 50,
+    actions: [{ type: "tipStart", target: { as: null, opponent: "Kazuya" } }] });
+  const press = (sender) => interactive.handler({ senderId: sender, callback: { payload: actionData(token, 0).slice("tekken-fd:".length) },
+    respond: { deleteMessage: async () => {}, clearButtons: async () => {} } });
+  calls.length = 0;
+  await press(OWNER); // an admin, but not the asker
+  assert.equal(calls.length, 0);
+  const own = createToken(statePath, { kind: "actions", chatId: GROUP, askerId: OWNER, askerOnly: true, messageId: 51,
+    actions: [{ type: "tipStart", target: { as: null, opponent: "Kazuya" } }] });
+  await interactive.handler({ senderId: OWNER, callback: { payload: actionData(own, 0).slice("tekken-fd:".length) },
+    respond: { deleteMessage: async () => {}, clearButtons: async () => {} } });
+  assert.match(plain(lastSend()), /!tip vs Kazuya: your advice/);
 });

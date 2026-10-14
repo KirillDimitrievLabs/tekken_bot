@@ -3,17 +3,25 @@ import { guideSchema } from "./prompt.js";
 const REF = /\[\[([^\[\]\r\n]+)\]\]/g;
 const EXACT_REF = /^\[\[([^\[\]\r\n]+)\]\]$/;
 const NUMBER = /(?:\bi)?[+−-]?\p{N}+(?:[.,~–-]\p{N}+)*(?:f|st|nd|rd|th|%|ф)?/gu;
-const WORD_NUMBER = /\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|first|second|third|fourth|fifth)\s+(?:frames?|damage|hits?|seconds?|percent)\b|(?<!\p{L})(?:ноль|один|одна|одно|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать|тринадцать|четырнадцать|пятнадцать|шестнадцать|семнадцать|восемнадцать|девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|восемьдесят|девяносто|сто|перв\p{L}*|втор\p{L}*|трет\p{L}*)\s+(?:кадр\p{L}*|урон\p{L}*|удар\p{L}*|хит\p{L}*|секунд\p{L}*|процент\p{L}*)/giu;
+// Cardinals are numeric claims; ordinals are allowed for naming a string's hit ("duck the second hit",
+// "второй удар") but not for frames/damage/time.
+const RU_CARDINAL = "ноль|один|одна|одно|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать|тринадцать|четырнадцать|пятнадцать|шестнадцать|семнадцать|восемнадцать|девятнадцать|двадцать|тридцать|сорок|пятьдесят|шестьдесят|семьдесят|восемьдесят|девяносто|сто";
+const WORD_NUMBER = new RegExp([
+  String.raw`\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)\s+(?:frames?|damage|hits?|seconds?|percent)\b`,
+  String.raw`\b(?:first|second|third|fourth|fifth)\s+(?:frames?|damage|seconds?|percent)\b`,
+  String.raw`(?<!\p{L})(?:${RU_CARDINAL})\s+(?:кадр|урон|удар|хит|секунд|процент)\p{L}*`,
+  String.raw`(?<!\p{L})(?:перв|втор|трет)\p{L}*\s+(?:кадр|урон|секунд|процент)\p{L}*`,
+].join("|"), "giu");
 const FILLER = /\bbe patient\b|\bplay smart\b|\bjust block\b|будь(?:те)? терпелив|игра(?:й|йте) умн|просто блокиру/iu;
-const ACTIONS = {
+export const ACTIONS = {
   crouch_block: /crouch(?:ing)?[- _]block|block (?:the )?low|блок\p{L}* сидя|блок\p{L}* (?:лоу|низ)|блок\p{L}* (?:в )?присед/iu,
   punish: /punish|накаж|наказ/iu,
   interrupt: /interrupt|переби|перебе|перебь/iu,
   duck: /\bduck\b|прис(?:есть|ед)|пригни/iu,
-  SSL: /\bSSL\b|step left|степ\w* влево|шаг\w* влево/iu,
-  SSR: /\bSSR\b|step right|степ\w* вправо|шаг\w* вправо/iu,
-  SWL: /\bSWL\b|walk left|обход\w* влево/iu,
-  SWR: /\bSWR\b|walk right|обход\w* вправо/iu,
+  SSL: /\bSSL\b|step left|степ\p{L}* влево|шаг\p{L}* влево/iu,
+  SSR: /\bSSR\b|step right|степ\p{L}* вправо|шаг\p{L}* вправо/iu,
+  SWL: /\bSWL\b|walk left|обход\p{L}* влево/iu,
+  SWR: /\bSWR\b|walk right|обход\p{L}* вправо/iu,
 };
 
 export const refsOf = (value) => [...String(value ?? "").matchAll(REF)].map((m) => m[1]);
@@ -59,6 +67,9 @@ export function validateGuide(raw, dossier) {
   const schema = guideSchema(dossier.mode);
   const moves = dossier.moves instanceof Map ? dossier.moves : new Map(Object.entries(dossier.moves ?? {}));
   const sides = new Set([dossier.as, dossier.opponent].filter(Boolean));
+  const escapeRe = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const names = [...new Set([...(dossier.characterNames ?? []), ...sides, "Tekken 8"])].filter((n) => /\p{N}/u.test(n)).sort((a, b) => b.length - a.length);
+  const NAMES = names.length ? new RegExp(`(?<![\\p{L}\\p{N}])(?:${names.map(escapeRe).join("|")})(?![\\p{L}\\p{N}])`, "giu") : null;
 
   function checkText(value, path, max = 900, exemptNumbers = false) {
     if (typeof value !== "string" || !value.trim()) {
@@ -76,8 +87,9 @@ export function validateGuide(raw, dossier) {
     }
     const withoutRefs = value.replace(REF, "");
     if (/\[\[|\]\]/.test(withoutRefs)) errors.push(`${path}: malformed move reference`);
+    const prose = NAMES ? withoutRefs.replace(NAMES, " ") : withoutRefs;
     if (refs.length > 12) errors.push(`${path}: too many move references`);
-    const claims = [...withoutRefs.matchAll(NUMBER), ...withoutRefs.matchAll(WORD_NUMBER)].map((m) => m[0]);
+    const claims = [...prose.matchAll(NUMBER), ...prose.matchAll(WORD_NUMBER)].map((m) => m[0]);
     if (!claims.length) return value;
     for (const claim of claims) strippedNumbers.push({ path, value: claim });
     errors.push(`${path}: numeric prose is forbidden; use move references for facts`);

@@ -34,7 +34,8 @@ function atomicJson(file, value) {
 
 function displayName(author, userId) {
   const name = String(author ?? "Clan member").replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 80);
-  return !name || name === String(userId) || /^(?:telegram:|tg:\/\/user\?id=)\d+$/i.test(name) ? "Clan member" : name;
+  // Approved tips are published: no ids and no @usernames (account handles), display names only.
+  return !name || name === String(userId) || /^@|^\d+$|^(?:telegram:|tg:\/\/user\?id=)\d+$/i.test(name) ? "Clan member" : name;
 }
 
 /** Explicit whitelist: no private state field can accidentally escape into git or a dossier. */

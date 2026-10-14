@@ -315,7 +315,7 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   const hash = hashOf({ version: DOSSIER_VERSION, mode, as, opponent, language, level, text, provenance, tipsHash });
   const selectionOmissions = characters.flatMap((character) => guideSelection[character].report.omittedSections.map((s) => ({ character, ...s })));
   const globalOmissions = selected.filter((s) => !guideIds.includes(s.id)).map((s) => ({ id: s.id, page: s.page, kind: s.kind, reason: "aggregate-budget", characters: s.text.length }));
-  return { version: DOSSIER_VERSION, mode, as, opponent, language, level, text, moves, allowedIds: referencedIds, tips: approved.filter((t) => tipIds.includes(t.id)),
+  return { version: DOSSIER_VERSION, mode, as, opponent, language, level, text, moves, characterNames: [...known].sort(), allowedIds: referencedIds, tips: approved.filter((t) => tipIds.includes(t.id)),
     facts: new Map([...moves.keys()].map((id) => [id, facts.get(id)])), hash, tipsHash, coverage, dataVersion,
     requiredUnsafe, escapeAnswers, interactions, sections, guideIds, tipIds, sources, omittedSources: selectionOmissions.length + globalOmissions.length,
     guideSelection: Object.fromEntries(characters.map((c) => [c, guideSelection[c].report])), omittedGuideSections: [...selectionOmissions, ...globalOmissions],

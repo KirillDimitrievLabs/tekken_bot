@@ -248,3 +248,11 @@ test("failed forced regeneration deletes the old cached guide and ordinary reque
   assert.equal(recovered.key, first.key);
   assert.equal(calls, 3);
 });
+
+test("fallbacks and failures do not use the daily limit; delivered guides do", async (t) => {
+  const { coach, target } = subject(t, async () => { throw new Error("Provider failed"); });
+  for (let i = 0; i < 7; i++) assert.equal((await coach.generate({ ...target, opponent: `Char${i}` }, { userId: "user-a" })).fallback, true);
+  coach.complete = async () => ({ text: JSON.stringify(validGuide()) });
+  for (let i = 0; i < 5; i++) assert.equal((await coach.generate({ ...target, opponent: `Ok${i}` }, { userId: "user-a" })).fallback, undefined);
+  await assert.rejects(coach.generate({ ...target, opponent: "Ok5" }, { userId: "user-a" }), /Daily limit/);
+});

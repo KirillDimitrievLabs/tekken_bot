@@ -7,6 +7,7 @@ import { validateGuide } from "./validate.js";
 import { renderGuide, renderFallback } from "./render.js";
 
 const read = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return {}; } };
+const DOSSIER_MEMO = 24;
 export const COACH_MODELS = ["openai/gpt-6-astra", "openai/gpt-6.1-sol", "openai/gpt-6-sol"];
 
 /** No scheduled work: generation starts only from an authorized command or button. */
@@ -24,10 +25,36 @@ export class Coach {
     this.active = 0;
     this.waiters = [];
     this.resources = new Map();
+    this.dossiers = new Map();
     this.closed = false;
   }
+  guidesFile() { return path.join(this.repoDir, "data/wavu/t8-guides.json"); }
+  guides() { return read(this.guidesFile()); }
+  /**
+   * Building a dossier takes 0.4–0.8 s of synchronous work, so it is memoised by everything it
+   * depends on: target, index data version, guide file version and the approved tips.
+   */
   dossier(target) {
-    return buildDossier(this.index, { ...target, guides: read(path.join(this.repoDir, "data/wavu/t8-guides.json")), tips: this.tips?.approved(target.as, target.opponent) ?? [] });
+    const tips = this.tips?.approved(target.as, target.opponent) ?? [];
+    let guidesStamp = 0;
+    try { guidesStamp = fs.statSync(this.guidesFile()).mtimeMs; } catch { /* no guides yet */ }
+    const key = JSON.stringify([target.as ?? null, target.opponent, target.language ?? null, target.level ?? null,
+      this.index.meta?.()?.syncedAt ?? "", guidesStamp, tips]);
+    const hit = this.dossiers.get(key);
+    if (hit) {
+      this.dossiers.delete(key); // LRU: move to the end
+      this.dossiers.set(key, hit);
+      return hit;
+    }
+    const built = buildDossier(this.index, { ...target, guides: this.guides(), tips });
+    this.dossiers.set(key, built);
+    while (this.dossiers.size > DOSSIER_MEMO) this.dossiers.delete(this.dossiers.keys().next().value);
+    return built;
+  }
+  /** Data, tips or index changed: forget memoised dossiers and cached guides. */
+  invalidate() {
+    this.dossiers.clear();
+    this.cache.invalidate();
   }
   model(mode) {
     const m = this.config.models?.[mode] ?? this.config.model ?? "openai/gpt-6.1-sol";
@@ -62,10 +89,22 @@ export class Coach {
     if (this.pending.has(key)) return this.pending.get(key);
     if (this.pending.size >= 20) throw new Error("Coach is busy. Try again shortly.");
     if (typeof this.complete !== "function") return this.fallback(dossier, "Model runtime is unavailable; showing indexed facts.");
-    if (!admin && !this.cache.consume(userId)) throw new Error("Daily limit: 5 new guides. Cached guides remain available. Resets at 00:00 UTC.");
+    const charged = !admin;
+    if (charged && !this.cache.consume(userId)) throw new Error("Daily limit: 5 new guides. Cached guides remain available. Resets at 00:00 UTC.");
     const job = this.build(dossier, target, { model, key, progress });
     this.pending.set(key, job);
-    try { return await job; } finally { this.pending.delete(key); }
+    let result;
+    try {
+      result = await job;
+    } catch (err) {
+      if (charged) this.cache.refund(userId);
+      throw err;
+    } finally {
+      this.pending.delete(key);
+    }
+    // Only a delivered guide counts against the daily limit; fallbacks are free.
+    if (charged && result?.fallback) this.cache.refund(userId);
+    return result;
   }
   async build(dossier, target, { model, key, progress }) {
     progress("dossier", "run", "queued; preparing source facts");

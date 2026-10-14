@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildPrompt, PROMPT_VERSION } from "../src/coach/prompt.js";
-import { validateGuide } from "../src/coach/validate.js";
+import { ACTIONS, validateGuide } from "../src/coach/validate.js";
 import { renderFallback, renderGuide, splitHtml } from "../src/coach/render.js";
 
 function fixture(mode = "matchup") {
@@ -71,12 +71,24 @@ test("numeric prose is stripped and rejected even if that number exists elsewher
   assert.deepEqual(result.guide.used_tips, ["t_0042"]);
 });
 
-test("spelled out numerical hit/frame claims are also rejected", () => {
+test("spelled out numerical frame/damage claims are also rejected", () => {
   const { dossier, guide } = fixture();
-  guide.summary = "It deals twenty damage. Duck the second hit. Это три кадра.";
+  guide.summary = "It deals twenty damage. Watch the second frame. Это три кадра.";
   const result = validateGuide(guide, dossier);
   assert.equal(result.ok, false);
   assert.equal(result.strippedNumbers.length, 3);
+});
+
+test("character names with digits and ordinal hit words are not numeric claims", () => {
+  const { dossier, guide } = fixture();
+  dossier.characterNames = ["Jack-8", "Kazuya", "Reina"];
+  for (const summary of ["Jack-8 wants to stay close; duck the second hit.", "Против Jack-8 пригнитесь под второй удар.", "In Tekken 8 this is a key decision."]) {
+    guide.summary = summary;
+    const result = validateGuide(structuredClone(guide), dossier);
+    assert.deepEqual(result.strippedNumbers, [], summary);
+  }
+  guide.summary = "Jack-8 has a 13 frame punish.";
+  assert.deepEqual(validateGuide(structuredClone(guide), dossier).strippedNumbers.map((x) => x.value), ["13"]);
 });
 
 test("rejects unknown, malformed, wrong-side moves and made-up source IDs", () => {
@@ -143,7 +155,7 @@ test("prompts include task, hard numeric rule, language and explicitly synthetic
   assert.match(en.messages[0].content, /any character/);
 });
 
-test("renderer escapes model text, resolves current index facts and credits licensed sources", () => {
+test("renderer escapes model text, resolves current index facts and credits only clan tip authors", () => {
   const { dossier, guide, index, threats } = fixture();
   guide.summary = "<script>hack</script> & wait.";
   const m = dossier.moves.get(threats[0]);
@@ -154,9 +166,9 @@ test("renderer escapes model text, resolves current index facts and credits lice
   assert.match(html, /&lt;script&gt;hack&lt;\/script&gt; &amp;/);
   assert.doesNotMatch(html, /<script>/);
   assert.match(html, /<code>b\+4<\/code> <i>\(i17 · -16/);
-  assert.match(html, /CC BY-SA 4\.0/);
-  assert.match(html, /Alex &lt;admin&gt;/);
-  assert.match(html, /https:\/\/wavu\.wiki\/t\/Reina_counterplay/);
+  assert.match(html, /Clan tips: Alex &lt;admin&gt;/);
+  assert.doesNotMatch(html, /CC BY-SA|wavu|tekkendocs|Sources:/i);
+  for (const part of renderGuide(index, guide, dossier)) assert.ok(part.length <= 3800);
   renderGuide(index, guide, dossier).forEach(balanced);
 });
 
@@ -188,4 +200,10 @@ test("fallback renders deterministic current facts and safe, bounded HTML", () =
   assert.match(parts.join(""), /could not produce a verified guide/);
   assert.match(parts.join(""), /<code>ws4<\/code>/);
   for (const part of parts) { assert.ok(part.length <= 4096); balanced(part); }
+});
+
+test("Russian sidestep/sidewalk phrasing in any verb form is recognised", () => {
+  for (const [text, action] of [["шагните вправо", "SSR"], ["шагом влево", "SSL"], ["степом вправо", "SSR"], ["обходите влево", "SWL"], ["обходом вправо", "SWR"]]) {
+    assert.ok(ACTIONS[action].test(text), text);
+  }
 });

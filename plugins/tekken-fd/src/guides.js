@@ -145,13 +145,17 @@ export async function fetchGuides(characters, { fetchImpl = fetch, onProgress, w
   return withReport ? { data, report } : data;
 }
 
-/** Preserve the previous good pages on partial fetch errors and empty/template-only responses. */
+/**
+ * Keep a previous page only when fetching that page failed (network/HTTP error). A page that is now
+ * missing on Wavu or reduced to the empty template is dropped, so deleted advice does not live forever.
+ */
 export function mergeGuideSnapshots(previous = {}, fresh = {}, report = {}) {
   const out = {};
+  const failed = (character, kind) => (report.failedKinds?.[character] ?? []).includes(kind);
   for (const character of [...new Set([...Object.keys(previous), ...Object.keys(fresh)])].sort()) {
     out[character] = {};
     for (const kind of GUIDE_KINDS) {
-      const value = fresh[character]?.[kind] ?? previous[character]?.[kind];
+      const value = fresh[character]?.[kind] ?? (failed(character, kind) ? previous[character]?.[kind] : undefined);
       if (value?.sections?.length) out[character][kind] = value;
     }
     if (!Object.keys(out[character]).length) delete out[character];
