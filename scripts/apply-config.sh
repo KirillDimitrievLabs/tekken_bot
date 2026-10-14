@@ -6,7 +6,7 @@ set -euo pipefail
 REPO=/opt/clan-bots
 STACK=/opt/openclaw
 STATE="$STACK/data/state"
-CHAT_ID="${1:-}"
+CHAT_ID="${1:-$(cat "$REPO/config/clan-chat-id" 2>/dev/null || true)}"
 
 oc() { docker compose -f "$STACK/docker-compose.yml" exec -T openclaw-gateway openclaw "$@"; }
 
