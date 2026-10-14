@@ -1,5 +1,6 @@
 // Daily Wavu change watcher: tells the owner which T8 movelists were edited. Never syncs by itself.
 import fs from "node:fs";
+import { sendMessage } from "./telegram.js";
 import { fetchChangedCharacters } from "./wavu.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -18,15 +19,10 @@ export function writeState(statePath, patch) {
   return next;
 }
 
-/** Send a plain-text Telegram DM via the Bot API (token from the gateway env). */
-export async function notifyTelegram(chatId, text, { token = process.env.TELEGRAM_BOT_TOKEN, fetchImpl = fetch } = {}) {
-  if (!token || !chatId) throw new Error("telegram notify: missing bot token or owner chat id");
-  const res = await fetchImpl(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
-  });
-  if (!res.ok) throw new Error(`telegram notify: HTTP ${res.status}`);
+/** Plain-text Telegram DM to the owner. */
+export async function notifyTelegram(chatId, text, opts) {
+  if (!chatId) throw new Error("telegram notify: missing owner chat id");
+  await sendMessage(chatId, text, opts);
 }
 
 /**

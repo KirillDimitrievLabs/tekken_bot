@@ -14,6 +14,7 @@ import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { fastResolve, parseTrigger, suggestReply } from "./src/fastpath.js";
 import { readMeta } from "./src/snapshot.js";
+import { chatIdFrom, sendReply } from "./src/telegram.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
@@ -85,7 +86,25 @@ export default {
     // session (e.g. the owner's DM → main) the plugin answers "did you mean" itself so that agent
     // never improvises frame data.
     const reasoningAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
-    api.on("before_dispatch", (event) => {
+    // Reply threaded to the asking message. The before_dispatch result path can't carry a reply
+    // target, so on Telegram the card is sent via the Bot API; anything unexpected falls back to
+    // a plain (unthreaded) gateway reply.
+    const answer = async (event, ctx, text) => {
+      const channel = String(ctx?.channelId ?? event?.channel ?? "");
+      const chatId = chatIdFrom(ctx?.conversationId);
+      const messageId = event?.messageId ?? ctx?.messageId;
+      if (channel === "telegram" && chatId && /^\d+$/.test(String(messageId ?? ""))) {
+        try {
+          await sendReply(chatId, messageId, text);
+          return { handled: true };
+        } catch (err) {
+          api.logger?.warn?.(`tekken-fd threaded reply failed (${err.message}); sending unthreaded`);
+        }
+      }
+      return { handled: true, text };
+    };
+
+    api.on("before_dispatch", async (event, ctx) => {
       const sessionKey = String(event?.sessionKey ?? "");
       const body = event?.content ?? event?.body;
       const started = Date.now();
@@ -95,10 +114,10 @@ export default {
         const hit = fastResolve(index, body, ALIASES);
         if (hit) {
           api.logger?.info?.(`tekken-fd fast path: ${hit.move.id} in ${Date.now() - started}ms (${sessionKey})`);
-          return { handled: true, text: cardFor(hit.move) };
+          return await answer(event, ctx, cardFor(hit.move));
         }
         if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined;
-        return { handled: true, text: suggestReply(index, body, ALIASES) };
+        return await answer(event, ctx, suggestReply(index, body, ALIASES));
       } catch (err) {
         api.logger?.warn?.(`tekken-fd fast path failed, deferring to agent: ${err.message}`);
         return undefined;
