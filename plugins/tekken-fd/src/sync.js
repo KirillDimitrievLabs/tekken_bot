@@ -57,12 +57,19 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl } = {})
   }
 
   const syncedAt = new Date().toISOString();
+  const rel = path.relative(p.repoDir, p.dataDir);
   writeSnapshots(p.dataDir, after, { source: "https://wavu.wiki (Cargo table Move)", license: "CC BY-SA 4.0", game: "T8", syncedAt, ...totals });
-  await git(p.repoDir, "add", "--all", "--", path.relative(p.repoDir, p.dataDir));
+  try {
+    rebuild(p); // validates the new data before anything is committed
+  } catch (err) {
+    await git(p.repoDir, "checkout", "--", rel).catch(() => {});
+    await git(p.repoDir, "clean", "-fdq", "--", rel).catch(() => {});
+    throw new Error(`index build failed, data restored: ${err.message}`);
+  }
+  await git(p.repoDir, "add", "--all", "--", rel);
   const subject = `data: wavu sync ${syncedAt.slice(0, 10)} (${changes.length} chars changed)`;
   await git(p.repoDir, "commit", "--quiet", "-m", subject, "-m", summarize(changes, 100));
   const commit = await git(p.repoDir, "rev-parse", "--short", "HEAD");
-  rebuild(p);
   return { changed: true, changes, totals, commit, message: `Synced ${totals.moves} moves. ${changes.length} character(s) changed: ${summarize(changes)}. Commit ${commit}.` };
 }
 

@@ -79,7 +79,20 @@ export async function fetchAllMoves({ fetchImpl, pauseMs = 400 } = {}) {
     offset += PAGE_SIZE;
     await sleep(pauseMs);
   }
+  for (const [character, moves] of byCharacter) byCharacter.set(character, dedupeById(moves));
   return byCharacter;
+}
+
+const filled = (row) => Object.values(row).filter((v) => v !== null).length;
+
+/** Wavu occasionally stores the same move id twice; keep the most complete row. */
+export function dedupeById(moves) {
+  const best = new Map();
+  for (const m of moves) {
+    const cur = best.get(m.id);
+    if (!cur || filled(m) > filled(cur)) best.set(m.id, m);
+  }
+  return [...best.values()];
 }
 
 /**

@@ -42,9 +42,12 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
     const insFts = db.prepare("INSERT INTO moves_fts VALUES (?, ?, ?)");
     db.exec("BEGIN");
     let total = 0;
+    const seen = new Set();
     for (const [character, moves] of snapshots) {
       insChar.run(character, character.toLowerCase(), moves.length);
       for (const m of moves) {
+        if (seen.has(m.id)) continue; // Wavu duplicate rows: first (most complete after dedupe) wins
+        seen.add(m.id);
         const key = moveKeyFromId(m.id, character);
         insMove.run(m.id, character, key, m.num === null ? null : Number(m.num), m.name, m.input, m.alias, m.alt, m.parent,
           m.target, m.damage, m.startup, m.recv, m.tot, m.crush, m.block, m.hit, m.ch, m.notes);
