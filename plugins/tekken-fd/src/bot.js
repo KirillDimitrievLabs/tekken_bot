@@ -8,12 +8,12 @@ import { formatMatchup } from "./matchup.js";
 import { fixLayout } from "./nicknames.js";
 import { filterHelp, formatHeat, formatList, formatPunish, formatUnsafe, formatWall, minus, resolveFilter } from "./queries.js";
 import { questionHtml, makeQuestion } from "./quiz.js";
-import { b, cardHtml, code, esc } from "./render.js";
+import { b, cardHtml, code, esc, LEGEND_HTML } from "./render.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 import { formatThrows } from "./throws.js";
 import { formatWhiff } from "./whiff.js";
 
-export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "main", "mains", "mu", "gaps", "ss", "beat", "whiff", "throws", "quiz", "top", "heat", "wall"];
+export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "legend", "main", "mains", "mu", "gaps", "ss", "beat", "whiff", "throws", "quiz", "top", "heat", "wall"];
 const COMMAND_RE = new RegExp(`^\\s*(?:@\\w+\\s+)?!(${COMMANDS.join("|")})\\b\\s*([\\s\\S]*)$`, "i");
 export const MENTION_PATTERN = `^\\s*!(${COMMANDS.join("|")})\\b`;
 const MAX_MULTI = 5;
@@ -50,7 +50,7 @@ function splitAs(args) {
 
 const HELP = {
   fd: ["!fd <character> <move> — frame data card", "!fd Fahkumram 312 · !fd kaz df1 · !fd devil jin ws2", "!fd law dragon's tail · !fd kaz hellsweep · !fd jin ewgf", "Several at once: !fd kaz df1; jin d3 (or one per line)", "With !main set: !fd df1"],
-  punish: ["!punish <character> <frames> — best punishers", "!punish kaz -13 · !punish lars 14 · with !main: !punish -14", "🚀 launch · ≈ motion input not confirmed bufferable"],
+  punish: ["!punish <character> <frames> — best punishers", "!punish kaz -13 · !punish lars 14 · with !main: !punish -14", "⭐ best reliable (Wavu community picks, combo damage) · 💪 more damage but harder · ⚠️ hard input · 🟡 just-frame", "Full list of symbols: !legend"],
   unsafe: ["!unsafe <character> [frames] — moves punishable on block", "!unsafe jin · !unsafe jin -13"],
   list: ["!list <character> <filter> — moves with a property", "!list steve lows · !list jin homing · !list kaz hopkick"],
   main: ["!main <character> — set your main (then you can skip it in commands)", "!main · !main off · !mains — who plays what here"],
@@ -70,7 +70,7 @@ HELP.mains = HELP.main;
 export const HELP_HTML = [
   `🤖 ${b("Tekken 8 frame data")}`,
   ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
-  `${code("!help <command>")} — examples, e.g. ${code("!help punish")}`,
+  `${code("!help <command>")} — examples, e.g. ${code("!help punish")} · ${code("!legend")} — what the emojis mean`,
   "<i>Nicknames (fahk, kaz, казуя), move names, hopkick/hellsweep/ewgf and Russian layout all work. Data: wavu.wiki</i>",
 ].join("\n");
 
@@ -149,6 +149,8 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
     switch (cmd) {
       case "fd":
         return fdLookup(args, main, { single });
+      case "legend":
+        return reply(LEGEND_HTML, { stat: ["help", {}] });
       case "help":
         return reply(args ? helpFor(args, filterHelp().replace(/^Filters: /, "")) ?? HELP_HTML : HELP_HTML, { stat: ["help", {}] });
       case "main": {

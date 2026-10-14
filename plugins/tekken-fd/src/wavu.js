@@ -127,3 +127,103 @@ export async function fetchChangedCharacters(sinceIso, knownCharacters, { fetchI
   }
   return { characters: [...changed].sort(), edits };
 }
+
+// ---- Curated punishers: Wavu "<Character> punishers" pages (community-chosen punish per frame window)
+
+const SECTION = { standing: "standing", crouching: "crouching", backturnedopponent: "backturned", groundedopponent: "grounded" };
+const int = (v) => {
+  const m = String(v ?? "").match(/-?\d+/);
+  return m ? Number(m[0]) : null;
+};
+const stripWiki = (v) => String(v ?? "")
+  .replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>/gi, "")
+  .replace(/\[\[[^\]|]*\|([^\]]*)\]\]/g, "$1").replace(/\[\[([^\]]*)\]\]/g, "$1")
+  .replace(/''+/g, "").replace(/<[^>]+>/g, "").replace(/\u200b/g, "").trim();
+
+/**
+ * Parse a punishers page (template {{o| moveId = … }} format, or the older wikitable format).
+ * @returns {{stance: string, enemy: number, moveId: string|null, move: string, damage: number|null, staple: number|null, mini: number|null, hard: boolean, note: string}[]}
+ */
+export function parsePunishers(wikitext, character) {
+  const out = [];
+  const text = String(wikitext ?? "");
+  if (/\{\{o\|\s*moveId\s*=/.test(text)) {
+    let stance = null;
+    const re = /\|\s*([A-Za-z]+)\s*=\s*\{\{o\b|\{\{o\|((?:[^{}]|\{\{[^{}]*\}\})*)\}\}/g;
+    for (const m of text.matchAll(re)) {
+      if (m[1]) {
+        stance = SECTION[m[1].toLowerCase()] ?? null;
+        continue;
+      }
+      if (!stance || !/moveId\s*=/.test(m[2])) continue;
+      const kv = {};
+      for (const part of m[2].split("|")) {
+        const i = part.indexOf("=");
+        if (i > 0) kv[part.slice(0, i).trim().toLowerCase()] = part.slice(i + 1).trim();
+      }
+      const moveId = stripWiki(kv.moveid).replace(/#/g, "${justFrame}");
+      const enemy = int(kv.enemy); // may be absent (Jack-8): derived from the move's startup at index build
+      out.push({
+        stance, enemy, moveId,
+        move: stripWiki(kv.move || moveId.slice(character.length + 1)).replace(/\$\{justFrame\}|#/g, ":"),
+        damage: int(stripWiki(kv.damage)), staple: int(kv.staple), mini: int(kv.mini),
+        hard: /^(true|yes|1)$/i.test(kv.hard ?? ""), note: stripWiki(kv.movenote ?? kv.risknote ?? ""),
+      });
+    }
+    return out;
+  }
+  // older wikitable: "| colspan=… | Standing", rows "| -10 || 1,2,3 || 17 || +11g", rowspan carries the enemy value
+  let stance = null;
+  let carry = null;
+  for (const row of text.split(/\n\|-/)) {
+    const cat = row.match(/table-cat"\s*\|\s*([A-Za-z ]+)/);
+    if (cat) {
+      stance = SECTION[cat[1].replace(/\s+/g, "").toLowerCase()] ?? (/stand/i.test(cat[1]) ? "standing" : /crouch/i.test(cat[1]) ? "crouching" : null);
+      carry = null;
+      continue;
+    }
+    if (!stance) continue;
+    const lines = row.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("|") && !l.startsWith("|}") && !l.startsWith("|-"));
+    if (!lines.length || lines[0].startsWith("!")) continue;
+    let cells;
+    const head = lines[0].match(/^\|\s*(?:rowspan="?(\d+)"?\s*\|\s*)?(-\d+)\s*$/);
+    if (head) {
+      // "| rowspan="3" | -10" on its own line, cells on the next line
+      carry = { enemy: Number(head[2]), left: head[1] ? Number(head[1]) : 1 };
+      cells = lines.slice(1).join(" ").replace(/^\|\s*/, "").split(/\s*\|\|\s*/);
+    } else {
+      cells = lines.join(" ").replace(/^\|\s*/, "").split(/\s*\|\|\s*/);
+      const inline = cells[0].match(/^(?:rowspan="?(\d+)"?\s*\|\s*)?(-\d+)$/);
+      if (inline) {
+        carry = { enemy: Number(inline[2]), left: inline[1] ? Number(inline[1]) : 1 };
+        cells = cells.slice(1);
+      } else if (!carry || carry.left <= 0) continue;
+    }
+    if (!cells.length || !cells[0]) continue;
+    carry.left--;
+    const move = stripWiki(cells[0]);
+    const dmg = stripWiki(cells[1] ?? "");
+    const combo = dmg.match(/\((\d+)\)/);
+    out.push({
+      stance, enemy: carry.enemy, moveId: null, move: move.replace(/#/g, ":"),
+      damage: int(dmg), staple: combo ? Number(combo[1]) : null, mini: null, hard: /\bhard\b/i.test(row), note: "",
+    });
+  }
+  return out;
+}
+
+/** Fetch every character's punishers page (missing pages are skipped). */
+export async function fetchPunishers(characters, { fetchImpl, pauseMs = 300 } = {}) {
+  const out = {};
+  for (const character of characters) {
+    try {
+      const body = await apiGet({ action: "parse", page: `${character} punishers`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
+      const entries = parsePunishers(body.parse?.wikitext?.["*"], character);
+      if (entries.length) out[character] = entries;
+    } catch {
+      // page missing or unreadable: computed punishers remain the fallback
+    }
+    await sleep(pauseMs);
+  }
+  return out;
+}

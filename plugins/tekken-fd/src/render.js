@@ -45,8 +45,8 @@ export function cardHtml({ character, key, chain }) {
   const name = move.name ? ` — ${esc(listText(move.name, " / "))}` : "";
   const lines = [
     `🤹🏻 ${b(character)} · ${code(key)}${name}`,
-    `⏱ ${b(startup)}   🟦 ${b(blockText(move.block) || "—")}   🟥 ${esc(dash(move.hit))}   ⚡ ${esc(dash(move.ch))}`,
-    `🎯 ${esc(levels)}   💥 ${esc(damage)}`,
+    `⏱ startup ${b(startup)} · 🟦 block ${b(blockText(move.block) || "—")} · 🟥 hit ${esc(dash(move.hit))} · ⚡ CH ${esc(dash(move.ch))}`,
+    `🎯 level ${esc(levels)} · 💥 dmg ${esc(damage)}`,
   ];
   const more = [];
   const crush = listText(move.crush, ", ");
@@ -64,3 +64,21 @@ export function section(title, lines, { collapseOver = 8 } = {}) {
   if (!lines.length) return b(title);
   return lines.length > collapseOver ? `${b(title)}\n${details(body)}` : `${b(title)}\n${body}`;
 }
+
+/** !legend — every symbol the bot uses. */
+export const LEGEND_HTML = [
+  `📖 ${b("Legend")}`,
+  b("Cards"),
+  "⏱ startup (i13 = hits on frame 13) · 🟦 on block · 🟥 on hit · ⚡ on counter hit",
+  "🎯 hit level (h high · m mid · l low · t throw; capital = also hits grounded; ! = unblockable) · 💥 damage",
+  "🛡 crush (js jump/low crush · cs crouch/high crush · pc power crush, with frames) · ↩ recovery / total frames · 🗒 notes",
+  "On hit/block suffixes: a launch · d knockdown · c crouching · g guard · s stagger · (+30) = advantage after the combo starter",
+  b("Punish / matchup"),
+  "⭐ best reliable punish (community pick, easy input) · 💪 more damage but harder · 🚀 launches",
+  "⚠️ hard input at this window · 🟡 just-frame / precise input · 🔥 needs Heat or Rage · ≈ motion input not confirmed bufferable",
+  "➕ also launches = fits the window in frame data but isn't a community pick (may lack range — unverified)",
+  "combo = full combo damage · mini = mini-combo · (computed) = from frame data, no community pick",
+  b("Gaps / evasion"),
+  "✅ natural combo · ⚡ combo only on counter hit · 🔒 jails · ✋ interruptible · ⏳ delayable",
+  "↺ homing · ⬅ tracks left (step right) · ➡ tracks right (step left)",
+].join("\n");

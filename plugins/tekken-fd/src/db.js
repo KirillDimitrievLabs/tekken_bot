@@ -26,6 +26,9 @@ CREATE INDEX move_keys_strict ON move_keys (character, strict);
 CREATE INDEX move_keys_loose ON move_keys (character, loose);
 CREATE VIRTUAL TABLE moves_fts USING fts5(id UNINDEXED, character UNINDEXED, text, tokenize='trigram');
 CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT);
+CREATE TABLE punishers (character TEXT NOT NULL, stance TEXT NOT NULL, enemy INTEGER NOT NULL, move_id TEXT, key TEXT NOT NULL,
+  staple INTEGER, mini INTEGER, damage INTEGER, hard INTEGER NOT NULL, note TEXT);
+CREATE INDEX punishers_lookup ON punishers (character, stance, enemy);
 `;
 
 const COLUMNS = ["id", "character", "key", "num", "name", "input", "alias", "alt", "parent",
@@ -58,7 +61,7 @@ export function heatDashOf(notes) {
 }
 
 /** Build the index atomically: write to a temp file, then rename over dbPath. */
-export function buildDatabase(dbPath, snapshots, meta = {}) {
+export function buildDatabase(dbPath, snapshots, meta = {}, punishers = {}) {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const tmp = `${dbPath}.tmp-${process.pid}`;
   fs.rmSync(tmp, { force: true });
@@ -103,6 +106,27 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         for (const [kind, k] of keys) insKey.run(character, m.id, kind, strictKey(k), looseKey(k));
         insFts.run(m.id, character, [key, name, ...aliases, ...alts].filter(Boolean).join(" | "));
         total++;
+      }
+    }
+    const insPun = db.prepare("INSERT INTO punishers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    const byLoose = db.prepare("SELECT DISTINCT id FROM move_keys WHERE character = ? AND loose = ?");
+    const byStrict = db.prepare("SELECT DISTINCT id FROM move_keys WHERE character = ? AND strict = ?");
+    for (const [character, entries] of Object.entries(punishers ?? {})) {
+      for (const e of entries) {
+        let id = e.moveId && byId.has(e.moveId) ? e.moveId : null;
+        if (!id && e.move) {
+          // older table pages give only the input ("DF+1,3", "WS+4,4"): match by notation
+          const strict = byStrict.all(character, strictKey(e.move));
+          const loose = strict.length ? strict : byLoose.all(character, looseKey(e.move));
+          if (loose.length === 1) id = loose[0].id;
+        }
+        let enemy = e.enemy;
+        if (enemy === null || enemy === undefined) {
+          const s0 = id ? startupOf(rootOf(byId.get(id)).startup) : null;
+          if (s0 === null) continue;
+          enemy = -s0;
+        }
+        insPun.run(character, e.stance, enemy, id, e.move || (id ? moveKeyFromId(id, character) : "?"), e.staple ?? null, e.mini ?? null, e.damage ?? null, e.hard ? 1 : 0, e.note || null);
       }
     }
     const insMeta = db.prepare("INSERT INTO meta VALUES (?, ?)");
@@ -219,6 +243,17 @@ export class MoveIndex {
 
   tagsOf(id) {
     return this.handle().prepare("SELECT tag FROM tags WHERE id = ?").all(id).map((r) => r.tag);
+  }
+
+  /** Curated punishers usable at `frames` disadvantage for a stance (enemy ≥ −frames). */
+  curatedPunishers(character, stance, frames) {
+    return this.handle()
+      .prepare("SELECT * FROM punishers WHERE character = ? AND stance = ? AND enemy >= ? ORDER BY enemy DESC")
+      .all(character, stance, -Math.abs(frames));
+  }
+
+  hasCuratedPunishers(character) {
+    return Boolean(this.handle().prepare("SELECT 1 FROM punishers WHERE character = ? LIMIT 1").get(character));
   }
 
   children(id) {
