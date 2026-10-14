@@ -8,6 +8,7 @@ import { renderGuide, renderFallback } from "./render.js";
 
 const read = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return {}; } };
 const DOSSIER_MEMO = 24;
+const GUEST_BUCKET = "guests"; // shared daily pool for users outside the clan
 // The full teaching guide at high reasoning takes about three minutes or more.
 const COMPLETION_TIMEOUT_MS = 480000;
 
@@ -90,7 +91,7 @@ export class Coach {
   fallback(dossier, reason) {
     return { fallback: true, reason, dossier, parts: renderFallback(this.index, dossier, reason), key: null };
   }
-  async generate(target, { userId, force = false, admin = false, progress = () => {}, modelOverride = null } = {}) {
+  async generate(target, { userId, force = false, admin = false, progress = () => {}, modelOverride = null, guestLimit = null } = {}) {
     if (this.closed) throw new Error("Coach is stopping.");
     const dossier = this.dossier(target);
     const model = modelOverride ?? this.model(dossier.mode);
@@ -108,6 +109,12 @@ export class Coach {
     if (typeof this.complete !== "function") return this.fallback(dossier, "Model runtime is unavailable; showing indexed facts.");
     const charged = !admin;
     if (charged && !this.cache.consume(userId)) throw new Error("Daily limit: 5 new guides. Cached guides remain available. Resets at 00:00 UTC.");
+    // non-members share one daily pool so a public bot cannot exhaust the subscription
+    const guest = charged && Number.isFinite(guestLimit);
+    if (guest && !this.cache.consume(GUEST_BUCKET, guestLimit)) {
+      this.cache.refund(userId);
+      throw new Error("Today's new guides for guests are used up; cached guides are still available. Resets at 00:00 UTC.");
+    }
     const job = this.build(dossier, target, { model, key, progress });
     this.pending.set(key, job);
     let result;
@@ -115,12 +122,14 @@ export class Coach {
       result = await job;
     } catch (err) {
       if (charged) this.cache.refund(userId);
+      if (guest) this.cache.refund(GUEST_BUCKET);
       throw err;
     } finally {
       this.pending.delete(key);
     }
     // Only a delivered guide counts against the daily limit; fallbacks are free.
     if (charged && result?.fallback) this.cache.refund(userId);
+    if (guest && result?.fallback) this.cache.refund(GUEST_BUCKET);
     return result;
   }
   async build(dossier, target, { model, key, progress }) {

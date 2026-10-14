@@ -1,4 +1,9 @@
-// Apply explicitly with scripts/apply-config.sh --coach-launch when ready to open to the clan.
+// Apply explicitly with scripts/apply-config.sh --coach-launch.
+// access "all": anyone can use the coach and submit tips (DMs and the clan group). Guests (non-members)
+// share a daily pool of new guides; clan members and admins only have the per-person limit.
 {
-  plugins: { entries: { "tekken-fd": { config: { coach: { enabled: true, access: "clan", model: "openai/gpt-6.1-sol" } } } } },
+  plugins: { entries: { "tekken-fd": { config: {
+    coach: { enabled: true, access: "all", model: "openai/gpt-6.1-sol", guestDailyLimit: 30 },
+    tips: { openSubmissions: true },
+  } } } },
 }

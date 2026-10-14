@@ -63,7 +63,7 @@ committed to `data/tips/t8-tips.json`; the next `/fd_sync` pushes them. Negative
 changed referenced startup/block/hit fields send a tip back for review.
 
 Cache keys include sides, mode, language, level, data/tip hashes, prompt version and model.
-Cache hits are unlimited; members get five delivered guides per UTC day (failures and fact-sheet
+Access (`coach.access`): `admins` (preview), `clan` (clan group members and their DMs) or `all` (anyone, including DMs). With `all`, users outside the clan are guests: they share `coach.guestDailyLimit` new guides per UTC day (default 30) on top of the per-person limit, so a public bot cannot exhaust the subscription; `tips.openSubmissions` lets anyone submit tips (still admin-approved). Cache hits are unlimited; members get five delivered guides per UTC day (failures and fact-sheet
 fallbacks are refunded). Dossiers are memoised by target, data, guide and tip versions, so cache
 hits and section buttons do not rebuild them. Exact requests
 deduplicate; language/level variants serialize per pair; at most two pairs generate globally.

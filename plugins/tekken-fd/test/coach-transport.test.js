@@ -33,7 +33,7 @@ function cannedGuide(input) {
   };
 }
 
-function harness(t, { access = "clan", enabled = true, beforeTelegramResult = async () => {} } = {}) {
+function harness(t, { access = "clan", enabled = true, guestDailyLimit, beforeTelegramResult = async () => {} } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fd-coach-transport-"));
   const repoDir = path.join(dir, "repo"), stateDir = path.join(dir, "state");
   const data = path.join(repoDir, "data/wavu/t8"), tipFile = path.join(repoDir, "data/tips/t8-tips.json");
@@ -62,7 +62,7 @@ function harness(t, { access = "clan", enabled = true, beforeTelegramResult = as
     return { ok: true, json: async () => { call.completed = true; return { ok: true, result }; } };
   };
   const api = {
-    pluginConfig: { repoDir, stateDir, watcher: false, coach: { enabled, access } },
+    pluginConfig: { repoDir, stateDir, watcher: false, coach: { enabled, access, ...(guestDailyLimit != null ? { guestDailyLimit } : {}) } },
     config: { commands: { ownerAllowFrom: [`telegram:${OWNER}`] }, channels: { telegram: { groups: { [GROUP]: {} } } } },
     runtime: { llm: { complete: async (input) => { completions.push(input); return { text: JSON.stringify(cannedGuide(input)) }; } } },
     logger: { info() {}, warn: (message) => { warnings.push(message); if (process.env.FD_DEBUG) console.error(message); } }, resolvePath: (file) => path.join(ROOT, file),
@@ -296,4 +296,18 @@ test("recognized coach and tip commands remain handled when the snapshot and fra
     assert.match(result.text ?? plain(h.lastSend(GROUP)), expected, `${command} has a deterministic reply`);
   }
   assert.equal(h.completions.length, 1, "unavailable data never starts another completion");
+});
+
+test("access all: anyone can get a guide in DM; guests share a daily pool, members do not", async (t) => {
+  const h = harness(t, { access: "all", guestDailyLimit: 1 });
+  await h.send("!vs kazuya", { sender: STRANGER, chat: STRANGER });
+  assert.equal(h.completions.length, 1, "a stranger gets a generated guide in DM");
+  assert.match(plain(h.lastSend(STRANGER)), /🎓/);
+  await h.send("!vs reina", { sender: "100000010", chat: "100000010" });
+  assert.equal(h.completions.length, 1, "the shared guest pool (1) is used up");
+  assert.match(plain(h.lastSend("100000010")), /guests are used up/);
+  await h.send("!vs kazuya", { sender: "100000010", chat: "100000010" });
+  assert.match(plain(h.lastSend("100000010")), /🎓/, "cached guides stay available to guests");
+  await h.send("!vs kazuya --lang ru", { sender: MEMBER, chat: MEMBER });
+  assert.equal(h.completions.length, 2, "clan members are not limited by the guest pool");
 });

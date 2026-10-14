@@ -44,7 +44,7 @@ const configSchema = {
       publicAgents: { type: "array", items: { type: "string" } },
       adminIds: { type: "array", items: { type: "string" } },
       quiz: { type: "object", properties: { dailyAt: { type: "string" }, tz: { type: "string" }, daily: { type: "boolean" } } },
-      coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } }, telegraph: { type: "boolean" } } },
+      coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan", "all"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } }, telegraph: { type: "boolean" }, guestDailyLimit: { type: "integer", minimum: 0 } } },
       tips: { type: "object", properties: { openSubmissions: { type: "boolean" } } },
     },
   },

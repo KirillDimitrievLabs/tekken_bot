@@ -72,7 +72,8 @@
           "access": {
             "enum": [
               "admins",
-              "clan"
+              "clan",
+              "all"
             ]
           },
           "model": {
@@ -89,6 +90,10 @@
           },
           "telegraph": {
             "type": "boolean"
+          },
+          "guestDailyLimit": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       },

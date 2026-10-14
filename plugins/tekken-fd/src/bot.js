@@ -91,7 +91,7 @@ export const HELP_HTML = [
   `🤖 ${b("Tekken 8 frame data")}`,
   ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
   "",
-  `🎓 ${b("Coach (clan members)")}`,
+  `🎓 ${b("Coach")}`,
   ...["vs", "coach", "tip"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
   "",
   `⏳ ${b("Takes time:")} ${code("!vs")} and ${code("!coach")} write a new guide in 3–8 minutes (you'll see progress; a guide someone already asked for is instant). Everything else answers in a second.`,

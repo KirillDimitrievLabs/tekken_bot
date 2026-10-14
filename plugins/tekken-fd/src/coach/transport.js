@@ -56,16 +56,24 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     }
   }
   const pageUrl = (target, mode) => coach.cache.page(pageId(target, mode))?.url ?? null;
-  const allowed = async (userId, chatId, { submissions = false, verifyMembership = false } = {}) => {
-    if (!userId) return false;
-    if (admins().has(String(userId))) return true;
-    if (submissions && api.pluginConfig?.tips?.openSubmissions === true) return true;
-    if (cfg().enabled !== true || (cfg().access ?? "admins") === "admins") return false;
-    if ((cfg().allowlist ?? []).map(String).includes(String(userId))) return true;
-    if (!verifyMembership && clanGroups().includes(String(chatId))) return true;
-    for (const group of clanGroups()) if (await isChatMember(group, userId).catch(() => false)) return true;
-    return false;
+  /** "admin" | "member" | "guest" (access: all) | null — who may use coach and tips. */
+  const accessOf = async (userId, chatId, { submissions = false, verifyMembership = false } = {}) => {
+    if (!userId) return null;
+    if (admins().has(String(userId))) return "admin";
+    const member = async () => {
+      if ((cfg().allowlist ?? []).map(String).includes(String(userId))) return true;
+      if (!verifyMembership && clanGroups().includes(String(chatId))) return true;
+      for (const group of clanGroups()) if (await isChatMember(group, userId).catch(() => false)) return true;
+      return false;
+    };
+    const mode = cfg().access ?? "admins";
+    if (submissions && api.pluginConfig?.tips?.openSubmissions === true) return (await member()) ? "member" : "guest";
+    if (cfg().enabled !== true || mode === "admins") return null;
+    if (await member()) return "member";
+    return mode === "all" ? "guest" : null;
   };
+  const allowed = async (...args) => Boolean(await accessOf(...args));
+
   const preferences = (userId, target = {}) => ({ ...coach.cache.preference(userId), ...target });
   /**
    * Keyboard for one guide view: other views, pager, feedback, tip, admin regenerate.
@@ -96,7 +104,8 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     await editMessageText(t.chatId, t.messageId, html, undefined, { parseMode: "HTML", replyMarkup: markupFor(t.token, rows) });
   }
   async function postGuide(target, userId, chatId, replyTo, { force = false } = {}) {
-    if (!await allowed(userId, chatId)) {
+    const who = await accessOf(userId, chatId);
+    if (!who) {
       const parts = coach.fallback(coach.dossier(target), (cfg().access ?? "admins") === "admins" ? "Coach guides are in admin preview for now; here are the indexed facts." : "Coach guides are for clan members; here are the indexed facts.").parts;
       for (const html of parts) await sendHtml(chatId, replyTo, html);
       return;
@@ -110,7 +119,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
         else messageId = (await sendMessage(chatId, text))?.message_id;
       },
     });
-    const result = await coach.generate(target, { userId, admin: isAdmin, force, progress: (id, state, text) => { progressUsed = true; return board.update(id, state, text); } });
+    const result = await coach.generate(target, { userId, admin: isAdmin, force, guestLimit: who === "guest" ? (cfg().guestDailyLimit ?? 30) : null, progress: (id, state, text) => { progressUsed = true; return board.update(id, state, text); } });
     board.skipRest();
     // the guide replaces the "thinking" message: one message per guide
     if (progressUsed) {

@@ -38,13 +38,13 @@ export class CoachCache {
     else this.db.exec("DELETE FROM coach_cache");
   }
   delete(key) { this.db.prepare("DELETE FROM coach_cache WHERE key=?").run(key); }
-  consume(userId) {
+  consume(userId, limit = this.dailyLimit) {
     // A stable UTC day is independent of the gateway's operating-system timezone.
     const day = new Date(this.now()).toISOString().slice(0, 10);
     this.db.exec("BEGIN IMMEDIATE");
     try {
       const n = this.db.prepare("SELECT generations FROM coach_limits WHERE user_id=? AND day=?").get(String(userId), day)?.generations ?? 0;
-      if (n >= this.dailyLimit) { this.db.exec("ROLLBACK"); return false; }
+      if (n >= limit) { this.db.exec("ROLLBACK"); return false; }
       this.db.prepare("INSERT INTO coach_limits VALUES(?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET generations=generations+1").run(String(userId), day);
       this.db.prepare("DELETE FROM coach_limits WHERE day<?").run(day);
       this.db.exec("COMMIT");
