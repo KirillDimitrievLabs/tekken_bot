@@ -24,3 +24,8 @@ test("move key strips character prefix, including hyphenated names", () => {
   assert.equal(moveKeyFromId("Fahkumram-3,1,2", "Fahkumram"), "3,1,2");
   assert.equal(moveKeyFromId("Jack-8-1,2", "Jack-8"), "1,2");
 });
+
+test("just-frame template artifact in ids becomes ':'", () => {
+  assert.equal(moveKeyFromId("Kazuya-f,n,d,df${justFrame}2", "Kazuya"), "f,n,d,df:2");
+  assert.notEqual(looseKey("f,n,d,df:2"), looseKey("f,n,d,df+2"));
+});

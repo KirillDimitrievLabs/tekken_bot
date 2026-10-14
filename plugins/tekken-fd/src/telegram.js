@@ -18,17 +18,38 @@ export function chatIdFrom(conversationId) {
   return m ? m[0] : null;
 }
 
-export function sendMessage(chatId, text, opts) {
-  return call("sendMessage", { chat_id: chatId, text, disable_web_page_preview: true }, opts);
+/** @param {{replyMarkup?: object}} [extra] */
+export function sendMessage(chatId, text, opts, extra = {}) {
+  return call("sendMessage", {
+    chat_id: chatId,
+    text,
+    disable_web_page_preview: true,
+    ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
+  }, opts);
 }
 
 /** Reply threaded to `messageId`; still delivered if that message was deleted meanwhile. */
-export function sendReply(chatId, messageId, text, opts) {
+export function sendReply(chatId, messageId, text, opts, extra = {}) {
   return call("sendMessage", {
     chat_id: chatId,
     text,
     disable_web_page_preview: true,
     reply_parameters: { message_id: Number(messageId), allow_sending_without_reply: true },
+    ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
+  }, opts);
+}
+
+export function deleteMessage(chatId, messageId, opts) {
+  return call("deleteMessage", { chat_id: chatId, message_id: Number(messageId) }, opts);
+}
+
+export function editMessageText(chatId, messageId, text, opts, extra = {}) {
+  return call("editMessageText", {
+    chat_id: chatId,
+    message_id: Number(messageId),
+    text,
+    disable_web_page_preview: true,
+    ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
   }, opts);
 }
 

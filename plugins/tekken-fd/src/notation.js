@@ -39,5 +39,7 @@ export function looseKey(raw) {
 /** Move key inside a Wavu id: "Fahkumram-3,1,2" → "3,1,2" (character may contain '-'). */
 export function moveKeyFromId(id, character) {
   const prefix = `${character}-`;
-  return id.startsWith(prefix) ? id.slice(prefix.length) : id;
+  const key = id.startsWith(prefix) ? id.slice(prefix.length) : id;
+  // Wavu template artifact in some ids: "f,n,d,df${justFrame}2" means the just-frame input "f,n,d,df:2"
+  return key.replace(/\$\{justFrame\}/g, ":");
 }

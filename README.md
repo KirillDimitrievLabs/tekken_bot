@@ -15,6 +15,22 @@ move was meant; all data comes from [Wavu Wiki](https://wavu.wiki) (CC BY-SA 4.0
 
 Built index (not in git): `/opt/openclaw/data/state/tekken-fd/t8.sqlite`.
 
+### Commands (everyone)
+| Command | Example | Answer |
+|---|---|---|
+| `!fd <char> <move>` | `!fd Fahkumram 312` | frame-data card; typos → "did you mean" buttons (only the asker can tap) |
+| `!punish <char> <frames>` | `!punish kaz -13` | fastest/best standing and crouching punishers, 🚀 = launch |
+| `!unsafe <char> [frames]` | `!unsafe jin` | moves at −10 (or given) or worse on block, grouped |
+| `!list <char> <filter>` | `!list steve lows` | lows/mids/highs, homing, power crush, heat engagers, launchers, tornado, balcony, throws, plus, safe, … |
+| `/start`, `/help` | | usage |
+
+A "did you mean" disappears when the asker taps a button or sends a corrected command within 15 min.
+(Telegram message *edits* aren't forwarded to plugins by OpenClaw, so editing doesn't trigger anything.)
+
+### Owner commands
+`/fd_sync [dry|force]` (with a patch digest preview + 📢 Post-to-group button), `/fd_rebuild`, `/fd_status`,
+`/fd_check`, `/fd_stats` (usage counters in `/opt/openclaw/data/state/tekken-fd/stats.json`).
+
 ### Updating data (manual by design)
 - Telegram DM to the bot (owner only): `/fd_sync dry` → preview, `/fd_sync` → fetch, commit, rebuild.
   `/fd_status`, `/fd_check` (run the Wavu change watcher now), `/fd_rebuild`.

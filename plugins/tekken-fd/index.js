@@ -12,9 +12,13 @@ import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { AliasStore, parseAliasReply } from "./src/aliases.js";
-import { analyze, isHelpCommand, needMoveText, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
+import { analyze, isHelpCommand, needMoveText, parseCharacterArgs, parseCommand, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
+import { choiceData, createToken, getToken, keyboard, NAMESPACE as BUTTON_NAMESPACE, parsePayload, postData, removeTokens, updateToken } from "./src/buttons.js";
+import { filterHelp, formatList, formatPunish, formatUnsafe, resolveFilter } from "./src/queries.js";
+import { formatDigest, hasFrameChanges } from "./src/digest.js";
+import { Stats } from "./src/stats.js";
 import { readMeta } from "./src/snapshot.js";
-import { chatIdFrom, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
+import { chatIdFrom, deleteMessage, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
@@ -109,6 +113,7 @@ export default {
       return { handled: true, text };
     };
     const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
+    const stats = new Stats(path.join(stateDir, "stats.json"));
 
     // Pending "unknown character" requests waiting for an admin reply (persisted in state.json).
     const pendingAliases = () => (readState(p.statePath).pendingAliases ?? []).filter((x) => Date.now() - Date.parse(x.at) < 14 * 864e5);
@@ -122,6 +127,104 @@ export default {
       "Character nicknames work too (fahk, kaz, dvj, …).",
       "Data: wavu.wiki",
     ].join("\n");
+
+    // ---- deterministic replies for every command (also used to re-answer after an alias is added)
+    const frameArg = (rest) => {
+      const m = String(rest ?? "").match(/[+-]?\d+/);
+      return m ? Math.abs(Number(m[0])) : null;
+    };
+    /** @returns {{kind: string, text?: string, move?: object, analysis?: object, unknown?: object, character?: string}} */
+    function compute(cmd, args, body) {
+      const characters = index.characters().map((c) => c.name);
+      if (cmd === "fd") {
+        const a = analyze(index, body ?? `!fd ${args}`, aliases.all());
+        if (!a) return { kind: "none" };
+        if (a.kind === "match") return { kind: "card", move: a.move, character: a.move.character, text: cardFor(a.move) };
+        if (a.kind === "usage") return { kind: "usage", text: USAGE };
+        if (a.kind === "need_move") return { kind: "usage", text: needMoveText(a.character) };
+        if (a.kind === "unknown_character") return { kind: "unknown", unknown: { token: a.token, args: a.args, candidates: a.candidates } };
+        return { kind: "unresolved", analysis: a, character: a.character, text: unresolvedText(a) };
+      }
+      const usage = { punish: "Usage: !punish <character> <frames>, e.g. !punish kaz -13",
+        unsafe: "Usage: !unsafe <character> [frames], e.g. !unsafe jin or !unsafe jin -13",
+        list: `Usage: !list <character> <filter>, e.g. !list steve lows\n${filterHelp()}` }[cmd];
+      const who = parseCharacterArgs(args, characters, aliases.all());
+      if (who.empty) return { kind: "usage", text: usage };
+      if (who.unknown) return { kind: "unknown", unknown: { token: who.unknown, args, candidates: who.candidates } };
+      if (cmd === "punish") {
+        const f = frameArg(who.rest);
+        if (!f) return { kind: "usage", text: usage };
+        return { kind: "punish", character: who.character, text: formatPunish(index, who.character, Math.min(f, 30)) };
+      }
+      if (cmd === "unsafe") {
+        const f = frameArg(who.rest);
+        return { kind: "unsafe", character: who.character, text: formatUnsafe(index, who.character, f ? -f : -10) };
+      }
+      const tag = resolveFilter(who.rest);
+      if (!tag) return { kind: "usage", text: `${who.rest ? `Unknown filter "${who.rest.slice(0, 30)}". ` : ""}${usage}` };
+      return { kind: "list", character: who.character, text: formatList(index, who.character, tag) };
+    }
+
+    // ---- "did you mean" with buttons; removed as soon as the asker gets a card (#6)
+    async function cleanupSuggestions(chatId, askerId) {
+      const cutoff = Date.now() - 15 * 60 * 1000;
+      const old = removeTokens(p.statePath, (t) => t.kind === "suggest" && t.chatId === chatId && t.askerId === askerId && Date.parse(t.at) >= cutoff);
+      for (const t of old) {
+        if (t.suggestionMessageId) await deleteMessage(t.chatId, t.suggestionMessageId).catch(() => {});
+      }
+    }
+
+    async function sendSuggestions(event, ctx, a) {
+      const chatId = chatIdFrom(ctx?.conversationId);
+      const askerId = String(digits(event?.senderId) ?? "");
+      const choices = a.candidates.slice(0, 6);
+      const textOut = unresolvedText(a);
+      const messageId = event?.messageId ?? ctx?.messageId;
+      if (!chatId || !choices.length || !/^\d+$/.test(String(messageId ?? ""))) return done(await answer(event, ctx, textOut));
+      await cleanupSuggestions(chatId, askerId); // only the latest suggestion per asker stays
+      const token = createToken(p.statePath, { kind: "suggest", chatId, askerId, originalMessageId: messageId, choices: choices.map((m) => m.id) });
+      const markup = keyboard(choices.map((m, i) => ({ text: m.key.slice(0, 24), callback_data: choiceData(token, i) })));
+      try {
+        const sent = await sendReply(chatId, messageId, `${textOut}\n(tap the right one)`, undefined, { replyMarkup: markup });
+        updateToken(p.statePath, token, { suggestionMessageId: sent?.message_id ?? null });
+        return { handled: true };
+      } catch (err) {
+        api.logger?.warn?.(`tekken-fd suggestion buttons failed (${err.message}); plain text`);
+        removeTokens(p.statePath, (t) => t.token === token);
+        return done(await answer(event, ctx, textOut));
+      }
+    }
+
+    async function sendCard(event, ctx, move) {
+      const r = await answer(event, ctx, cardFor(move));
+      const chatId = chatIdFrom(ctx?.conversationId);
+      if (chatId) await cleanupSuggestions(chatId, String(digits(event?.senderId) ?? ""));
+      return done(r);
+    }
+
+    // ---- unknown character → alias request (groups/admin DM: in place; other DMs: to the admins)
+    async function askAlias(event, ctx, cmd, unknown, isDirect, isAdmin) {
+      const chatId = chatIdFrom(ctx?.conversationId);
+      const base = { originalMessageId: event?.messageId ?? null, alias: unknown.token.toLowerCase(), cmd, args: unknown.args, at: new Date().toISOString() };
+      stats.record("unknown", { unknown: unknown.token });
+      if (!isDirect || isAdmin) {
+        const r = await answer(event, ctx, unknownCharacterText(unknown));
+        if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...base, chatId: r.chatId, messageId: r.sentId, askChatId: r.chatId }]);
+        return done(r);
+      }
+      const r = await answer(event, ctx, `❓ Unknown character: "${unknown.token.slice(0, 30)}". I've asked an admin to add it — you'll get the answer here.`);
+      const who = digits(event?.senderId) ?? "?";
+      for (const admin of admins()) {
+        try {
+          const closest = unknown.candidates.length ? `\nClosest: ${unknown.candidates.join(" · ")}` : "";
+          const sent = await sendMessage(admin, `❓ Unknown character "${unknown.token.slice(0, 30)}" from user ${who}: "!${cmd} ${unknown.args.slice(0, 80)}"${closest}\nReply to this message with the character name to add "${unknown.token.slice(0, 30).toLowerCase()}" as an alias.`);
+          if (sent?.message_id) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.message_id, askChatId: r.chatId ?? chatId }]);
+        } catch (err) {
+          api.logger?.warn?.(`tekken-fd: alias request to admin ${admin} failed: ${err.message}`);
+        }
+      }
+      return done(r);
+    }
 
     async function handleAliasReply(event, ctx, pending) {
       const characters = characterNames();
@@ -139,13 +242,10 @@ export default {
       api.logger?.info?.(`tekken-fd alias added: ${added.alias} → ${added.character} (${added.commit})`);
       await answer(event, ctx, `✅ Alias added: ${added.alias} → ${added.character}${added.previous && added.previous !== added.character ? ` (was ${added.previous})` : ""}`);
       // Answer the original question now that the character is known.
-      const retry = analyze(index, `!fd ${pending.args}`, aliases.all());
-      const text = retry?.kind === "match" ? cardFor(retry.move)
-        : retry?.kind === "need_move" ? needMoveText(retry.character)
-        : retry?.kind === "unresolved" ? unresolvedText(retry) : null;
-      if (text && pending.originalMessageId) {
+      const retry = compute(pending.cmd ?? "fd", pending.args);
+      if (retry.text && retry.kind !== "unknown" && pending.originalMessageId) {
         try {
-          await sendReply(pending.askChatId ?? pending.chatId, pending.originalMessageId, text);
+          await sendReply(pending.askChatId ?? pending.chatId, pending.originalMessageId, retry.text);
         } catch (err) {
           api.logger?.warn?.(`tekken-fd: re-answer failed: ${err.message}`);
         }
@@ -169,53 +269,84 @@ export default {
           if (pending) return isAdmin ? await handleAliasReply(event, ctx, pending) : { handled: true };
         }
         // 2) /start and /help: our help for everyone except the owner's own agent sessions.
-        if (isHelpCommand(body) && (isPublic || !isAdmin)) return done(await answer(event, ctx, helpText));
+        if (isHelpCommand(body) && (isPublic || !isAdmin)) {
+          stats.record("help");
+          return done(await answer(event, ctx, helpText));
+        }
+        const cmd = parseCommand(body);
+        // 3) Not a bot command: public DMs only get the help text; everything else passes through.
+        if (!cmd) return isPublic && isDirect ? done(await answer(event, ctx, helpText)) : undefined;
 
         ensureIndex();
-        const a = analyze(index, body, aliases.all());
-        // 3) Not an !fd message: public DMs only get the help text; everything else passes through.
-        if (!a) return isPublic && isDirect ? done(await answer(event, ctx, helpText)) : undefined;
-
-        switch (a.kind) {
-          case "match":
-            api.logger?.info?.(`tekken-fd fast path: ${a.move.id} in ${Date.now() - started}ms (${sessionKey})`);
-            return done(await answer(event, ctx, cardFor(a.move)));
-          case "usage":
-            return done(await answer(event, ctx, USAGE));
-          case "need_move":
-            return done(await answer(event, ctx, needMoveText(a.character)));
-          case "unknown_character": {
-            const base = { originalMessageId: event?.messageId ?? null, alias: a.token.toLowerCase(), args: a.args, at: new Date().toISOString() };
-            // In groups and in an admin's own DM the admin can reply right there.
-            if (!isDirect || isAdmin) {
-              const r = await answer(event, ctx, unknownCharacterText(a));
-              if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...base, chatId: r.chatId, messageId: r.sentId, askChatId: r.chatId }]);
-              return done(r);
-            }
-            // Someone else's DM: tell them an admin was asked, and send the request to the admins.
-            const r = await answer(event, ctx, `❓ Unknown character: "${a.token.slice(0, 30)}". I've asked an admin to add it — you'll get the answer here.`);
-            const who = digits(event?.senderId) ?? "?";
-            for (const admin of admins()) {
-              try {
-                const closest = a.candidates.length ? `\nClosest: ${a.candidates.join(" · ")}` : "";
-                const sent = await sendMessage(admin, `❓ Unknown character "${a.token.slice(0, 30)}" from user ${who}: "!fd ${a.args.slice(0, 80)}"${closest}\nReply to this message with the character name to add "${a.token.slice(0, 30).toLowerCase()}" as an alias.`);
-                if (sent?.message_id) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.message_id, askChatId: r.chatId ?? chatId }]);
-              } catch (err) {
-                api.logger?.warn?.(`tekken-fd: alias request to admin ${admin} failed: ${err.message}`);
-              }
-            }
-            return done(r);
-          }
+        const r = compute(cmd.cmd, cmd.args, cmd.cmd === "fd" ? body : undefined);
+        switch (r.kind) {
+          case "card":
+            api.logger?.info?.(`tekken-fd fast path: ${r.move.id} in ${Date.now() - started}ms (${sessionKey})`);
+            stats.record("card", { character: r.character, moveId: r.move.id });
+            return await sendCard(event, ctx, r.move);
+          case "unknown":
+            return await askAlias(event, ctx, cmd.cmd, r.unknown, isDirect, isAdmin);
           case "unresolved":
-            if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined; // model picks
-            return done(await answer(event, ctx, unresolvedText(a)));
-          default:
+            if (r.analysis.candidates.length) {
+              stats.record("suggest", { character: r.character });
+              return await sendSuggestions(event, ctx, r.analysis);
+            }
+            if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) {
+              stats.record("model", { character: r.character });
+              return undefined; // nothing close: let the fd model reason about a descriptive query
+            }
+            stats.record("suggest", { character: r.character });
+            return done(await answer(event, ctx, r.text));
+          case "none":
             return undefined;
+          default:
+            stats.record(r.kind, { character: r.character });
+            return done(await answer(event, ctx, r.text));
         }
       } catch (err) {
         api.logger?.warn?.(`tekken-fd before_dispatch failed: ${err.message}`);
         return isPublic && isDirect ? { handled: true, text: helpText } : undefined;
       }
+    });
+
+    // ---- button presses (OpenClaw routes callback_data "tekken-fd:…" here)
+    const clanGroups = () => Object.keys(api.config?.channels?.telegram?.groups ?? {}).filter((id) => /^-\d+$/.test(id));
+    api.registerInteractiveHandler?.({
+      channel: "telegram",
+      namespace: BUTTON_NAMESPACE,
+      handler: async (ctx) => {
+        const { action, token, index: i } = parsePayload(ctx?.callback?.payload);
+        const presser = String(digits(ctx?.senderId) ?? "");
+        const t = getToken(p.statePath, token);
+        if (!t) {
+          await Promise.resolve(ctx?.respond?.clearButtons?.()).catch(() => {}); // expired: remove stale buttons
+          return { handled: true };
+        }
+        try {
+          if (action === "s") {
+            if (presser !== t.askerId) return { handled: true }; // only the person who asked
+            ensureIndex();
+            const move = index.move(t.choices[i]);
+            removeTokens(p.statePath, (x) => x.token === token);
+            await ctx.respond.deleteMessage().catch(() => {});
+            if (!move) return { handled: true };
+            await sendReply(t.chatId, t.originalMessageId, cardFor(move));
+            stats.record("button", { character: move.character, moveId: move.id });
+            return { handled: true };
+          }
+          if (action === "post") {
+            if (!admins().has(presser)) return { handled: true };
+            const groups = clanGroups();
+            for (const g of groups) await sendMessage(g, t.text);
+            removeTokens(p.statePath, (x) => x.token === token);
+            await ctx.respond.editMessage({ text: `${t.text}\n\n✅ Posted to ${groups.length} group(s).` });
+            return { handled: true };
+          }
+        } catch (err) {
+          api.logger?.warn?.(`tekken-fd button ${action} failed: ${err.message}`);
+        }
+        return { handled: true };
+      },
     });
 
     const candidateLines = (moves) => moves.map((m) => `- id=${m.id} | input=${m.key} | name=${m.name ?? "-"} | hit=${m.target ?? "-"}`).join("\n");
@@ -339,13 +470,28 @@ export default {
       requiredScopes: ["operator.admin"],
       handler: ownerOnly((ctx) => exclusive("sync", async () => {
         const args = String(ctx.args ?? "").toLowerCase();
-        const result = await sync(p, { dryRun: args.includes("dry"), force: args.includes("force") });
-        if (!args.includes("dry")) {
+        const dry = args.includes("dry");
+        const result = await sync(p, { dryRun: dry, force: args.includes("force") });
+        if (!dry) {
           if (!fs.existsSync(p.dbPath)) rebuild(p);
           const now = new Date().toISOString();
           writeState(p.statePath, { pendingCharacters: [], lastSyncAt: now, lastWatchCheck: now });
         }
-        return { text: `${result.changed ? "✅" : "ℹ️"} ${result.message}` };
+        let reply = `${result.changed ? "✅" : "ℹ️"} ${result.message}`;
+        if (result.digest && hasFrameChanges(result.digest)) {
+          const digestText = formatDigest(result.digest);
+          if (dry) {
+            reply += `\n\nDigest preview:\n${digestText}`;
+          } else if (clanGroups().length) {
+            // preview to the owner with a button; nothing reaches the clan until it's tapped
+            const token = createToken(p.statePath, { kind: "post", text: digestText });
+            const owner = digits(ctx.senderId) ?? ownerChatIdFrom(api);
+            await sendMessage(owner, digestText, undefined, { replyMarkup: keyboard([{ text: "📢 Post to group", callback_data: postData(token) }]) })
+              .catch((err) => api.logger?.warn?.(`tekken-fd digest preview failed: ${err.message}`));
+            reply += "\n\n📢 Digest preview sent — tap “Post to group” to share it with the clan.";
+          }
+        }
+        return { text: reply };
       })),
     });
 
@@ -382,6 +528,14 @@ export default {
     });
 
     api.registerCommand({
+      name: "fd_stats",
+      description: "Owner: usage stats (lookups, top moves, unknown words, model share)",
+      requireAuth: true,
+      requiredScopes: ["operator.admin"],
+      handler: ownerOnly(async () => ({ text: stats.format() })),
+    });
+
+    api.registerCommand({
       name: "fd_check",
       description: "Owner: run the Wavu change watcher now",
       requireAuth: true,
@@ -396,7 +550,7 @@ export default {
     // (config/telegram-admin-commands.json) in their DM and in configured groups.
     const PUBLIC_COMMANDS = [
       { command: "start", description: "How to use the frame data bot" },
-      { command: "help", description: "Usage: !fd <character> <move>" },
+      { command: "help", description: "Commands: !fd !punish !unsafe !list" },
     ];
     async function syncCommandMenus() {
       let full = [];
@@ -415,6 +569,7 @@ export default {
       api.logger?.info?.(`tekken-fd: command menus set (public ${PUBLIC_COMMANDS.length}, admin ${adminMenu.length}, groups ${groups.length})`);
     }
     let menuTimer = null;
+    let statsTimer = null;
 
     let stopWatcher = null;
     api.registerService({
@@ -423,6 +578,10 @@ export default {
         // after the Telegram provider has started (it may register its own menu on start)
         menuTimer = setTimeout(() => syncCommandMenus().catch((err) => api.logger?.warn?.(`tekken-fd: command menus failed: ${err.message}`)), 30_000);
         menuTimer.unref?.();
+        statsTimer = setInterval(() => {
+          try { stats.flush(); } catch (err) { api.logger?.warn?.(`tekken-fd stats flush failed: ${err.message}`); }
+        }, 60_000);
+        statsTimer.unref?.();
         try {
           ensureIndex();
         } catch (err) {
@@ -438,6 +597,8 @@ export default {
       },
       stop() {
         clearTimeout(menuTimer);
+        clearInterval(statsTimer);
+        try { stats.flush(); } catch {}
         stopWatcher?.();
         stopWatcher = null;
         index.close();

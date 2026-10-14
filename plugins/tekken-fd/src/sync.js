@@ -4,6 +4,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { auditSnapshots, summarizeAudit } from "./audit.js";
 import { buildDatabase } from "./db.js";
+import { diffFrames } from "./digest.js";
 import { assertPlausible, diffSnapshots, readMeta, readSnapshots, writeSnapshots } from "./snapshot.js";
 import { fetchAllMoves } from "./wavu.js";
 
@@ -49,15 +50,16 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl } = {})
   const changes = diffSnapshots(before, after);
   const totals = { characters: after.size, moves: [...after.values()].reduce((n, m) => n + m.length, 0) };
   const audit = auditSnapshots(after);
+  const digest = diffFrames(before, after);
   const warn = summarizeAudit(audit);
   const withWarn = (msg) => (warn ? `${msg}\n\n${warn}` : msg);
 
   if (changes.length === 0) {
     const meta = readMeta(p.dataDir);
-    return { changed: false, changes, totals, audit, message: withWarn(`No changes in Wavu data since ${meta?.syncedAt ?? "last sync"} (${totals.moves} moves, ${totals.characters} characters).`) };
+    return { changed: false, changes, totals, audit, digest, message: withWarn(`No changes in Wavu data since ${meta?.syncedAt ?? "last sync"} (${totals.moves} moves, ${totals.characters} characters).`) };
   }
   if (dryRun) {
-    return { changed: true, changes, totals, audit, message: withWarn(`Dry run — ${changes.length} character(s) would change: ${summarize(changes)}`) };
+    return { changed: true, changes, totals, audit, digest, message: withWarn(`Dry run — ${changes.length} character(s) would change: ${summarize(changes)}`) };
   }
 
   const syncedAt = new Date().toISOString();
@@ -75,7 +77,7 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl } = {})
   await git(p.repoDir, "commit", "--quiet", "-m", subject, "-m", summarize(changes, 100));
   const commit = await git(p.repoDir, "rev-parse", "--short", "HEAD");
   const revertHint = warn ? `\nTo undo: git revert ${commit}, then /fd_rebuild.` : "";
-  return { changed: true, changes, totals, commit, audit, message: withWarn(`Synced ${totals.moves} moves. ${changes.length} character(s) changed: ${summarize(changes)}. Commit ${commit}.`) + revertHint };
+  return { changed: true, changes, totals, commit, audit, digest, message: withWarn(`Synced ${totals.moves} moves. ${changes.length} character(s) changed: ${summarize(changes)}. Commit ${commit}.`) + revertHint };
 }
 
 export async function lastDataCommit(repoDir, dataDir) {

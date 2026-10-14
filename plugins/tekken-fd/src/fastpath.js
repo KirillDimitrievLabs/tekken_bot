@@ -11,6 +11,28 @@ export function parseTrigger(text) {
   return m ? m[1].replace(/\s+/g, " ").trim() : null;
 }
 
+const COMMAND = /^\s*(?:@\w+\s+)?!(fd|punish|unsafe|list)\b\s*(.*)$/is;
+
+/** "!punish kaz -13" → {cmd: "punish", args: "kaz -13"}; null if not a bot command. */
+export function parseCommand(text) {
+  const m = COMMAND.exec(String(text ?? ""));
+  return m ? { cmd: m[1].toLowerCase(), args: m[2].replace(/\s+/g, " ").trim() } : null;
+}
+
+/**
+ * Character + the rest of the arguments ("kaz -13", "devil jin lows", "jin").
+ * @returns {{character: string, rest: string} | {unknown: string, candidates: string[]} | {empty: true}}
+ */
+export function parseCharacterArgs(args, characters, aliases) {
+  if (!args) return { empty: true };
+  const split = splitQuery(args, characters, aliases);
+  if (split) return { character: split.character, rest: split.move };
+  const whole = resolveCharacter(args, characters, aliases);
+  if (whole.match) return { character: whole.match, rest: "" };
+  const token = args.split(" ")[0];
+  return { unknown: token, candidates: resolveCharacter(token, characters, aliases).candidates };
+}
+
 export function isHelpCommand(text) {
   return HELP_COMMAND.test(String(text ?? ""));
 }
@@ -67,7 +89,16 @@ export function fastResolve(index, text, aliases) {
   return a?.kind === "match" ? { move: a.move } : null;
 }
 
-export const USAGE = "Usage: !fd <character> <move>\nExamples:\n!fd Fahkumram 312\n!fd kaz df1\n!fd devil jin ws2";
+export const USAGE = [
+  "!fd <character> <move> — frame data card",
+  "   !fd Fahkumram 312 · !fd kaz df1 · !fd devil jin ws2",
+  "!punish <character> <frames> — best punishers",
+  "   !punish kaz -13",
+  "!unsafe <character> [frames] — moves punishable on block",
+  "   !unsafe jin · !unsafe jin -13",
+  "!list <character> <filter> — e.g. lows, homing, power crush, heat engagers, launchers, tornado",
+  "   !list steve lows",
+].join("\n");
 
 export function needMoveText(character) {
   return `Which ${character} move? e.g. !fd ${character} df+1`;

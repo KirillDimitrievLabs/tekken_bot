@@ -2,7 +2,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { listText, noteItems } from "./format.js";
+import { cleanInline, listText, noteItems } from "./format.js";
+import { blockOf, isLauncher, isThrow, startupOf, stanceOf } from "./frames.js";
+import { tagsFor } from "./tags.js";
 import { looseKey, moveKeyFromId, strictKey } from "./notation.js";
 
 const SCHEMA = `
@@ -11,8 +13,12 @@ CREATE TABLE moves (
   id TEXT PRIMARY KEY, character TEXT NOT NULL, key TEXT NOT NULL, num INTEGER,
   name TEXT, input TEXT, alias TEXT, alt TEXT, parent TEXT,
   target TEXT, damage TEXT, startup TEXT, recv TEXT, tot TEXT, crush TEXT,
-  block TEXT, hit TEXT, ch TEXT, notes TEXT
+  block TEXT, hit TEXT, ch TEXT, notes TEXT,
+  root INTEGER, startup_n INTEGER, block_n INTEGER, launcher INTEGER, stance TEXT, throw INTEGER
 );
+CREATE INDEX moves_punish ON moves (character, root, stance, startup_n);
+CREATE TABLE tags (id TEXT NOT NULL, character TEXT NOT NULL, tag TEXT NOT NULL);
+CREATE INDEX tags_lookup ON tags (character, tag);
 CREATE TABLE move_keys (character TEXT NOT NULL, id TEXT NOT NULL, kind TEXT NOT NULL, strict TEXT NOT NULL, loose TEXT NOT NULL);
 CREATE INDEX move_keys_strict ON move_keys (character, strict);
 CREATE INDEX move_keys_loose ON move_keys (character, loose);
@@ -21,7 +27,8 @@ CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT);
 `;
 
 const COLUMNS = ["id", "character", "key", "num", "name", "input", "alias", "alt", "parent",
-  "target", "damage", "startup", "recv", "tot", "crush", "block", "hit", "ch", "notes"];
+  "target", "damage", "startup", "recv", "tot", "crush", "block", "hit", "ch", "notes",
+  "root", "startup_n", "block_n", "launcher", "stance", "throw"];
 
 /** Alternative inputs/nicknames in Wavu's alias/alt fields (plain value or an HTML "dotlist"). */
 function altKeys(value, character) {
@@ -40,6 +47,7 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
     const insMove = db.prepare(`INSERT INTO moves (${COLUMNS.join(",")}) VALUES (${COLUMNS.map(() => "?").join(",")})`);
     const insKey = db.prepare("INSERT INTO move_keys VALUES (?, ?, ?, ?, ?)");
     const insFts = db.prepare("INSERT INTO moves_fts VALUES (?, ?, ?)");
+    const insTag = db.prepare("INSERT INTO tags VALUES (?, ?, ?)");
     db.exec("BEGIN");
     let total = 0;
     const seen = new Set();
@@ -54,7 +62,10 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         const alts = altKeys(m.alt, character);
         const v = (x) => x ?? null;
         insMove.run(m.id, character, key, m.num == null ? null : Number(m.num), name, v(m.input), aliases.join(" · ") || null, alts.join(" · ") || null, v(m.parent),
-          v(m.target), v(m.damage), v(m.startup), v(m.recv), v(m.tot), v(m.crush), v(m.block), v(m.hit), v(m.ch), v(m.notes));
+          v(m.target), v(m.damage), v(m.startup), v(m.recv), v(m.tot), v(m.crush), v(m.block), v(m.hit), v(m.ch), v(m.notes),
+          m.parent ? 0 : 1, startupOf(m.startup), cleanInline(m.block) === "!" ? null : blockOf(m.block),
+          isLauncher(m.hit) ? 1 : 0, stanceOf(key), isThrow(m.target) ? 1 : 0);
+        for (const tag of tagsFor(m, key)) insTag.run(m.id, character, tag);
         const keys = [["id", key], ...aliases.map((k) => ["alias", k]), ...alts.map((k) => ["alt", k])];
         for (const [kind, k] of keys) insKey.run(character, m.id, kind, strictKey(k), looseKey(k));
         insFts.run(m.id, character, [key, name, ...aliases, ...alts].filter(Boolean).join(" | "));
@@ -150,6 +161,32 @@ export class MoveIndex {
       .prepare(`SELECT DISTINCT m.* FROM move_keys k JOIN moves m ON m.id = k.id
                 WHERE k.character = ? AND instr(k.loose, ?) > 0 ORDER BY length(k.loose), m.num LIMIT ?`)
       .all(character, loose, limit);
+  }
+
+  /** Root moves usable from a stance with startup ≤ frames (punish candidates). */
+  punishCandidates(character, stance, frames) {
+    return this.handle()
+      .prepare(`SELECT * FROM moves WHERE character = ? AND root = 1 AND throw = 0 AND stance = ?
+                AND startup_n IS NOT NULL AND startup_n <= ? ORDER BY startup_n, num`)
+      .all(character, stance, frames);
+  }
+
+  /** Root moves with guaranteed on-block ≤ threshold. */
+  unsafeMoves(character, threshold) {
+    return this.handle()
+      .prepare(`SELECT * FROM moves WHERE character = ? AND root = 1 AND block_n IS NOT NULL AND block_n <= ?
+                ORDER BY block_n, num`)
+      .all(character, threshold);
+  }
+
+  children(id) {
+    return this.handle().prepare("SELECT * FROM moves WHERE parent = ? ORDER BY num").all(id);
+  }
+
+  byTag(character, tag) {
+    return this.handle()
+      .prepare(`SELECT m.* FROM tags t JOIN moves m ON m.id = t.id WHERE t.character = ? AND t.tag = ? ORDER BY m.num`)
+      .all(character, tag);
   }
 
   /** Keys of this character's moves, for nearest-match suggestions. */
