@@ -12,7 +12,7 @@ import { createRequire } from "node:module";
 import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
-import { fastResolve } from "./src/fastpath.js";
+import { fastResolve, parseTrigger, suggestReply } from "./src/fastpath.js";
 import { readMeta } from "./src/snapshot.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
@@ -80,18 +80,25 @@ export default {
     };
 
     const cardFor = (move) => formatCard({ character: move.character, key: move.key, chain: index.chain(move.id) });
-    // Fast path: exact queries skip the agent entirely (no model round trips).
-    const fastAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
+    // Fast path: exact "!fd" queries skip the agent entirely (no model round trips).
+    // In fd sessions vague queries go on to the fd agent to reason about; in any other agent's
+    // session (e.g. the owner's DM → main) the plugin answers "did you mean" itself so that agent
+    // never improvises frame data.
+    const reasoningAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
     api.on("before_dispatch", (event) => {
       const sessionKey = String(event?.sessionKey ?? "");
-      if (!fastAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined;
+      const body = event?.content ?? event?.body;
       const started = Date.now();
       try {
+        if (parseTrigger(body) === null) return undefined;
         ensureIndex();
-        const hit = fastResolve(index, event.content ?? event.body, ALIASES);
-        if (!hit) return undefined; // ambiguous / unknown → the fd agent reasons about it
-        api.logger?.info?.(`tekken-fd fast path: ${hit.move.id} in ${Date.now() - started}ms`);
-        return { handled: true, text: cardFor(hit.move) };
+        const hit = fastResolve(index, body, ALIASES);
+        if (hit) {
+          api.logger?.info?.(`tekken-fd fast path: ${hit.move.id} in ${Date.now() - started}ms (${sessionKey})`);
+          return { handled: true, text: cardFor(hit.move) };
+        }
+        if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined;
+        return { handled: true, text: suggestReply(index, body, ALIASES) };
       } catch (err) {
         api.logger?.warn?.(`tekken-fd fast path failed, deferring to agent: ${err.message}`);
         return undefined;

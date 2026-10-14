@@ -42,6 +42,5 @@ test("Fahkumram 3,1,2 card matches the clan template", () => {
     "🗒  Interrupt with i3 from 2nd block",
     "🗒  Move can be delayed by 5F",
     "🗒  Input can be delayed by 6F",
-    "— wavu.wiki",
   ].join("\n"));
 });

@@ -66,7 +66,6 @@ export function formatCard({ character, key, chain }) {
   if (move.crush) lines.push(`🛡 crush: ${cleanInline(move.crush)}`);
   lines.push(`📌 Notes: ${notes.length ? "🗒" : "—"}`);
   for (const note of notes) lines.push(`🗒  ${note}`);
-  lines.push("— wavu.wiki");
   return lines.join("\n");
 }
 

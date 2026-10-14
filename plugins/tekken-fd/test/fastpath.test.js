@@ -44,3 +44,11 @@ test("exact queries resolve, vague ones defer to the model", () => {
   assert.equal(fastResolve(index, "!fd fahk 3,1,3", aliases), null);
   assert.equal(fastResolve(index, "hello", aliases), null);
 });
+
+test("deterministic suggestions for non-reasoning sessions", async () => {
+  const { suggestReply } = await import("../src/fastpath.js");
+  assert.equal(suggestReply(index, "hello", aliases), null);
+  assert.match(suggestReply(index, "!fd", aliases), /^Usage/);
+  assert.match(suggestReply(index, "!fd fahk 3,1,3", aliases), /Did you mean: .*3,1,2/);
+  assert.match(suggestReply(index, "!fd fahk", aliases), /Which Fahkumram move/);
+});
