@@ -176,7 +176,8 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   const requiredUnsafe = bUnsafe.slice(0, 5).map((m) => as ? punish(index, as, m, all) : {
     move: m.id, answer: null, stance: blockLevelOf(m) === "low" ? "crouching" : "standing", window: Math.abs(m.block_n), curated: false, range: "unverified", universal: true });
   const escapeAnswers = [];
-  for (const m of tagged(opponent, "low").filter((m) => m.root).slice(0, 6)) {
+  // Lows with an unknown block value have no established answer beyond "block low"; skip them as required escapes.
+  for (const m of tagged(opponent, "low").filter((m) => m.root && m.block_n != null).slice(0, 6)) {
     const p = as && m.block_n != null && m.block_n <= -10 ? punish(index, as, m, all) : null;
     escapeAnswers.push({ move: m.id, kind: "low", answer: p?.answer ?? null, actions: ["crouch_block", ...(m.block_n != null && m.block_n <= -10 ? ["punish"] : [])],
       ...(m.block_n != null && m.block_n <= -10 ? { window: Math.abs(m.block_n) } : {}), facts: { level: "low", punish: p } });

@@ -113,7 +113,7 @@ test("requires every top unsafe punish and the exact computed relation", () => {
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((x) => /must cover unsafe/.test(x)));
   assert.ok(result.errors.some((x) => /computed answer/.test(x)));
-  assert.ok(result.errors.some((x) => /supported action/.test(x)));
+  assert.ok(result.errors.some((x) => /allowed actions for this threat/.test(x)));
 });
 
 test("escape coverage requires distinct threats and backed actions", () => {
@@ -122,7 +122,7 @@ test("escape coverage requires distinct threats and backed actions", () => {
   guide.defense[1] = { ...guide.defense[2] };
   const result = validateGuide(guide, dossier);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.some((x) => /supported action/.test(x)));
+  assert.ok(result.errors.some((x) => /allowed actions for this threat/.test(x)));
   assert.ok(result.errors.some((x) => /Need 3 distinct/.test(x)));
 });
 
@@ -224,4 +224,11 @@ test("renderer labels general knowledge as unverified", () => {
   const { dossier, guide, index } = fixture();
   const html = renderGuide(index, { ...guide, general_knowledge: ["Reina players like to stay in her stance."] }, dossier).join("\n");
   assert.match(html, /⚠️ General knowledge \(unverified\)/);
+});
+
+test("unsupported escape actions produce an explicit, fixable retry message", () => {
+  const { dossier, guide } = fixture();
+  for (const e of dossier.escapeAnswers) { e.actions = ["crouch_block"]; e.answer = null; }
+  const errors = validateGuide(guide, dossier).errors.join("\n");
+  assert.match(errors, /allowed actions for this threat are crouch_block; remove punish from its answer, or drop this item/);
 });

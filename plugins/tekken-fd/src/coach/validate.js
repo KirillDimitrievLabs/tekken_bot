@@ -37,6 +37,13 @@ function canonicalAction(value) {
   return null;
 }
 
+/** Actions the answer text uses that this threat's evidence does not support (for the retry message). */
+function unsupportedActions(candidate, answer) {
+  const supported = new Set((candidate.actions ?? []).map(canonicalAction).filter(Boolean));
+  const observed = Object.entries(ACTIONS).filter(([, pattern]) => pattern.test(answer)).map(([action]) => action);
+  return observed.filter((a) => !(a === "duck" && observed.includes("crouch_block"))).filter((a) => !supported.has(a));
+}
+
 function supportedEscape(candidate, answer, moves, as) {
   const refs = refsOf(answer);
   const supported = new Set((candidate.actions ?? []).map(canonicalAction).filter(Boolean));
@@ -183,7 +190,11 @@ export function validateGuide(raw, dossier) {
       const candidate = candidates.find((c) => c.move === id);
       if (!candidate) continue;
       if (supportedEscape(candidate, String(entry.answer ?? ""), moves, dossier.as)) covered.add(id);
-      else errors.push(`defense [[${id}]] must use that threat's supported action or punish answer`);
+      else {
+        // Be explicit so the corrective retry can fix it: list allowed actions and the offending ones.
+        const extra = unsupportedActions(candidate, String(entry.answer ?? ""));
+        errors.push(`defense [[${id}]]: allowed actions for this threat are ${(candidate.actions ?? []).join(", ") || "none"}${candidate.answer ? ` (response [[${candidate.answer}]])` : ""}; ${extra.length ? `remove ${extra.join(", ")} from its answer` : "state one of the allowed actions in its answer"}, or drop this item`);
+      }
     }
   }
   const minimum = Math.min(3, new Set(candidates.map((x) => x.move)).size);
