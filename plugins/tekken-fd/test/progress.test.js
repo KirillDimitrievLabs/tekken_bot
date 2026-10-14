@@ -24,7 +24,7 @@ test("progress board renders every step and throttles running updates", async ()
   const last = shown.at(-1);
   assert.match(last, /^🔄 Sync · 5s/);
   assert.match(last, /✅ Wavu frame data — 9000 moves, 42 characters/);
-  assert.match(last, /⚠️ Wavu punishers — 30 characters, 2 without a page, failed: Kuma/);
+  assert.match(last, /⚠️ Wavu punishers — 30 characters, 2 with no data, failed: Kuma/);
   assert.match(last, /➖ GitHub push — dry run/);
   assert.match(last, /✅ Done\.$/);
 });

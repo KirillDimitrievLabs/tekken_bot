@@ -90,7 +90,7 @@ export const counter = ({ done, total, character }) => `${done}/${total}${charac
 /** Summary of a per-character fetch report: "33 ok, 2 without a page" / "⚠️ failed: X, Y". */
 export function reportText(report, { kept = false } = {}) {
   const parts = [`${report.ok} characters`];
-  if (report.missing.length) parts.push(`${report.missing.length} without a page`);
+  if (report.missing.length) parts.push(`${report.missing.length} with no data`);
   if (report.errors.length) parts.push(`failed: ${report.errors.slice(0, 6).join(", ")}${report.errors.length > 6 ? ` +${report.errors.length - 6}` : ""}`);
   if (kept) parts.push("too little data, kept previous file");
   return parts.join(", ");
