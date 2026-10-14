@@ -66,12 +66,21 @@ const HELP = {
   throws: ["!throws <character> — every throw with its break", "!throws king"],
   quiz: ["!quiz [character] — frame quiz (everyone answers once)", "!top · !top <character> — leaderboard"],
   heat: ["!heat <character> — engagers (with heat dash), smash, burst, heat moves", "!wall <character> — wall crush/splat, balcony, floor breaks"],
-  coach: ["!coach <you> vs <them> — a grounded matchup guide", "!vs reina / !coach reina — a counter-guide; offers your !main matchup", "!coachlang en|ru — save your guide language", "!coachlevel high|mid — save your level (high is the default)", "Per-request options: --lang ru --level high", "Coach is available to configured clan members after admin preview."],
+  vs: ["!vs <character> — ⏳ full guide: how to play against them", "!vs reina · !vs steve --lang ru",
+    "Teaches how they play, every stance, key threats, punishes, defense, lows, mistakes and practice drills.",
+    "⏳ A new guide takes 3–8 minutes (a progress message shows the steps). A guide someone already requested is instant.",
+    "Buttons switch the same message between sections; 📖 Full guide opens the whole guide as a page (Instant View).",
+    "Up to 5 new guides per day for each member; cached guides are unlimited.",
+    "!coachlang en|ru — your guide language · !coachlevel high|mid — your level (high is the default)",
+    "With !main set, the guide offers a button for your matchup."],
+  coach: ["!coach <you> vs <them> — ⏳ full matchup guide for your character", "!coach kazuya vs reina · !coach lee vs steve --level mid",
+    "Your plan, your best tools, what to stop doing, their threats, punishes with your moves, defense and drills.",
+    "⏳ A new guide takes 3–8 minutes; a guide someone already requested is instant.",
+    "Per-request options: --lang en|ru --level high|mid · see !help vs for buttons and limits"],
   tip: ["!tip vs reina #defense: your advice — submit a clan tip for admin approval", "!tip kazuya vs reina: matchup advice (20–400 characters)", "!tips vs reina · !mytips — approved tips and your submissions"],
 };
-HELP.vs = HELP.coach;
-HELP.coachlang = HELP.coach;
-HELP.coachlevel = HELP.coach;
+HELP.coachlang = HELP.vs;
+HELP.coachlevel = HELP.vs;
 HELP.tips = HELP.tip;
 HELP.mytips = HELP.tip;
 HELP.top = HELP.quiz;
@@ -80,8 +89,13 @@ HELP.mains = HELP.main;
 
 export const HELP_HTML = [
   `🤖 ${b("Tekken 8 frame data")}`,
-  ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main", "coach", "tip"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
-  `${code("!help <command>")} — examples, e.g. ${code("!help punish")} · ${code("!legend")} — what the emojis mean`,
+  ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
+  "",
+  `🎓 ${b("Coach (clan members)")}`,
+  ...["vs", "coach", "tip"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
+  "",
+  `⏳ ${b("Takes time:")} ${code("!vs")} and ${code("!coach")} write a new guide in 3–8 minutes (you'll see progress; a guide someone already asked for is instant). Everything else answers in a second.`,
+  `${code("!help <command>")} — examples, e.g. ${code("!help vs")} · ${code("!legend")} — what the emojis mean`,
   "<i>Nicknames (fahk, kaz, казуя), move names, hopkick/hellsweep/ewgf and Russian layout all work. Data: wavu.wiki</i>",
 ].join("\n");
 

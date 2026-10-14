@@ -158,7 +158,7 @@ test("invalid tip submission returns a handled validation error without model fa
 test("DM coach authorizes current clan membership before generation and before a cached request", async (t) => {
   const h = harness(t);
   await h.send("!vs kazuya", { sender: STRANGER, chat: STRANGER });
-  assert.equal(h.completions.length, 0); assert.match(plain(h.lastSend(STRANGER)), /available to clan members/);
+  assert.equal(h.completions.length, 0); assert.match(plain(h.lastSend(STRANGER)), /for clan members/);
   assert(h.calls.some((call) => call.method === "getChatMember" && call.body.user_id === Number(STRANGER)));
   await h.send("!vs kazuya", { sender: MEMBER, chat: MEMBER });
   assert.equal(h.completions.length, 1); assert.match(plain(h.lastSend(MEMBER)), /🎓/);
@@ -170,10 +170,10 @@ test("DM coach authorizes current clan membership before generation and before a
   assert(h.calls.filter((call) => call.method === "getChatMember" && call.body.user_id === Number(MEMBER)).length > memberChecks);
   h.members.set(MEMBER, "left");
   await h.send("!vs kazuya", { sender: MEMBER, chat: MEMBER });
-  assert.match(plain(h.lastSend(MEMBER)), /available to clan members/);
+  assert.match(plain(h.lastSend(MEMBER)), /for clan members/);
   assert.equal(h.completions.length, 1, "former member does not access a generated or cached guide");
   await h.send("!vs kazuya", { sender: STRANGER, chat: STRANGER });
-  assert.match(plain(h.lastSend(STRANGER)), /available to clan members/);
+  assert.match(plain(h.lastSend(STRANGER)), /for clan members/);
   assert.equal(h.completions.length, 1);
   assert.doesNotMatch(h.completions[0].messages[0].content, new RegExp(`${OWNER}|${MEMBER}|${STRANGER}|${GROUP}`));
 });

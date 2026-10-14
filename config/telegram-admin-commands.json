@@ -257,7 +257,7 @@
   },
   {
     "command": "fd_sync",
-    "description": "Owner: fetch Wavu frame data, commit changes to git, rebuild the index (args: dry | force)"
+    "description": "⏳ ~5 min: fetch Wavu data, commit, rebuild, push"
   },
   {
     "command": "pair",
@@ -285,11 +285,11 @@
   },
   {
     "command": "coach_warm",
-    "description": "Owner: generate guides for clan mains"
+    "description": "⏳ Owner: pre-generate guides for clan mains (3–8 min each)"
   },
   {
     "command": "coach_test",
-    "description": "Owner: generate test guides to your DM"
+    "description": "⏳ Owner: test guides to your DM (3–8 min each)"
   },
   {
     "command": "tips_queue",

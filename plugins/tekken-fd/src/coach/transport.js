@@ -97,7 +97,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
   }
   async function postGuide(target, userId, chatId, replyTo, { force = false } = {}) {
     if (!await allowed(userId, chatId)) {
-      const parts = coach.fallback(coach.dossier(target), "Coach is available to clan members (admin preview until launch).").parts;
+      const parts = coach.fallback(coach.dossier(target), (cfg().access ?? "admins") === "admins" ? "Coach guides are in admin preview for now; here are the indexed facts." : "Coach guides are for clan members; here are the indexed facts.").parts;
       for (const html of parts) await sendHtml(chatId, replyTo, html);
       return;
     }
@@ -166,7 +166,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       catch (e) { return done(await answer(event, ctx, esc(e.message))); }
     }
     if (r.kind === "coach") { await postGuide(preferences(userId, r.target), userId, chatId, event.messageId); return { handled: true }; }
-    if (!await allowed(userId, chatId, { submissions: r.kind === "tip" })) return done(await answer(event, ctx, "Clan tips are available to clan members (admin preview until launch)."));
+    if (!await allowed(userId, chatId, { submissions: r.kind === "tip" })) return done(await answer(event, ctx, (cfg().access ?? "admins") === "admins" ? "Clan tips are in admin preview for now." : "Clan tips are for clan members."));
     if (r.kind === "tip") {
       // Approved tips are pushed to GitHub: credit the first/last name, never the @username or user id.
       const name = await memberDisplayName(chatId, userId).catch(() => null);

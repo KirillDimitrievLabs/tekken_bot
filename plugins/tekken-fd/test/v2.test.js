@@ -117,3 +117,12 @@ test("readable move names: stance and notation prefixes are spelled out", async 
   for (const [key, want] of Object.entries(cases)) assert.equal(prettyKey("Reina", key), want, key);
   setStances({});
 });
+
+test("help lists the coach commands and says which ones take time", async () => {
+  const { HELP_HTML } = await import("../src/bot.js");
+  assert.match(HELP_HTML, /🎓 <b>Coach \(clan members\)<\/b>/);
+  assert.match(HELP_HTML, /<code>!vs &lt;character&gt;<\/code> — ⏳ full guide/);
+  assert.match(HELP_HTML, /<code>!coach &lt;you&gt; vs &lt;them&gt;<\/code> — ⏳ full matchup guide/);
+  assert.match(HELP_HTML, /⏳ <b>Takes time:<\/b>.*3–8 minutes/);
+  assert.match(HELP_HTML, /Everything else answers in a second/);
+});
