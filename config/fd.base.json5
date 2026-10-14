@@ -1,5 +1,7 @@
 // tekken-fd plugin + isolated "fd" agent. Applied by scripts/apply-config.sh.
 {
+  // Bot replies are threaded to the message they answer (Telegram reply/quote).
+  channels: { telegram: { replyToMode: "first" } },
   plugins: {
     load: { paths: ["/opt/clan-bots/plugins/tekken-fd"] },
     entries: { "tekken-fd": { enabled: true, config: { repoDir: "/opt/clan-bots" } } },
