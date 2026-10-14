@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { after, before, test } from "node:test";
 import { buildDatabase, MoveIndex } from "../src/db.js";
-import { fastResolve, parseTrigger, splitQuery } from "../src/fastpath.js";
+import { analyze, fastResolve, isHelpCommand, parseTrigger, splitQuery } from "../src/fastpath.js";
 
 const aliases = JSON.parse(fs.readFileSync(new URL("../aliases.json", import.meta.url), "utf8"));
 const fx = JSON.parse(fs.readFileSync(new URL("./fixtures/Fahkumram.json", import.meta.url), "utf8"));
@@ -51,4 +51,19 @@ test("deterministic suggestions for non-reasoning sessions", async () => {
   assert.match(suggestReply(index, "!fd", aliases), /^Usage/);
   assert.match(suggestReply(index, "!fd fahk 3,1,3", aliases), /Did you mean: .*3,1,2/);
   assert.match(suggestReply(index, "!fd fahk", aliases), /Which Fahkumram move/);
+});
+
+test("analyze classifies queries", () => {
+  assert.equal(analyze(index, "!fd fahkie 312", aliases).kind, "unknown_character");
+  assert.equal(analyze(index, "!fd fahkie 312", aliases).token, "fahkie");
+  assert.equal(analyze(index, "!fd fahkie 312", { ...aliases, fahkie: "Fahkumram" }).kind, "match");
+  assert.equal(analyze(index, "!fd fahk", aliases).kind, "need_move");
+  assert.equal(analyze(index, "!fd", aliases).kind, "usage");
+  assert.equal(analyze(index, "!fd fahk knee", aliases).kind, "unresolved");
+  assert.equal(analyze(index, "hi", aliases), null);
+});
+
+test("help commands", () => {
+  for (const t of ["/start", "/help", "/start@tekken_frames_bot", "/HELP me"]) assert.ok(isHelpCommand(t), t);
+  for (const t of ["/status", "/new", "help", "/starter"]) assert.ok(!isHelpCommand(t), t);
 });

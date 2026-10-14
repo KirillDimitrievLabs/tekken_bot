@@ -31,3 +31,8 @@ export function sendReply(chatId, messageId, text, opts) {
     reply_parameters: { message_id: Number(messageId), allow_sending_without_reply: true },
   }, opts);
 }
+
+/** Set the command menu for a scope ({type:"default"}, {type:"chat", chat_id}, {type:"chat_member", chat_id, user_id}). */
+export function setMyCommands(commands, scope, opts) {
+  return call("setMyCommands", { commands, scope }, opts);
+}

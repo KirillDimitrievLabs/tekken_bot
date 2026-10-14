@@ -1,0 +1,270 @@
+[
+  {
+    "command": "help",
+    "description": "Show available commands."
+  },
+  {
+    "command": "commands",
+    "description": "List all slash commands."
+  },
+  {
+    "command": "tools",
+    "description": "List available runtime tools."
+  },
+  {
+    "command": "skill",
+    "description": "Run a skill by name."
+  },
+  {
+    "command": "dashboard",
+    "description": "Create or update this session's dashboard."
+  },
+  {
+    "command": "learn",
+    "description": "Draft a reusable skill from recent work or named sources."
+  },
+  {
+    "command": "loop",
+    "description": "Loop a prompt: /loop [interval] <prompt> | /loop status | /loop stop [name]"
+  },
+  {
+    "command": "status",
+    "description": "Show current status."
+  },
+  {
+    "command": "goal",
+    "description": "Show or control the current goal."
+  },
+  {
+    "command": "diagnostics",
+    "description": "Explain Gateway diagnostics and Codex feedback upload options."
+  },
+  {
+    "command": "login",
+    "description": "Connect a model provider."
+  },
+  {
+    "command": "approve",
+    "description": "Approve or deny exec requests."
+  },
+  {
+    "command": "context",
+    "description": "Explain how context is built and used."
+  },
+  {
+    "command": "btw",
+    "description": "Ask a side question without changing future session context."
+  },
+  {
+    "command": "export_session",
+    "description": "Export current session to an owner-only HTML file in the workspace."
+  },
+  {
+    "command": "export_trajectory",
+    "description": "Export a JSONL trajectory bundle for the active session."
+  },
+  {
+    "command": "tts",
+    "description": "Control text-to-speech (TTS)."
+  },
+  {
+    "command": "whoami",
+    "description": "Show your sender id."
+  },
+  {
+    "command": "session",
+    "description": "Manage conversation bindings and session lifecycle settings."
+  },
+  {
+    "command": "subagents",
+    "description": "Inspect subagent runs for this session."
+  },
+  {
+    "command": "acp",
+    "description": "Manage ACP sessions and runtime options."
+  },
+  {
+    "command": "agents",
+    "description": "List thread-bound agents for this session."
+  },
+  {
+    "command": "steer",
+    "description": "Send guidance to the active run in this session."
+  },
+  {
+    "command": "usage",
+    "description": "Usage footer or cost summary."
+  },
+  {
+    "command": "stop",
+    "description": "Stop the current run."
+  },
+  {
+    "command": "restart",
+    "description": "Restart OpenClaw."
+  },
+  {
+    "command": "update",
+    "description": "Update OpenClaw and restart."
+  },
+  {
+    "command": "activation",
+    "description": "Set group activation mode."
+  },
+  {
+    "command": "send",
+    "description": "Set send policy."
+  },
+  {
+    "command": "reset",
+    "description": "Reset the current session."
+  },
+  {
+    "command": "new",
+    "description": "Start a new session."
+  },
+  {
+    "command": "name",
+    "description": "Name or rename the current session."
+  },
+  {
+    "command": "compact",
+    "description": "Compact the session context."
+  },
+  {
+    "command": "think",
+    "description": "Set thinking level."
+  },
+  {
+    "command": "verbose",
+    "description": "Toggle verbose mode."
+  },
+  {
+    "command": "trace",
+    "description": "Toggle plugin trace lines."
+  },
+  {
+    "command": "fast",
+    "description": "Toggle fast mode."
+  },
+  {
+    "command": "reasoning",
+    "description": "Toggle reasoning visibility."
+  },
+  {
+    "command": "elevated",
+    "description": "Toggle elevated mode."
+  },
+  {
+    "command": "exec",
+    "description": "Set exec defaults for this session."
+  },
+  {
+    "command": "model",
+    "description": "Show or set the model; use -s, -a, or -g to choose scope."
+  },
+  {
+    "command": "models",
+    "description": "List model providers/models."
+  },
+  {
+    "command": "queue",
+    "description": "Adjust queue settings."
+  },
+  {
+    "command": "canvas",
+    "description": "Present hosted widget documents on a connected macOS panel and control panel visibility or navigation."
+  },
+  {
+    "command": "clawhub",
+    "description": "Search ClawHub for plugins by default, or skills when explicitly requested; install, verify, update, uninstall, publish, or sync skills."
+  },
+  {
+    "command": "control_ui",
+    "description": "Operate and troubleshoot the OpenClaw Control UI: navigate connected clients, organize sessions, build session dashboards, and handle direct or Tailscale-hosted Gateways."
+  },
+  {
+    "command": "diagram_maker",
+    "description": "Create SVG/HTML or Excalidraw diagrams for concepts, architecture, flows, and whiteboards."
+  },
+  {
+    "command": "healthcheck",
+    "description": "Audit/harden OpenClaw hosts: SSH, firewall, updates, exposure, backups, disk encryption, gateway security."
+  },
+  {
+    "command": "meme_maker",
+    "description": "Search meme templates, suggest formats, and generate local or hosted image memes."
+  },
+  {
+    "command": "node_connect",
+    "description": "Diagnose OpenClaw Control UI browser and native Android, iOS, or macOS node connection failures across route, auth, pairing, QR/setup-code, and reconnect states."
+  },
+  {
+    "command": "node_inspect_debugger",
+    "description": "Debug Node.js with node inspect, --inspect, breakpoints, CDP, heap, and CPU profiles."
+  },
+  {
+    "command": "notion",
+    "description": "Notion CLI/API for pages, Markdown content, data sources, files, comments, search, Workers, and raw API calls."
+  },
+  {
+    "command": "python_debugpy",
+    "description": "Debug Python with pdb, breakpoint(), post-mortem inspection, and debugpy remote attach."
+  },
+  {
+    "command": "skill_creator",
+    "description": "Author or review AgentSkills: create, repair, validate, or restructure SKILL.md files and bundled resources."
+  },
+  {
+    "command": "spike",
+    "description": "Run throwaway prototypes to validate feasibility, compare approaches, and report a verdict."
+  },
+  {
+    "command": "visualize",
+    "description": "Create inline visuals for code and explanations, or author persistent OpenClaw dashboard widgets with show_widget."
+  },
+  {
+    "command": "weather",
+    "description": "Current weather and forecasts with web_fetch, falling back to wttr.in curl for locations, rain, temperature, travel planning."
+  },
+  {
+    "command": "codex",
+    "description": "Inspect and control the Codex app-server harness"
+  },
+  {
+    "command": "controlui",
+    "description": "Open the OpenClaw Control UI"
+  },
+  {
+    "command": "dreaming",
+    "description": "Enable or disable memory dreaming."
+  },
+  {
+    "command": "fd_check",
+    "description": "Owner: run the Wavu change watcher now"
+  },
+  {
+    "command": "fd_rebuild",
+    "description": "Owner: rebuild the frame-data index from the git snapshots (after a git revert)"
+  },
+  {
+    "command": "fd_status",
+    "description": "Owner: frame-data source, last sync commit and watcher state"
+  },
+  {
+    "command": "fd_sync",
+    "description": "Owner: fetch Wavu frame data, commit changes to git, rebuild the index (args: dry | force)"
+  },
+  {
+    "command": "pair",
+    "description": "Generate setup codes and approve device pairing requests."
+  },
+  {
+    "command": "voice",
+    "description": "List/set Talk provider voices (affects iOS Talk playback)."
+  },
+  {
+    "command": "side",
+    "description": "Ask a side question without changing future session context."
+  }
+]

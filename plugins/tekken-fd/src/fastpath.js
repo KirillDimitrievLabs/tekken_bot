@@ -1,14 +1,18 @@
-// Deterministic fast path for "!fd <character> <move>": answers clear queries without the model.
-// Anything it can't resolve exactly returns null and goes to the fd agent (model reasoning).
+// Deterministic handling of "!fd <character> <move>" before any agent/model runs.
 import { formatSuggestions } from "./format.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 
 const TRIGGER = /^\s*(?:@\w+\s+)?!fd\b\s*(.*)$/is;
+const HELP_COMMAND = /^\s*\/(start|help)(?:@\w+)?(?:\s|$)/i;
 
 /** "!fd devil jin ws2" → "devil jin ws2"; null if not an !fd message. */
 export function parseTrigger(text) {
   const m = TRIGGER.exec(String(text ?? ""));
   return m ? m[1].replace(/\s+/g, " ").trim() : null;
+}
+
+export function isHelpCommand(text) {
+  return HELP_COMMAND.test(String(text ?? ""));
 }
 
 const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -32,34 +36,61 @@ export function splitQuery(args, characters, aliases) {
 }
 
 /**
- * @returns {{move: object}|null} an exact match to answer directly, or null to defer to the model.
+ * Classify an !fd message.
+ * @returns {null | {kind: "usage"}
+ *   | {kind: "match", move: object}
+ *   | {kind: "need_move", character: string}
+ *   | {kind: "unknown_character", token: string, args: string, candidates: string[]}
+ *   | {kind: "unresolved", character: string, move: string, candidates: object[]}}
  */
-export function fastResolve(index, text, aliases) {
-  const args = parseTrigger(text);
-  if (!args) return null;
-  const split = splitQuery(args, index.characters().map((c) => c.name), aliases);
-  if (!split || !split.move) return null;
-  const res = resolveMove(index, split.character, split.move);
-  return res.status === "match" ? { move: res.move } : null;
-}
-
-/**
- * Deterministic reply for an !fd query that didn't resolve exactly (used where no model should improvise).
- * @returns {string|null} null if `text` isn't an !fd message.
- */
-export function suggestReply(index, text, aliases) {
+export function analyze(index, text, aliases) {
   const args = parseTrigger(text);
   if (args === null) return null;
-  if (!args) return "Usage: !fd <character> <move>  — e.g. !fd Fahkumram 312";
+  if (!args) return { kind: "usage" };
   const characters = index.characters().map((c) => c.name);
   const split = splitQuery(args, characters, aliases);
   if (!split) {
     const whole = resolveCharacter(args, characters, aliases);
-    if (whole.match) return `Which ${whole.match} move? e.g. !fd ${whole.match} df+1`;
-    const who = resolveCharacter(args.split(" ")[0], characters, aliases);
-    return `❌ Unknown character in "${args.slice(0, 60)}".` + (who.candidates.length ? ` Did you mean: ${who.candidates.join(" · ")}?` : "");
+    if (whole.match) return { kind: "need_move", character: whole.match };
+    const token = args.split(" ")[0];
+    return { kind: "unknown_character", token, args, candidates: resolveCharacter(token, characters, aliases).candidates };
   }
-  if (!split.move) return `Which ${split.character} move? e.g. !fd ${split.character} df+1`;
+  if (!split.move) return { kind: "need_move", character: split.character };
   const res = resolveMove(index, split.character, split.move);
-  return formatSuggestions({ character: split.character, query: split.move.slice(0, 60), candidates: res.candidates.slice(0, 6) });
+  if (res.status === "match") return { kind: "match", move: res.move };
+  return { kind: "unresolved", character: split.character, move: split.move, candidates: res.candidates };
+}
+
+/** Back-compat helper: exact match or null. */
+export function fastResolve(index, text, aliases) {
+  const a = analyze(index, text, aliases);
+  return a?.kind === "match" ? { move: a.move } : null;
+}
+
+export const USAGE = "Usage: !fd <character> <move>\nExamples:\n!fd Fahkumram 312\n!fd kaz df1\n!fd devil jin ws2";
+
+export function needMoveText(character) {
+  return `Which ${character} move? e.g. !fd ${character} df+1`;
+}
+
+export function unresolvedText(a) {
+  return formatSuggestions({ character: a.character, query: a.move.slice(0, 60), candidates: a.candidates.slice(0, 6) });
+}
+
+export function unknownCharacterText(a) {
+  const maybe = a.candidates.length ? `\nClosest: ${a.candidates.join(" · ")}` : "";
+  return `❓ Unknown character: "${a.token.slice(0, 30)}"${maybe}\nAdmin: reply to this message with the character name to add "${a.token.slice(0, 30).toLowerCase()}" as an alias.`;
+}
+
+/** Deterministic text for any non-match (used where no model should improvise). */
+export function suggestReply(index, text, aliases) {
+  const a = analyze(index, text, aliases);
+  if (!a) return null;
+  switch (a.kind) {
+    case "usage": return USAGE;
+    case "need_move": return needMoveText(a.character);
+    case "unknown_character": return unknownCharacterText(a);
+    case "unresolved": return unresolvedText(a);
+    default: return null;
+  }
 }

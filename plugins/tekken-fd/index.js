@@ -8,18 +8,16 @@
 // Hook: before_dispatch fast path — "!fd <char> <move>" that resolves exactly is answered without the model.
 import fs from "node:fs";
 import path from "node:path";
-import { createRequire } from "node:module";
 import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
-import { fastResolve, parseTrigger, suggestReply } from "./src/fastpath.js";
+import { AliasStore, parseAliasReply } from "./src/aliases.js";
+import { analyze, isHelpCommand, needMoveText, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
 import { readMeta } from "./src/snapshot.js";
-import { chatIdFrom, sendReply } from "./src/telegram.js";
+import { chatIdFrom, sendReply, setMyCommands } from "./src/telegram.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
-const require = createRequire(import.meta.url);
-const ALIASES = require("./aliases.json");
 
 const configSchema = {
   jsonSchema: {
@@ -31,6 +29,8 @@ const configSchema = {
       ownerChatId: { type: "string" },
       watcher: { type: "boolean" },
       fastPathAgents: { type: "array", items: { type: "string" } },
+      publicAgents: { type: "array", items: { type: "string" } },
+      adminIds: { type: "array", items: { type: "string" } },
     },
   },
   safeParse(value) {
@@ -81,46 +81,123 @@ export default {
     };
 
     const cardFor = (move) => formatCard({ character: move.character, key: move.key, chain: index.chain(move.id) });
-    // Fast path: exact "!fd" queries skip the agent entirely (no model round trips).
-    // In fd sessions vague queries go on to the fd agent to reason about; in any other agent's
-    // session (e.g. the owner's DM → main) the plugin answers "did you mean" itself so that agent
-    // never improvises frame data.
+    const aliases = new AliasStore({
+      curatedPath: api.resolvePath ? api.resolvePath("aliases.json") : path.join(repoDir, "plugins/tekken-fd/aliases.json"),
+      addedPath: path.join(repoDir, "data", "aliases.json"),
+      repoDir,
+    });
+    const digits = (v) => (String(v ?? "").match(/-?\d{5,}/) ?? [null])[0];
+    const admins = () => new Set([ownerChatIdFrom(api), ...(api.pluginConfig?.adminIds ?? [])].filter(Boolean).map(String));
+    // Agents whose sessions may hand vague !fd queries to the model; elsewhere the plugin answers itself.
     const reasoningAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
-    // Reply threaded to the asking message. The before_dispatch result path can't carry a reply
-    // target, so on Telegram the card is sent via the Bot API; anything unexpected falls back to
-    // a plain (unthreaded) gateway reply.
+    const PUBLIC_AGENTS = api.pluginConfig?.publicAgents ?? ["fd"]; // DMs here only get !fd, /start, /help
+
+    // Reply threaded to the asking message. The before_dispatch result can't carry a reply target,
+    // so on Telegram the plugin sends via the Bot API (falling back to a plain gateway reply).
     const answer = async (event, ctx, text) => {
       const channel = String(ctx?.channelId ?? event?.channel ?? "");
       const chatId = chatIdFrom(ctx?.conversationId);
       const messageId = event?.messageId ?? ctx?.messageId;
       if (channel === "telegram" && chatId && /^\d+$/.test(String(messageId ?? ""))) {
         try {
-          await sendReply(chatId, messageId, text);
-          return { handled: true };
+          const sent = await sendReply(chatId, messageId, text);
+          return { handled: true, sentId: sent?.message_id, chatId };
         } catch (err) {
           api.logger?.warn?.(`tekken-fd threaded reply failed (${err.message}); sending unthreaded`);
         }
       }
       return { handled: true, text };
     };
+    const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
+
+    // Pending "unknown character" requests waiting for an admin reply (persisted in state.json).
+    const pendingAliases = () => (readState(p.statePath).pendingAliases ?? []).filter((x) => Date.now() - Date.parse(x.at) < 14 * 864e5);
+    const savePending = (list) => writeState(p.statePath, { pendingAliases: list.slice(-100) });
+
+    const helpText = [
+      "🤖 Tekken 8 frame data",
+      "",
+      USAGE,
+      "",
+      "Character nicknames work too (fahk, kaz, dvj, …).",
+      "Data: wavu.wiki",
+    ].join("\n");
+
+    async function handleAliasReply(event, ctx, pending) {
+      const characters = characterNames();
+      const parsed = parseAliasReply(event.content ?? event.body, pending.alias, aliases, characters);
+      if (parsed.error) {
+        return done(await answer(event, ctx, `❌ ${parsed.error}. Reply with an exact name, e.g. "${characters[0]}" or "${pending.alias} = ${characters[0]}".`));
+      }
+      const added = await aliases.add(parsed.alias, parsed.character, characters, { by: `telegram:${digits(event.senderId) ?? "?"}` });
+      savePending(pendingAliases().filter((x) => !(x.chatId === pending.chatId && x.messageId === pending.messageId)));
+      api.logger?.info?.(`tekken-fd alias added: ${added.alias} → ${added.character} (${added.commit})`);
+      await answer(event, ctx, `✅ Alias added: ${added.alias} → ${added.character}${added.previous && added.previous !== added.character ? ` (was ${added.previous})` : ""}`);
+      // Answer the original question now that the character is known.
+      const retry = analyze(index, `!fd ${pending.args}`, aliases.all());
+      const text = retry?.kind === "match" ? cardFor(retry.move)
+        : retry?.kind === "need_move" ? needMoveText(retry.character)
+        : retry?.kind === "unresolved" ? unresolvedText(retry) : null;
+      if (text && pending.originalMessageId) {
+        try {
+          await sendReply(pending.chatId, pending.originalMessageId, text);
+        } catch (err) {
+          api.logger?.warn?.(`tekken-fd: re-answer failed: ${err.message}`);
+        }
+      }
+      return { handled: true };
+    }
 
     api.on("before_dispatch", async (event, ctx) => {
       const sessionKey = String(event?.sessionKey ?? "");
       const body = event?.content ?? event?.body;
+      const isPublic = PUBLIC_AGENTS.some((id) => sessionKey.startsWith(`agent:${id}:`));
+      const isDirect = event?.isGroup === false;
+      const isAdmin = admins().has(String(digits(event?.senderId) ?? ""));
+      const chatId = chatIdFrom(ctx?.conversationId);
       const started = Date.now();
       try {
-        if (parseTrigger(body) === null) return undefined;
-        ensureIndex();
-        const hit = fastResolve(index, body, ALIASES);
-        if (hit) {
-          api.logger?.info?.(`tekken-fd fast path: ${hit.move.id} in ${Date.now() - started}ms (${sessionKey})`);
-          return await answer(event, ctx, cardFor(hit.move));
+        // 1) Admin replying to an "unknown character" request.
+        const replyTo = String(event?.replyToId ?? "");
+        if (replyTo && chatId) {
+          const pending = pendingAliases().find((x) => x.chatId === chatId && String(x.messageId) === replyTo);
+          if (pending) return isAdmin ? await handleAliasReply(event, ctx, pending) : { handled: true };
         }
-        if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined;
-        return await answer(event, ctx, suggestReply(index, body, ALIASES));
+        // 2) /start and /help: our help for everyone except the owner's own agent sessions.
+        if (isHelpCommand(body) && (isPublic || !isAdmin)) return done(await answer(event, ctx, helpText));
+
+        ensureIndex();
+        const a = analyze(index, body, aliases.all());
+        // 3) Not an !fd message: public DMs only get the help text; everything else passes through.
+        if (!a) return isPublic && isDirect ? done(await answer(event, ctx, helpText)) : undefined;
+
+        switch (a.kind) {
+          case "match":
+            api.logger?.info?.(`tekken-fd fast path: ${a.move.id} in ${Date.now() - started}ms (${sessionKey})`);
+            return done(await answer(event, ctx, cardFor(a.move)));
+          case "usage":
+            return done(await answer(event, ctx, USAGE));
+          case "need_move":
+            return done(await answer(event, ctx, needMoveText(a.character)));
+          case "unknown_character": {
+            const r = await answer(event, ctx, unknownCharacterText(a));
+            if (r.sentId && r.chatId) {
+              savePending([...pendingAliases(), {
+                chatId: r.chatId, messageId: r.sentId, originalMessageId: event?.messageId ?? null,
+                alias: a.token.toLowerCase(), args: a.args, at: new Date().toISOString(),
+              }]);
+            }
+            return done(r);
+          }
+          case "unresolved":
+            if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) return undefined; // model picks
+            return done(await answer(event, ctx, unresolvedText(a)));
+          default:
+            return undefined;
+        }
       } catch (err) {
-        api.logger?.warn?.(`tekken-fd fast path failed, deferring to agent: ${err.message}`);
-        return undefined;
+        api.logger?.warn?.(`tekken-fd before_dispatch failed: ${err.message}`);
+        return isPublic && isDirect ? { handled: true, text: helpText } : undefined;
       }
     });
 
@@ -153,7 +230,7 @@ export default {
       async execute(_toolCallId, params) {
         ensureIndex();
         const chars = index.characters().map((c) => c.name);
-        const who = resolveCharacter(params.character, chars, ALIASES);
+        const who = resolveCharacter(params.character, chars, aliases.all());
         if (!who.match) {
           return text(
             `Unknown character "${params.character}". ` +
@@ -298,10 +375,37 @@ export default {
       })),
     });
 
+    // Telegram command menus: everyone sees /start and /help; admins see the full list
+    // (config/telegram-admin-commands.json) in their DM and in configured groups.
+    const PUBLIC_COMMANDS = [
+      { command: "start", description: "How to use the frame data bot" },
+      { command: "help", description: "Usage: !fd <character> <move>" },
+    ];
+    async function syncCommandMenus() {
+      let full = [];
+      try {
+        full = JSON.parse(fs.readFileSync(path.join(repoDir, "config", "telegram-admin-commands.json"), "utf8"));
+      } catch (err) {
+        api.logger?.warn?.(`tekken-fd: admin command list unreadable: ${err.message}`);
+      }
+      const adminMenu = [...PUBLIC_COMMANDS.filter((c) => !full.some((f) => f.command === c.command)), ...full].slice(0, 100);
+      await setMyCommands(PUBLIC_COMMANDS, { type: "default" });
+      const groups = Object.keys(api.config?.channels?.telegram?.groups ?? {}).filter((id) => /^-\d+$/.test(id));
+      for (const admin of admins()) {
+        await setMyCommands(adminMenu, { type: "chat", chat_id: Number(admin) });
+        for (const g of groups) await setMyCommands(adminMenu, { type: "chat_member", chat_id: Number(g), user_id: Number(admin) });
+      }
+      api.logger?.info?.(`tekken-fd: command menus set (public ${PUBLIC_COMMANDS.length}, admin ${adminMenu.length}, groups ${groups.length})`);
+    }
+    let menuTimer = null;
+
     let stopWatcher = null;
     api.registerService({
       id: "tekken-fd-watcher",
       start() {
+        // after the Telegram provider has started (it may register its own menu on start)
+        menuTimer = setTimeout(() => syncCommandMenus().catch((err) => api.logger?.warn?.(`tekken-fd: command menus failed: ${err.message}`)), 30_000);
+        menuTimer.unref?.();
         try {
           ensureIndex();
         } catch (err) {
@@ -316,6 +420,7 @@ export default {
         });
       },
       stop() {
+        clearTimeout(menuTimer);
         stopWatcher?.();
         stopWatcher = null;
         index.close();

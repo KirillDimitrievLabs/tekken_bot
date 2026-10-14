@@ -1,9 +1,6 @@
-// Route the clan group to the "fd" agent. __CLAN_CHAT_ID__ is filled in by scripts/apply-config.sh.
-// NOTE: `bindings` is an array — patching replaces it whole; keep other bindings here if you add any.
+// Allow one clan group (routing to fd comes from the channel-wide binding in fd.base.json5).
+// __CLAN_CHAT_ID__ is filled in by scripts/apply-config.sh.
 {
-  bindings: [
-    { agentId: "fd", match: { channel: "telegram", peer: { kind: "group", id: "__CLAN_CHAT_ID__" } } },
-  ],
   channels: {
     telegram: {
       groups: {

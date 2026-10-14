@@ -2,18 +2,53 @@
   "id": "tekken-fd",
   "name": "Tekken Frame Data",
   "description": "Tekken 8 frame data lookups from Wavu Wiki (git-versioned snapshots + SQLite index) for Telegram groups.",
-  "categories": ["productivity"],
+  "categories": [
+    "productivity"
+  ],
   "enabledByDefault": false,
-  "activation": { "onStartup": true },
-  "contracts": { "tools": ["tekken_frame_data", "tekken_pick_move"] },
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "tekken_frame_data",
+      "tekken_pick_move"
+    ]
+  },
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "repoDir": { "type": "string" },
-      "stateDir": { "type": "string" },
-      "ownerChatId": { "type": "string" },
-      "watcher": { "type": "boolean" }
+      "repoDir": {
+        "type": "string"
+      },
+      "stateDir": {
+        "type": "string"
+      },
+      "ownerChatId": {
+        "type": "string"
+      },
+      "watcher": {
+        "type": "boolean"
+      },
+      "fastPathAgents": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "publicAgents": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "adminIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
     }
   }
 }
