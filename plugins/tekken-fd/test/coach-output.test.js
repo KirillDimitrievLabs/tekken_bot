@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildPrompt, PROMPT_VERSION } from "../src/coach/prompt.js";
+import { repairGuide } from "../src/coach/index.js";
 import { ACTIONS, validateGuide } from "../src/coach/validate.js";
 import { availableViews, renderFallback, renderGuide, renderView, splitHtml } from "../src/coach/render.js";
 
@@ -249,4 +250,22 @@ test("guide views: overview teaches the gameplan; drills and stances render as b
   assert.match(drills.html, /🧪 <b>Drill one<\/b>\n<i>Setup:<\/i>[^\n]*\n1\. Block the first hit\.\n2\./);
   assert.match(renderView(index, guide, dossier, { view: "stances" }).html, /🥋 <b>Senshin<\/b>/);
   for (const v of views) assert.ok(renderView(index, guide, dossier, { view: v }).html.length <= 3800);
+});
+
+test("a guide whose only problem is an unsupported escape item is repaired by dropping that item", () => {
+  const { dossier, guide } = fixture("counter");
+  // an extra low that is safe on block: the model wrongly says "punish"
+  dossier.moves.set("Reina-d+1", { id: "Reina-d+1", character: "Reina", key: "d+1", startup: "10", startup_eff: 10, block: "-5", block_n: -5, target: "l", damage: "5" });
+  dossier.escapeAnswers.push({ move: "Reina-d+1", kind: "low", answer: null, actions: ["crouch_block"] });
+  guide.key_threats.push({ move: "[[Reina-d+1]]", why: "A fast low poke.", answer: "Crouch block it.", reward: "Take your turn back." });
+  guide.lows.push({ move: "[[Reina-d+1]]", answer: "Crouch block it; it is safe, so take your turn back." });
+  guide.defense.unshift({ situation: "After [[Reina-d+1]]", answer: "Crouch block and punish.", reward: "Damage." });
+  const raw = JSON.stringify(guide);
+  const first = validateGuide(raw, dossier);
+  assert.equal(first.ok, false);
+  const repaired = repairGuide(raw, first, dossier);
+  assert.ok(repaired?.ok, JSON.stringify(first.errors));
+  assert.ok(!JSON.stringify(repaired.guide).includes("Damage."));
+  const broken = JSON.parse(raw); broken.summary = "It deals twenty damage.";
+  assert.equal(repairGuide(JSON.stringify(broken), validateGuide(JSON.stringify(broken), dossier), dossier), null, "other errors are not repaired");
 });

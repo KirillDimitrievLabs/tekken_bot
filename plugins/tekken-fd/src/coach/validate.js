@@ -208,9 +208,10 @@ export function validateGuide(raw, dossier) {
   // Coverage counts distinct threats whose answer action agrees with that threat's evidence.
   const candidates = dossier.escapeAnswers ?? [];
   const entries = [
-    ...(Array.isArray(guide.defense) ? guide.defense.filter(plain).map((x) => ({ subjects: refsOf(x.situation), answer: x.answer })) : []),
-    ...(Array.isArray(guide.lows) ? guide.lows.filter(plain).map((x) => ({ subjects: [tokenId(x.move)], answer: x.answer })) : []),
+    ...(Array.isArray(guide.defense) ? guide.defense.map((x, index) => plain(x) && ({ field: "defense", index, subjects: refsOf(x.situation), answer: x.answer })).filter(Boolean) : []),
+    ...(Array.isArray(guide.lows) ? guide.lows.map((x, index) => plain(x) && ({ field: "lows", index, subjects: [tokenId(x.move)], answer: x.answer })).filter(Boolean) : []),
   ];
+  const droppable = []; // items whose only problem is an unsupported escape action: the guide can drop them
   const covered = new Set();
   for (const entry of entries) {
     for (const id of entry.subjects) {
@@ -220,11 +221,12 @@ export function validateGuide(raw, dossier) {
       else {
         // Be explicit so the corrective retry can fix it: list allowed actions and the offending ones.
         const extra = unsupportedActions(candidate, String(entry.answer ?? ""));
+        droppable.push({ field: entry.field, index: entry.index });
         errors.push(`defense [[${id}]]: allowed actions for this threat are ${(candidate.actions ?? []).join(", ") || "none"}${candidate.answer ? ` (response [[${candidate.answer}]])` : ""}; ${extra.length ? `remove ${extra.join(", ")} from its answer` : "state one of the allowed actions in its answer"}, or drop this item`);
       }
     }
   }
   const minimum = Math.min(3, new Set(candidates.map((x) => x.move)).size);
   if (covered.size < minimum) errors.push(`Need ${minimum} distinct evidence-backed string/low answers; found ${covered.size}`);
-  return { ok: errors.length === 0, guide, errors: [...new Set(errors)], strippedNumbers };
+  return { ok: errors.length === 0, guide, errors: [...new Set(errors)], strippedNumbers, droppable };
 }

@@ -199,7 +199,9 @@ test("corrective retry includes actionable validation errors; repeated errors us
   assert.equal(inputs[0].model, "openai/gpt-6.1-sol");
   assert.equal(inputs[0].reasoning, "high");
   assert.equal(inputs[0].execution.mode, "isolated-agent-runtime");
-  assert.equal(inputs[0].execution.timeoutMs, 180000);
+  assert.equal(inputs[0].execution.timeoutMs, 480000);
+  assert.equal(inputs[1].reasoning, "medium");
+  assert.match(inputs[1].messages[0].content, /PREVIOUS OUTPUT:/);
   coach.complete = async () => ({ text: '{"summary":"made-up 99"}' });
   const fallback = await coach.generate({ ...target, opponent: "Jin" }, { userId: "user-a" });
   assert.equal(fallback.fallback, true);

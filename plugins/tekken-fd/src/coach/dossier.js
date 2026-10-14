@@ -241,7 +241,7 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
     blocks.push(`<data kind="interactions" as="${attr(as)}" opponent="${attr(opponent)}">\n${formatted.join("\n\n")}\n</data>`);
   }
   // Required facts survive source budgets and are explicit for both modes.
-  blocks.push(`<data kind="required-answers">\n## Priority unsafe moves\n${requiredUnsafe.map(punishLine).join("\n")}\n## Evidence-backed low/string escapes\n${escapeAnswers.map((e) => `[[${e.move}]] · ${e.kind} · actions ${e.actions.join(",")} · ${e.answer ? `response candidate [[${e.answer}]] · ` : ""}${e.window != null ? `window ${e.window} · ` : ""}${e.kind === "string" ? stringFacts(allMap.get(e.move), facts.get(e.move)) : "crouch block; punish after block only if the indexed window and reach permit"}`).join("\n")}\n</data>`);
+  blocks.push(`<data kind="required-answers">\n## Priority unsafe moves\n${requiredUnsafe.map(punishLine).join("\n")}\n## Evidence-backed low/string escapes\n${escapeAnswers.map((e) => `[[${e.move}]] · ${e.kind} · actions ${e.actions.join(",")} · ${e.answer ? `response candidate [[${e.answer}]] · ` : ""}${e.window != null ? `window ${e.window} · ` : ""}${e.kind === "string" ? stringFacts(allMap.get(e.move), facts.get(e.move)) : e.actions.includes("punish") ? "crouch block, then crouching punish within the window" : "SAFE on block: crouch block only; do not claim any punish"}`).join("\n")}\n</data>`);
   // Full rows are tracked after category caps, so every extra source-linked move gets current facts.
   const fullFactIds = new Set([...blocks.join("\n").matchAll(/^\[\[([^\]]+)\]\][^\n]* · startup /gm)].map((m) => m[1]));
   // Source blocks are independently bounded; neither Wavu prose nor tips can close the data delimiter.

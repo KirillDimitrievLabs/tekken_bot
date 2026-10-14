@@ -8,6 +8,24 @@ import { renderGuide, renderFallback } from "./render.js";
 
 const read = (file) => { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return {}; } };
 const DOSSIER_MEMO = 24;
+// The full teaching guide at high reasoning takes about three minutes or more.
+const COMPLETION_TIMEOUT_MS = 480000;
+
+/**
+ * If every error is an unsupported escape action on individual defense/lows items, drop those items and
+ * re-validate: the remaining guide is still complete when the minimum counts hold.
+ */
+export function repairGuide(raw, validation, dossier) {
+  if (!validation.droppable?.length) return null;
+  const actionErrors = validation.errors.filter((e) => /allowed actions for this threat/.test(e));
+  const coverageErrors = validation.errors.filter((e) => /^Need \d+ distinct evidence-backed/.test(e));
+  if (actionErrors.length + coverageErrors.length !== validation.errors.length) return null;
+  let guide;
+  try { guide = JSON.parse(typeof raw === "string" ? raw : JSON.stringify(raw)); } catch { return null; }
+  for (const { field, index } of [...validation.droppable].sort((a, b) => b.index - a.index)) guide[field]?.splice(index, 1);
+  const again = validateGuide(JSON.stringify(guide), dossier);
+  return again.ok ? again : null;
+}
 export const COACH_MODELS = ["openai/gpt-6-astra", "openai/gpt-6.1-sol", "openai/gpt-6-sol"];
 
 /** No scheduled work: generation starts only from an authorized command or button. */
@@ -128,15 +146,27 @@ export class Coach {
       const prompt = buildPrompt(dossier, target);
       let problems = [];
       let validation;
+      let previousOutput = null;
       for (let attempt = 0; attempt < 2; attempt++) {
-        const messages = [{ role: "user", content: `${prompt.messages[0].content}${attempt ? `\n\nPrevious output failed validation. Generate a complete corrected object. Fix these problems:\n${problems.join("\n")}` : ""}` }];
-        const response = await this.complete({ systemPrompt: prompt.systemPrompt, messages, model, reasoning: "high", temperature: 0.3,
-          purpose: "tekken-fd.coach", maxTokens: 16000, execution: { mode: "isolated-agent-runtime", timeoutMs: 180000 } });
+        // The corrective retry edits its own previous answer (much faster than writing a new guide).
+        const content = attempt
+          ? `${prompt.messages[0].content}\n\nYOUR PREVIOUS OUTPUT failed validation. Return the complete corrected JSON object: keep everything that was fine and fix only these problems:\n${problems.join("\n")}\n\nPREVIOUS OUTPUT:\n${previousOutput}`
+          : prompt.messages[0].content;
+        const response = await this.complete({ systemPrompt: prompt.systemPrompt, messages: [{ role: "user", content }], model, reasoning: attempt ? "medium" : "high", temperature: 0.3,
+          purpose: "tekken-fd.coach", maxTokens: 16000, execution: { mode: "isolated-agent-runtime", timeoutMs: COMPLETION_TIMEOUT_MS } });
         progress("check", "run", attempt ? "corrective retry" : "validate facts and move references");
-        validation = validateGuide(response?.text ?? response?.content ?? response, dossier);
+        const raw = response?.text ?? response?.content ?? response;
+        validation = validateGuide(raw, dossier);
         if (validation.strippedNumbers?.length) this.logger.warn?.(`coach numeric rejection: ${JSON.stringify(validation.strippedNumbers)}`);
         if (validation.ok) break;
+        const repaired = repairGuide(raw, validation, dossier);
+        if (repaired?.ok) {
+          this.logger.info?.(`coach validation attempt ${attempt + 1}: repaired by dropping ${validation.droppable.length} unsupported item(s)`);
+          validation = repaired;
+          break;
+        }
         problems = validation.errors.slice(0, 30);
+        previousOutput = typeof raw === "string" ? raw.slice(0, 60000) : JSON.stringify(raw).slice(0, 60000);
         this.logger.warn?.(`coach validation attempt ${attempt + 1}: ${problems.join("; ")}`);
       }
       if (!validation?.ok) return this.fallback(dossier, "The guide failed fact checks after a retry; showing indexed facts.");

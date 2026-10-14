@@ -1,6 +1,6 @@
 import { COUNTER_STYLE, MATCHUP_STYLE } from "./examples/style.js";
 
-export const PROMPT_VERSION = "coach-prompt-v2.0.0";
+export const PROMPT_VERSION = "coach-prompt-v2.1.0";
 
 /** Minimum and maximum sizes the validator enforces; also shown to the model as REQUIRED COVERAGE. */
 export const GUIDE_LIMITS = Object.freeze({
@@ -62,6 +62,7 @@ FACTS AND NUMBERS
 - Do not write ANY digit or numerical claim outside a [[move-id]] token, even numbers present elsewhere in the dossier: matching an unrelated number is not evidence. Source IDs in used_tips/used_guides are exempt. Exceptions: character names exactly as written (e.g. Jack-8) and ordinal words naming a string's hit ("the second hit", "второй удар"); ordinals with frames or damage are not allowed. Write drill steps without numbering.
 - Do not invent tech, setups, reaction thresholds, option selects, step directions, duckable hits or guaranteed reach. Step/duck/interrupt advice requires the exact cited move's computed evidence.
 - In counter mode there is no responding character: describe the kind of punish ("your fastest standing punish", "a launch punish if your character has one in this window", "a crouching punish after blocking the low"); the renderer prints the window. In matchup mode use the exact supplied answer token for every required unsafe move; when none exists, state the gap.
+- A low or string whose allowed actions do not include punish is safe: never write "punish" in its answer (say what to do after blocking instead, e.g. take your turn back with a fast move).
 - Include at least the required number of distinct evidence-backed string/low escapes in defense (or lows in counter mode), each using that threat's supplied action or answer.
 
 STYLE
