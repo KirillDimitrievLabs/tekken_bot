@@ -235,7 +235,7 @@ export default {
         if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...pending, chatId: r.chatId, messageId: r.sentId }]);
         return done(r);
       }
-      const added = await aliases.add(parsed.alias, parsed.character, characters, { by: `telegram:${digits(event.senderId) ?? "?"}` });
+      const added = await aliases.add(parsed.alias, parsed.character, characters);
       savePending(pendingAliases().filter((x) => !(x.at === pending.at && x.args === pending.args)));
       api.logger?.info?.(`tekken-fd alias added: ${added.alias} → ${added.character} (${added.commit})`);
       await answer(event, ctx, `✅ Alias added: ${code(added.alias)} → ${b(added.character)}${added.previous && added.previous !== added.character ? ` (was ${esc(added.previous)})` : ""}`);
@@ -253,7 +253,7 @@ export default {
       const input = String(event.content ?? event.body ?? "").trim();
       const res = resolveMove(index, t.suggest.character, input, moveAliases);
       if (res.status !== "match") return done(await answer(event, ctx, `❌ ${b(t.suggest.character)} ${code(input.slice(0, 40))} isn't an exact move — reply with the input, e.g. ${code("df+2")}.`));
-      const added = await moveAliases.add(t.suggest.character, t.suggest.query, res.move.key, { by: `telegram:${digits(event.senderId) ?? "?"}` });
+      const added = await moveAliases.add(t.suggest.character, t.suggest.query, res.move.key);
       removeTokens(p.statePath, (x) => x.token === t.token);
       if (t.messageId) await deleteMessage(t.chatId, t.messageId).catch(() => {});
       await answer(event, ctx, `✅ Move alias added: ${b(added.character)} ${code(added.alias)} → ${code(added.key)}`);

@@ -12,7 +12,7 @@ async function call(method, body, { token = process.env.TELEGRAM_BOT_TOKEN, fetc
   return json.result;
 }
 
-/** Chat id from an OpenClaw conversation id ("telegram:-1001234", "-1001234:topic:5", "100000001"). */
+/** Chat id from an OpenClaw conversation id ("telegram:-1001234", "-1001234:topic:5", "123456789"). */
 export function chatIdFrom(conversationId) {
   const m = String(conversationId ?? "").match(/-?\d{5,}/);
   return m ? m[0] : null;

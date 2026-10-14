@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { chatIdFrom, sendReply } from "../src/telegram.js";
 
 test("chat id from conversation ids", () => {
-  assert.equal(chatIdFrom("telegram:100000001"), "100000001");
+  assert.equal(chatIdFrom("telegram:123456789"), "123456789");
   assert.equal(chatIdFrom("-1001234567890"), "-1001234567890");
   assert.equal(chatIdFrom("telegram:group:-1001234567890:topic:5"), "-1001234567890");
   assert.equal(chatIdFrom(undefined), null);

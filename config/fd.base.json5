@@ -1,4 +1,5 @@
 // tekken-fd plugin + isolated "fd" agent. Applied by scripts/apply-config.sh.
+// The owner placeholder (your Telegram user id) is filled in by scripts/apply-config.sh from config/local.env.
 {
   channels: {
     telegram: {
@@ -9,18 +10,18 @@
       dmPolicy: "open",
       allowFrom: ["*"],
       // In groups not configured under channels.telegram.groups only the owner is heard.
-      groupAllowFrom: ["100000001"],
+      groupAllowFrom: ["__OWNER_ID__"],
       // OpenClaw's own command menu is off; tekken-fd sets per-scope menus (public: /start /help).
       commands: { native: false, nativeSkills: false },
     },
   },
   // OpenClaw chat commands (/new, /status, /model, …) only for the owner.
-  commands: { allowFrom: { telegram: ["100000001", "telegram:100000001"] } },
+  commands: { allowFrom: { telegram: ["__OWNER_ID__", "telegram:__OWNER_ID__"] } },
   // Every DM user gets their own session (no shared history between clan members).
   session: { dmScope: "per-channel-peer" },
   // Owner's DM → private main agent; every other Telegram chat (DMs, groups) → fd.
   bindings: [
-    { agentId: "main", match: { channel: "telegram", peer: { kind: "direct", id: "100000001" } } },
+    { agentId: "main", match: { channel: "telegram", peer: { kind: "direct", id: "__OWNER_ID__" } } },
     { agentId: "fd", match: { channel: "telegram" } },
   ],
   plugins: {

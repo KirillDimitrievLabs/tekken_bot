@@ -64,6 +64,7 @@ docker run --rm --network none -v /opt/clan-bots:/opt/clan-bots:ro -w /opt/clan-
 
 ### Deploying config changes
 `scripts/apply-config.sh [<clan chat id>]` — backs up `openclaw.json`, dry-runs, then patches.
+Your Telegram user id and the clan group id go in `config/local.env` (git-ignored; copy `config/local.env.example`).
 Restart the gateway after plugin code changes: `docker compose -f /opt/openclaw/docker-compose.yml restart`.
 
 ## Data sources (fetched automatically by `/fd_sync`)
