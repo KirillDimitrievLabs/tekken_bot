@@ -65,3 +65,19 @@ docker run --rm --network none -v /opt/clan-bots:/opt/clan-bots:ro -w /opt/clan-
 ### Deploying config changes
 `scripts/apply-config.sh [<clan chat id>]` — backs up `openclaw.json`, dry-runs, then patches.
 Restart the gateway after plugin code changes: `docker compose -f /opt/openclaw/docker-compose.yml restart`.
+
+## Data sources (fetched automatically by `/fd_sync`)
+| File | Source | Used for |
+|---|---|---|
+| `data/wavu/t8/*.json` | [Wavu Wiki](https://wavu.wiki) Cargo table `Move` (api.php) | frame data, notes, aliases, tags, archetypes |
+| `data/wavu/t8-punishers.json` | Wavu "`<Character> punishers`" pages | community-picked punishers (⭐), combo/mini damage, hard flags |
+| `data/wavu/t8-combos.json` | Wavu "`<Character> combos`" pages | combo damage per launcher (route without Heat/Rage, Heat route separately) |
+| `data/tekkendocs/t8-tags.json` | [TekkenDocs](https://tekkendocs.com) API | second source for homing / step (SSL/SSR/SWL/SWR) / duckable / tornado tags |
+
+Every sync keeps a source's previous file if a fetch comes back (nearly) empty, writes stable sorted JSON,
+commits the change, rebuilds the index and lists which sources changed. The daily watcher reports edits to
+Wavu movelist, combos and punishers pages.
+
+**Licence of the data:** Wavu Wiki content is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/);
+the snapshots under `data/wavu/` are derived from it and are shared under the same licence, credit: Wavu Wiki
+contributors. TekkenDocs data is attributed to [tekkendocs.com](https://tekkendocs.com) (itself largely derived from Wavu).

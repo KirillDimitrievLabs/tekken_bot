@@ -91,7 +91,7 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
 
   /** Card reply with navigation buttons (A2). */
   function cardReply(move, { buttons = true } = {}) {
-    const html = cardHtml({ character: move.character, key: move.key, chain: index.chain(move.id) });
+    const html = cardHtml({ character: move.character, key: move.key, chain: index.chain(move.id), combo: index.comboFor(move.id) });
     if (!buttons) return reply(html, { stat: ["card", { character: move.character, moveId: move.id }] });
     const row = [];
     if (move.parent) {

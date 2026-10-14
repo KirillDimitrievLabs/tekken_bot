@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import { cleanInline, listText, noteItems } from "./format.js";
 import { blockOf, inputTiming, isLauncher, isThrow, reachOf, recoveryOf, startupOf, stanceOf, totalOf } from "./frames.js";
 import { tagsFor } from "./tags.js";
+import { GLOSSARY } from "./nicknames.js";
 import { looseKey, moveKeyFromId, strictKey } from "./notation.js";
 
 const SCHEMA = `
@@ -29,6 +30,8 @@ CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT);
 CREATE TABLE punishers (character TEXT NOT NULL, stance TEXT NOT NULL, enemy INTEGER NOT NULL, move_id TEXT, key TEXT NOT NULL,
   staple INTEGER, mini INTEGER, damage INTEGER, hard INTEGER NOT NULL, note TEXT);
 CREATE INDEX punishers_lookup ON punishers (character, stance, enemy);
+CREATE TABLE combos (character TEXT NOT NULL, move_id TEXT, label TEXT NOT NULL, base INTEGER, best INTEGER, best_heat INTEGER, hard INTEGER NOT NULL, ch INTEGER NOT NULL);
+CREATE INDEX combos_move ON combos (move_id);
 `;
 
 const COLUMNS = ["id", "character", "key", "num", "name", "input", "alias", "alt", "parent",
@@ -61,7 +64,7 @@ export function heatDashOf(notes) {
 }
 
 /** Build the index atomically: write to a temp file, then rename over dbPath. */
-export function buildDatabase(dbPath, snapshots, meta = {}, punishers = {}) {
+export function buildDatabase(dbPath, snapshots, meta = {}, punishers = {}, extras = {}) {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const tmp = `${dbPath}.tmp-${process.pid}`;
   fs.rmSync(tmp, { force: true });
@@ -127,6 +130,37 @@ export function buildDatabase(dbPath, snapshots, meta = {}, punishers = {}) {
           enemy = -s0;
         }
         insPun.run(character, e.stance, enemy, id, e.move || (id ? moveKeyFromId(id, character) : "?"), e.staple ?? null, e.mini ?? null, e.damage ?? null, e.hard ? 1 : 0, e.note || null);
+      }
+    }
+    // Wavu combo pages: launcher → base + best route (no Heat/Rage); linked by notation, glossary or move name
+    const insCombo = db.prepare("INSERT INTO combos VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    const byNameRow = db.prepare("SELECT id FROM moves WHERE character = ? AND lower(name) = lower(?)");
+    for (const [character, entries] of Object.entries(extras.combos ?? {})) {
+      for (const e of entries) {
+        let id = null;
+        const tryKey = (k) => {
+          const st = byStrict.all(character, strictKey(k));
+          const lo = st.length ? st : byLoose.all(character, looseKey(k));
+          return lo.length === 1 ? lo[0].id : null;
+        };
+        if (!e.named) id = tryKey(e.key);
+        else {
+          const g = GLOSSARY[e.key.toLowerCase()];
+          id = (g && tryKey(g)) || (byNameRow.all(character, e.key)[0]?.id ?? null) || tryKey(e.key);
+        }
+        if (!id || e.base == null) continue;
+        insCombo.run(character, id, e.label, e.base, e.best ?? null, e.bestHeat ?? null, e.hard ? 1 : 0, e.ch ? 1 : 0);
+      }
+    }
+    // TekkenDocs tags (second source, merged into tags): homing, step, duck, tornado
+    const TD = { hom: ["homing"], trn: ["tornado"], dck: ["duckable"] };
+    const STEP = { SSR: ["ssr"], SSL: ["ssl"], SS: ["ssl", "ssr"], SWR: ["swr"], SWL: ["swl"] };
+    const tagExists = db.prepare("SELECT 1 FROM tags WHERE id = ? AND tag = ?");
+    for (const [character, moves] of Object.entries(extras.tdTags ?? {})) {
+      for (const [id, t] of Object.entries(moves)) {
+        if (!byId.has(id)) continue;
+        const add = [...Object.keys(t).flatMap((k) => TD[k] ?? []), ...(t.stp ? STEP[String(t.stp).toUpperCase()] ?? [] : [])];
+        for (const tag of add) if (!tagExists.get(id, tag)) insTag.run(id, character, tag);
       }
     }
     const insMeta = db.prepare("INSERT INTO meta VALUES (?, ?)");
@@ -243,6 +277,13 @@ export class MoveIndex {
 
   tagsOf(id) {
     return this.handle().prepare("SELECT tag FROM tags WHERE id = ?").all(id).map((r) => r.tag);
+  }
+
+  /** Best combo for a launcher (normal hit): {base, best, best_heat, total, totalHeat, hard} or null. */
+  comboFor(id) {
+    const r = this.handle().prepare("SELECT * FROM combos WHERE move_id = ? AND ch = 0 ORDER BY (COALESCE(best, 0) + base) DESC LIMIT 1").get(id);
+    if (!r) return null;
+    return { ...r, total: r.best !== null ? r.base + r.best : null, totalHeat: r.best_heat !== null ? r.base + r.best_heat : null };
   }
 
   /** Curated punishers usable at `frames` disadvantage for a stance (enemy ≥ −frames). */

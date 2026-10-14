@@ -38,7 +38,7 @@ export async function checkOnce({ statePath, characters, ownerChatId, logger, fe
   writeState(statePath, { lastWatchCheck: now.toISOString(), pendingCharacters: pending });
   let notified = false;
   if (changed.length > 0 && ownerChatId) {
-    await notify(ownerChatId, `📝 Wavu: ${changed.join(", ")} movelist(s) edited since ${since.slice(0, 10)}.\nSend /fd_sync to update the bot (or /fd_sync dry to preview).`);
+    await notify(ownerChatId, `📝 Wavu: ${changed.join(", ")} movelist/combo/punisher page(s) edited since ${since.slice(0, 10)}.\nSend /fd_sync to update the bot (or /fd_sync dry to preview).`);
     notified = true;
   }
   logger?.info?.(`tekken-fd watcher: ${changed.length} changed character(s) since ${since}`);

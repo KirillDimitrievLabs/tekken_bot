@@ -76,3 +76,34 @@ test("quiz: one answer each, every correct answer scores, reveal, leaderboard, d
   assert.equal(qz.dueDaily("-200", { dailyAt: "19:00", tz: "Europe/Moscow" }), false);
   assert.match(weekId(new Date("2026-10-14T00:00:00Z")), /^2026-W42$/);
 });
+
+test("Wavu combos pages: launchers, routes, Heat routes separated", async () => {
+  const { parseCombos, launcherKey, parsePunishers } = await import("../src/wavu.js");
+  const page = [
+    "== Staples ==", "{{Combolist|",
+    "; [23] EWGF", "; [20] WGF",
+    ": [+51; 34] EWGF b+2,2 df+1,df+2 T! 3,1,df CD.3",
+    ": [+55] EWGF ws3 T! H.2+3",
+    "; [20] FC.df+4", ": [+56] (f+2),3,F~3 df+2", "; [26] CH df+2", ": [+40] x", "}}",
+  ].join("\n");
+  const c = parseCombos(page, "Kazuya");
+  const ewgf = c.find((x) => x.key === "EWGF");
+  assert.equal(ewgf.base, 23);
+  assert.equal(ewgf.best, 51);       // the Heat Smash route doesn't count as the baseline
+  assert.equal(ewgf.bestHeat, 55);
+  assert.ok(ewgf.named);
+  assert.equal(c.find((x) => x.key === "FC.df+4").best, 56);
+  assert.ok(c.find((x) => x.key === "df+2").ch);
+  assert.deepEqual(launcherKey("EWGF (f,n,d,df#2)"), { key: "f,n,d,df:2", ch: false });
+  assert.deepEqual(launcherKey("CH (df+4,2),3"), { key: "df+4,2,3", ch: true });
+  assert.equal(launcherKey("low parry"), null);
+  const pun = parsePunishers("|standing={{o\n|{{o| moveId = Reina-df+2 | enemy = -15 | staple = 69 }}\n|{{o| moveId = Reina-f,n,d,df#2 | move = f,n,df#2 | enemy = -13 | staple = 78 | hard=true }}\n}}", "Reina");
+  assert.deepEqual(pun.map((x) => [x.enemy, x.move, x.staple, x.hard]), [[-15, "df+2", 69, false], [-13, "f,n,df:2", 78, true]]);
+});
+
+test("step and duck tags from Wavu notes", async () => {
+  const { tagsFor } = await import("../src/tags.js");
+  const t = tagsFor({ notes: "* Interrupt with i11 from 1st block\n* Whiffs vs SSR from 1st block\n* Duckable", target: ",h" }, "1,2");
+  assert.ok(t.includes("ssr") && t.includes("duckable") && !t.includes("ssl"));
+  assert.ok(tagsFor({ notes: "* Whiffs vs SS, SW from 2nd block", target: ",m" }, "2,3,4").includes("swl"));
+});

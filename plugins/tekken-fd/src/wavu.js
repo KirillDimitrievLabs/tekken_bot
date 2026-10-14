@@ -51,6 +51,12 @@ function cleanRow(row) {
   return out;
 }
 
+/** "Reina combos" / "Reina punishers" → "Reina" (other synced Wavu pages). */
+export function characterFromDataPage(page) {
+  const m = String(page ?? "").match(/^(.+) (?:combos|punishers)$/);
+  return m ? m[1] : null;
+}
+
 /**
  * Fetch every Tekken 8 move, grouped by character.
  * @returns {Promise<Map<string, object[]>>} character → rows
@@ -116,7 +122,7 @@ export async function fetchChangedCharacters(sinceIso, knownCharacters, { fetchI
       ...cont,
     }, { fetchImpl });
     for (const rc of body.query?.recentchanges ?? []) {
-      const character = characterFromPage(rc.title);
+      const character = characterFromPage(rc.title) ?? characterFromDataPage(rc.title);
       if (character && known.has(character)) {
         changed.add(character);
         edits++;
@@ -222,6 +228,135 @@ export async function fetchPunishers(characters, { fetchImpl, pauseMs = 300 } = 
       if (entries.length) out[character] = entries;
     } catch {
       // page missing or unreadable: computed punishers remain the fallback
+    }
+    await sleep(pauseMs);
+  }
+  return out;
+}
+
+// ---- Combo damage: Wavu "<Character> combos" pages ("; [23] EWGF" launcher lines, ": [+56] route" lines)
+
+const NON_NOTATION = /\b(?:on crouching opp\.?|on block|low parry|wall|airborne|side|back|from|vs|only)\b/i;
+
+/** "CH (f+2),3,F" → {key: "f+2,3,F", ch: true}; "EWGF (f,n,d,df#2)" → "f,n,d,df:2"; null when not a move. */
+export function launcherKey(label) {
+  let t = stripWiki(label).replace(/\s+/g, " ").trim();
+  const ch = /^CH\s+/i.test(t);
+  t = t.replace(/^CH\s+/i, "").replace(/^(?:deep\s+)?dash\s+|^cc\s+|^ss\s+(?=\d)/i, "");
+  const inner = t.match(/\(([^()]*[0-9][^()]*)\)\s*$/); // "EWGF (f,n,d,df#2)" → notation in brackets
+  if (inner && !/^[(]/.test(t) && !/[,+]/.test(t.replace(/\(.*$/, ""))) t = inner[1];
+  t = t.replace(/\s*\((?:on |vs |from |if |when )[^)]*\)\s*$/i, ""); // trailing situation notes
+  t = t.replace(/[()]/g, "").replace(/#/g, ":").trim();
+  if (!t || NON_NOTATION.test(t)) return null;
+  if (!/\d/.test(t)) return /^[A-Za-z][A-Za-z ]{1,24}$/.test(t) ? { key: t, ch, named: true } : null; // "EWGF", "WGF", "Hellsweep"
+  if (/\s\S+\s/.test(t)) return null;
+  return { key: t.split(" ")[0], ch };
+}
+
+const usesResource = (route) => /(?:^|[\s,])(?:H\.|R\.)|(?:^|\s)2\+3(?:\s|$)/.test(route);
+
+/**
+ * @returns {{label, key, ch, base, best, bestHeat, hard, section}[]} best = best route without Heat/Rage
+ */
+export function parseCombos(wikitext, character) {
+  const out = [];
+  let section = "";
+  let group = [];
+  let routes = [];
+  const flush = () => {
+    if (!group.length) return;
+    const plain = routes.filter((r) => !r.resource);
+    const easy = plain.filter((r) => !r.hard);
+    for (const g of group) {
+      const k = launcherKey(g.label);
+      if (!k || g.base === null) continue;
+      out.push({
+        label: g.label, key: k.key, ch: k.ch, named: Boolean(k.named), base: g.base, section,
+        best: (easy[0] ?? plain[0]) ? Math.max(...(easy.length ? easy : plain).map((r) => r.plus)) : null,
+        bestHeat: routes.length ? Math.max(...routes.map((r) => r.plus)) : null,
+        hard: !easy.length && plain.length > 0,
+      });
+    }
+    group = [];
+    routes = [];
+  };
+  for (const raw of String(wikitext ?? "").split("\n")) {
+    const line = raw.trim();
+    const h = line.match(/^==+\s*([^=]+?)\s*==+$/);
+    if (h) {
+      flush();
+      section = /stapl/i.test(h[1]) ? "staples" : /mini/i.test(h[1]) ? "mini" : h[1].toLowerCase();
+      continue;
+    }
+    const l = line.match(/^;\s*(?:\[(\d+)\])?\s*(.+)$/);
+    if (l) {
+      if (routes.length) flush();
+      group.push({ base: l[1] ? Number(l[1]) : null, label: l[2] });
+      continue;
+    }
+    const r = line.match(/^:\s*\[\+(\d+)(?:\s*;[^\]]*)?\]\s*(.*)$/); // "[+56]" or "[+51; 34]"
+    if (r && group.length) {
+      const route = stripWiki(r[2]);
+      routes.push({ plus: Number(r[1]), resource: usesResource(route), hard: /name="?hard"?|\(hard\)|hard\b/i.test(r[2]) });
+    }
+  }
+  flush();
+  // keep the best entry per launcher key (staples beat mini-combos; normal hit beats CH)
+  const merged = new Map();
+  for (const e of out) {
+    const k = `${e.ch ? "ch:" : ""}${e.key}`;
+    const prev = merged.get(k);
+    if (!prev) {
+      merged.set(k, { ...e });
+      continue;
+    }
+    // plain (no Heat/Rage) routes decide; Heat-only routes only raise bestHeat
+    const total = (x) => (x.best === null ? -1 : x.best + x.base);
+    const keep = total(e) > total(prev) ? { ...e } : prev;
+    keep.bestHeat = Math.max(prev.bestHeat ?? 0, e.bestHeat ?? 0) || null;
+    keep.hard = keep === prev ? prev.hard : e.hard;
+    merged.set(k, keep);
+  }
+  return [...merged.values()];
+}
+
+export async function fetchCombos(characters, { fetchImpl, pauseMs = 300 } = {}) {
+  const out = {};
+  for (const character of characters) {
+    try {
+      const body = await apiGet({ action: "parse", page: `${character} combos`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
+      const entries = parseCombos(body.parse?.wikitext?.["*"], character);
+      if (entries.length) out[character] = entries;
+    } catch {
+      // missing page: no combo damage for this character
+    }
+    await sleep(pauseMs);
+  }
+  return out;
+}
+
+// ---- TekkenDocs (https://tekkendocs.com) move tags — second source for homing/step/duck/tornado
+
+const TD_URL = "https://tekkendocs.com/api/t8";
+const tdSlug = (c) => c.toLowerCase().replace(/\s+/g, "-");
+
+/** {character: {moveId: {hom?, stp?, dck?, trn?, intr?}}} — only the tags the bot uses. */
+export async function fetchTekkenDocsTags(characters, { fetchImpl = fetch, pauseMs = 300 } = {}) {
+  const keep = ["hom", "stp", "dck", "trn", "intr"];
+  const out = {};
+  for (const character of characters) {
+    try {
+      const res = await fetchImpl(`${TD_URL}/${tdSlug(character)}/framedata`, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const body = await res.json();
+      const tags = {};
+      for (const m of body.framesNormal ?? []) {
+        const t = Object.fromEntries(Object.entries(m.tags ?? {}).filter(([k]) => keep.includes(k)));
+        if (Object.keys(t).length && m.id) tags[m.id] = t;
+      }
+      if (Object.keys(tags).length) out[character] = tags;
+    } catch {
+      // TekkenDocs down or character missing: Wavu notes remain the source
     }
     await sleep(pauseMs);
   }

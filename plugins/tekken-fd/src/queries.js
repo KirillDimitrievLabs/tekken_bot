@@ -16,10 +16,15 @@ export function punishOptions(index, character, stance, frames) {
     .filter((r) => ["high", "mid", "low"].includes(levelClass(hitLevelOf(r.target))) && damageOf(r.damage) > 0);
   const options = [];
   for (const r of roots) {
-    options.push({ key: r.key, startup: r.startup_eff, note: r.timing_note, damage: damageOf(r.damage), launcher: isLauncher(r.hit) });
+    // launchers are worth their combo (Wavu combo pages) when known, not the hit's own damage
+    const withCombo = (id, raw, launch) => {
+      const combo = launch ? index.comboFor(id) : null;
+      return combo?.total ? { damage: combo.total, combo: true } : { damage: raw, combo: false };
+    };
+    options.push({ key: r.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(r.hit), ...withCombo(r.id, damageOf(r.damage), isLauncher(r.hit)) });
     for (const c of index.children(r.id)) {
       if (!noteItems(c.notes).some((n) => COMBO_FROM_FIRST.test(n))) continue;
-      options.push({ key: c.key, startup: r.startup_eff, note: r.timing_note, damage: damageOf(r.damage) + damageOf(c.damage), launcher: isLauncher(c.hit) });
+      options.push({ key: c.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(c.hit), ...withCombo(c.id, damageOf(r.damage) + damageOf(c.damage), isLauncher(c.hit)) });
     }
   }
   return options.sort((a, b2) => Number(b2.launcher) - Number(a.launcher) || b2.damage - a.damage || a.startup - b2.startup);
@@ -38,7 +43,7 @@ export function pickOptions(options, limit = 6) {
 }
 
 const showNote = (o) => (o.note && o.note !== "(bufferable)" ? ` <i>${esc(o.note)}</i>` : "");
-export const optionLine = (o) => `i${o.startup} ${code(o.key)} — ${o.damage} dmg${o.launcher ? " 🚀" : ""}${showNote(o)}`;
+export const optionLine = (o) => `i${o.startup} ${code(o.key)} — ${o.damage}${o.combo ? " combo" : " dmg"}${o.launcher ? " 🚀" : ""}${showNote(o)}`;
 
 // ---- curated punishers (Wavu "<Character> punishers"): optimal choice per window
 
@@ -56,6 +61,9 @@ function fullMotion(index, e) {
 export function entryValue(index, e) {
   if (e.staple) return { value: e.staple, kind: "combo" };
   if (e.mini) return { value: e.mini, kind: "mini" };
+  // Wavu combo pages: launcher base + best route without Heat/Rage
+  const combo = e.move_id ? index.comboFor(e.move_id) : null;
+  if (combo?.total && combo.total > (e.damage ?? 0)) return { value: combo.total, kind: "combo" };
   if (e.damage) return { value: e.damage, kind: "dmg" };
   const m = e.move_id ? index.move(e.move_id) : null;
   return { value: m ? index.chain(m.id).reduce((a, x) => a + damageOf(x.damage), 0) : null, kind: "dmg" };

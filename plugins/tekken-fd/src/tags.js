@@ -42,6 +42,7 @@ export const FILTERS = {
   "mid check": "midcheck", "mid checks": "midcheck",
   // tracking (Wavu notes / fields; sparse)
   "tracks left": "tracksleft", "left tracking": "tracksleft", "tracks right": "tracksright", "right tracking": "tracksright",
+  "step left": "ssl", ssl: "ssl", "step right": "ssr", ssr: "ssr", steppable: "ssr", duckable: "duckable", ducks: "duckable",
 };
 
 export const FILTER_LABELS = {
@@ -55,6 +56,7 @@ export const FILTER_LABELS = {
   snakeedge: "snake edges", powerlow: "power lows", shadowcutter: "shadow cutters", staturekick: "stature kicks",
   clefcannon: "clef cannons", slashkick: "slash kicks", midcheck: "mid checks",
   tracksleft: "good left tracking", tracksright: "good right tracking",
+  ssl: "whiff vs sidestep left", ssr: "whiff vs sidestep right", swl: "whiff vs sidewalk left", swr: "whiff vs sidewalk right", duckable: "duckable",
 };
 
 /** Archetype rules after Wavu's "Standard move" definitions; `root` = first move of the chain. */
@@ -120,6 +122,18 @@ export function tagsFor(move, key, root = move, kids = []) {
   if (/^H\./.test(key)) tags.add("heat");
   if (items.some((n) => /good left (?:sidestep )?tracking|tracks left/.test(n)) || Number(move.tracksLeft) > 0) tags.add("tracksleft");
   if (items.some((n) => /good right (?:sidestep )?tracking|tracks right/.test(n)) || Number(move.tracksRight) > 0) tags.add("tracksright");
+  // Wavu notes: "Whiffs vs SSR from 1st block", "Whiffs vs SS, SW", "Duckable", "String duckable"
+  for (const n of items) {
+    const w = n.match(/whiffs? (?:vs|against) ([a-z ,\/]+)/i);
+    if (w) {
+      for (const side of w[1].toUpperCase().split(/[\s,\/]+/)) {
+        if (side === "SS") tags.add("ssl").add("ssr");
+        else if (["SSL", "SSR", "SWL", "SWR"].includes(side)) tags.add(side.toLowerCase());
+        else if (side === "SW") tags.add("swl").add("swr");
+      }
+    }
+    if (/\bduckable\b/.test(n)) tags.add("duckable");
+  }
   for (const a of archetypesFor(move, key, root, kids)) tags.add(a);
   return [...tags];
 }

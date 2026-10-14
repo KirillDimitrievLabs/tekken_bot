@@ -37,7 +37,7 @@ const parts = (v) => cleanInline(v).split(",").map((p) => p.trim()).filter(Boole
  * Compact card (A5): header, one frames row, one level/damage row, details collapsed.
  * @param {{character: string, key: string, chain: object[], extra?: string}} p
  */
-export function cardHtml({ character, key, chain }) {
+export function cardHtml({ character, key, chain, combo = null }) {
   const move = chain[chain.length - 1];
   const levels = chain.flatMap((m) => parts(m.target)).join(", ") || "—";
   const damage = chain.flatMap((m) => parts(m.damage)).join(", ") || "—";
@@ -49,6 +49,7 @@ export function cardHtml({ character, key, chain }) {
     `🎯 level ${esc(levels)} · 💥 dmg ${esc(damage)}`,
   ];
   const more = [];
+  if (combo?.total) more.push(`🚀 combo ${combo.total}${combo.totalHeat && combo.totalHeat > combo.total ? ` · with Heat ${combo.totalHeat}` : ""}${combo.hard ? " · ⚠️ hard route" : ""} <i>(Wavu combos)</i>`);
   const crush = listText(move.crush, ", ");
   if (crush) more.push(`🛡 crush ${esc(crush)}`);
   const recv = cleanInline(move.recv);
@@ -80,5 +81,5 @@ export const LEGEND_HTML = [
   "combo = full combo damage · mini = mini-combo · (computed) = from frame data, no community pick",
   b("Gaps / evasion"),
   "✅ natural combo · ⚡ combo only on counter hit · 🔒 jails · ✋ interruptible · ⏳ delayable",
-  "↺ homing · ⬅ tracks left (step right) · ➡ tracks right (step left)",
+  "↺ homing · ⬅ tracks left (step right) · ➡ tracks right (step left) · 👣 SSL/SSR whiffs vs sidestep left/right · SWL/SWR sidewalk · 🦆 duckable",
 ].join("\n");
