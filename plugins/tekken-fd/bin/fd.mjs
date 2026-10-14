@@ -4,7 +4,9 @@
 // Env: FD_REPO_DIR (default /opt/clan-bots), FD_STATE_DIR (default $OPENCLAW_STATE_DIR/tekken-fd)
 import fs from "node:fs";
 import path from "node:path";
-import { paths, rebuild, sync } from "../src/sync.js";
+import { headCommit, paths, rebuild, sync } from "../src/sync.js";
+import { ProgressBoard, SYNC_STEPS } from "../src/progress.js";
+import { pushAndWait } from "../src/push.js";
 import { readSnapshots } from "../src/snapshot.js";
 import { auditSnapshots, summarizeAudit } from "../src/audit.js";
 import { checkOnce, writeState } from "../src/watcher.js";
@@ -18,12 +20,19 @@ const p = paths(repoDir, stateDir);
 
 try {
   if (cmd === "sync") {
-    const r = await sync(p, { dryRun: flags.includes("--dry"), force: flags.includes("--force") });
-    if (!flags.includes("--dry")) {
+    const dry = flags.includes("--dry");
+    const board = new ProgressBoard("sync", SYNC_STEPS, { minIntervalMs: 10_000, show: async (t) => console.error(`${t}\n`) });
+    const r = await sync(p, { dryRun: dry, force: flags.includes("--force"), progress: board });
+    if (!dry) {
       if (!fs.existsSync(p.dbPath)) rebuild(p);
       const now = new Date().toISOString();
       writeState(p.statePath, { pendingCharacters: [], lastSyncAt: now, lastWatchCheck: now });
+      const pushed = await pushAndWait(repoDir, await headCommit(repoDir));
+      board.update("push", pushed.state, pushed.detail);
+    } else {
+      board.update("push", "skip", "dry run");
     }
+    await board.finish("");
     console.log(r.message);
   } else if (cmd === "rebuild") {
     const r = rebuild(p);

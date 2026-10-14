@@ -45,7 +45,13 @@ Cyrillic character names (`aliases.ru.json`) and Russian keyboard layout (`!ав
 `/fd_check`, `/fd_stats` (usage counters in `/opt/openclaw/data/state/tekken-fd/stats.json`).
 
 ### Updating data (manual by design)
-- Telegram DM to the bot (owner only): `/fd_sync dry` → preview, `/fd_sync` → fetch, commit, rebuild.
+- Telegram DM to the bot (owner only): `/fd_sync dry` → preview, `/fd_sync` → fetch, commit, rebuild, push to GitHub.
+  A live progress message shows each step (frame data, punishers, combos, TekkenDocs tags, commit, push) with
+  counts and any characters whose page failed. Nothing is fetched or pushed on a timer, only by command
+  (the daily watcher only checks Wavu's edit list and DMs you).
+- GitHub push: the deploy key stays on the host. `/fd_sync` writes `.git/push-request`; the
+  `tekken-bot-push` systemd service (unprivileged user, sandboxed) copies `main` into a private mirror and pushes it
+  without force, then writes `.push/status.json` for the bot. Setup: `sudo scripts/push/install.sh <deploy key>`.
   `/fd_status`, `/fd_check` (run the Wavu change watcher now), `/fd_rebuild`.
 - The watcher checks Wavu once a day and DMs the owner which movelists were edited. It never syncs by itself.
 - Server: `docker compose -f /opt/openclaw/docker-compose.yml exec openclaw-gateway node /opt/clan-bots/plugins/tekken-fd/bin/fd.mjs sync --dry`

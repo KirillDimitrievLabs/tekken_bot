@@ -23,7 +23,9 @@ import { formatDigest, hasFrameChanges } from "./src/digest.js";
 import { Stats } from "./src/stats.js";
 import { readMeta } from "./src/snapshot.js";
 import { chatIdFrom, deleteMessage, editMessageText, memberName, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
-import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
+import { headCommit, lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
+import { ProgressBoard, SYNC_STEPS } from "./src/progress.js";
+import { pushAndWait, pushStatusLine } from "./src/push.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
 
@@ -537,12 +539,29 @@ export default {
       handler: ownerOnly((ctx) => exclusive("sync", async () => {
         const args = String(ctx.args ?? "").toLowerCase();
         const dry = args.includes("dry");
-        const result = await sync(p, { dryRun: dry, force: args.includes("force") });
+        const board = syncBoard(ctx, dry);
+        let result;
+        try {
+          result = await sync(p, { dryRun: dry, force: args.includes("force"), progress: board });
+        } catch (err) {
+          board.skipRest();
+          await board.finish(`❌ Sync failed: ${err.message}`);
+          throw err;
+        }
         if (!dry) {
           if (!fs.existsSync(p.dbPath)) rebuild(p);
           const now = new Date().toISOString();
           writeState(p.statePath, { pendingCharacters: [], lastSyncAt: now, lastWatchCheck: now });
+          // GitHub push only after the whole fetch is committed
+          board.update("push", "run", "waiting for the push service");
+          const head = await headCommit(p.repoDir);
+          const pushed = await pushAndWait(p.repoDir, head, { onWait: (s) => board.update("push", "run", `waiting for the push service · ${s}s`) });
+          board.update("push", pushed.state, pushed.detail);
+        } else {
+          board.update("push", "skip", "dry run");
         }
+        const failed = board.steps.some((s) => s.state === "fail" || s.state === "warn");
+        await board.finish(failed ? "⚠️ Done with warnings — see above." : `✅ Done${dry ? " (dry run, nothing saved)" : ""}.`);
         let reply = `${result.changed ? "✅" : "ℹ️"} ${result.message}`;
         if (result.digest && hasFrameChanges(result.digest)) {
           const digestText = formatDigest(result.digest);
@@ -560,6 +579,24 @@ export default {
         return { text: reply };
       })),
     });
+
+    /** Live progress message in the chat that sent /fd_sync (sent once, then edited in place). */
+    function syncBoard(ctx, dry) {
+      const chatId = chatIdFrom(ctx.originatingTo ?? ctx.to) ?? digits(ctx.senderId);
+      let messageId = null;
+      const show = async (text) => {
+        if (!chatId) return;
+        try {
+          if (messageId) await editMessageText(chatId, messageId, text);
+          else messageId = (await sendMessage(chatId, text))?.message_id ?? null;
+        } catch (err) {
+          if (!/not modified/i.test(err.message)) api.logger?.warn?.(`tekken-fd sync progress: ${err.message}`);
+        }
+      };
+      const board = new ProgressBoard(`🔄 ${dry ? "Sync preview (dry run)" : "Sync"}`, SYNC_STEPS, { show });
+      board.flush(true);
+      return board;
+    }
 
     api.registerCommand({
       name: "fd_rebuild",
@@ -586,6 +623,7 @@ export default {
           text: [
             `📚 Frame data: ${meta.moves ?? 0} moves, synced ${meta.syncedAt || "never"}`,
             `🔖 Last data commit: ${commit || "none"}`,
+            pushStatusLine(p.repoDir, await headCommit(p.repoDir).catch(() => "")),
             `👀 Watcher last check: ${state.lastWatchCheck ?? "never"}`,
             `📝 Edited on Wavu since last sync: ${(state.pendingCharacters ?? []).join(", ") || "none"}`,
           ].join("\n"),

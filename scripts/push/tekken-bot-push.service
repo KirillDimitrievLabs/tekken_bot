@@ -1,0 +1,21 @@
+[Unit]
+Description=Push the tekken_bot repo to GitHub (requested by /fd_sync)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=tekkenpush
+Group=tekkenpush
+ExecStart=/usr/local/libexec/tekken-bot-push
+# sandbox: read-only system, only its own state and the status dir are writable
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/var/lib/tekken-bot-push /opt/clan-bots/.push

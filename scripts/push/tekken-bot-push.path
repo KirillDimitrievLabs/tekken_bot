@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for GitHub push requests from the tekken-fd bot
+
+[Path]
+PathChanged=/opt/clan-bots/.git/push-request
+Unit=tekken-bot-push.service
+
+[Install]
+WantedBy=multi-user.target

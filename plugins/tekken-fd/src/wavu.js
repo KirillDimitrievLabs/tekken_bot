@@ -61,7 +61,7 @@ export function characterFromDataPage(page) {
  * Fetch every Tekken 8 move, grouped by character.
  * @returns {Promise<Map<string, object[]>>} character → rows
  */
-export async function fetchAllMoves({ fetchImpl, pauseMs = 400 } = {}) {
+export async function fetchAllMoves({ fetchImpl, pauseMs = 400, onProgress } = {}) {
   const byCharacter = new Map();
   let offset = 0;
   for (;;) {
@@ -81,6 +81,7 @@ export async function fetchAllMoves({ fetchImpl, pauseMs = 400 } = {}) {
       if (!byCharacter.has(character)) byCharacter.set(character, []);
       byCharacter.get(character).push(cleanRow(row));
     }
+    onProgress?.({ rows: offset + rows.length, characters: byCharacter.size });
     if (rows.length < PAGE_SIZE) break;
     offset += PAGE_SIZE;
     await sleep(pauseMs);
@@ -218,20 +219,41 @@ export function parsePunishers(wikitext, character) {
   return out;
 }
 
-/** Fetch every character's punishers page (missing pages are skipped). */
-export async function fetchPunishers(characters, { fetchImpl, pauseMs = 300 } = {}) {
-  const out = {};
+/**
+ * Run `fetchOne(character)` for every character, sequentially and politely.
+ * onProgress({done, total, character, status}) — status "ok" | "missing" (no page / no entries) | "error".
+ * @returns {Promise<{data: object, report: {ok: number, missing: string[], errors: string[]}}>}
+ */
+async function perCharacter(characters, fetchOne, { pauseMs, onProgress }) {
+  const data = {};
+  const report = { ok: 0, missing: [], errors: [] };
+  let done = 0;
   for (const character of characters) {
+    let status = "missing";
     try {
-      const body = await apiGet({ action: "parse", page: `${character} punishers`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
-      const entries = parsePunishers(body.parse?.wikitext?.["*"], character);
-      if (entries.length) out[character] = entries;
-    } catch {
-      // page missing or unreadable: computed punishers remain the fallback
+      const value = await fetchOne(character);
+      if (value && Object.keys(value).length) {
+        data[character] = value;
+        status = "ok";
+      }
+    } catch (err) {
+      status = /missingtitle|HTTP 404/.test(err.message) ? "missing" : "error";
     }
+    if (status === "ok") report.ok++;
+    else report[status === "missing" ? "missing" : "errors"].push(character);
+    onProgress?.({ done: ++done, total: characters.length, character, status });
     await sleep(pauseMs);
   }
-  return out;
+  return { data, report };
+}
+
+/** Fetch every character's punishers page (missing pages are skipped). */
+export async function fetchPunishers(characters, { fetchImpl, pauseMs = 300, onProgress, withReport = false } = {}) {
+  const r = await perCharacter(characters, async (character) => {
+    const body = await apiGet({ action: "parse", page: `${character} punishers`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
+    return parsePunishers(body.parse?.wikitext?.["*"], character);
+  }, { pauseMs, onProgress });
+  return withReport ? r : r.data;
 }
 
 // ---- Combo damage: Wavu "<Character> combos" pages ("; [23] EWGF" launcher lines, ": [+56] route" lines)
@@ -320,19 +342,12 @@ export function parseCombos(wikitext, character) {
   return [...merged.values()];
 }
 
-export async function fetchCombos(characters, { fetchImpl, pauseMs = 300 } = {}) {
-  const out = {};
-  for (const character of characters) {
-    try {
-      const body = await apiGet({ action: "parse", page: `${character} combos`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
-      const entries = parseCombos(body.parse?.wikitext?.["*"], character);
-      if (entries.length) out[character] = entries;
-    } catch {
-      // missing page: no combo damage for this character
-    }
-    await sleep(pauseMs);
-  }
-  return out;
+export async function fetchCombos(characters, { fetchImpl, pauseMs = 300, onProgress, withReport = false } = {}) {
+  const r = await perCharacter(characters, async (character) => {
+    const body = await apiGet({ action: "parse", page: `${character} combos`, prop: "wikitext", redirects: "1" }, { fetchImpl, retries: 1 });
+    return parseCombos(body.parse?.wikitext?.["*"], character);
+  }, { pauseMs, onProgress });
+  return withReport ? r : r.data;
 }
 
 // ---- TekkenDocs (https://tekkendocs.com) move tags — second source for homing/step/duck/tornado
@@ -341,24 +356,18 @@ const TD_URL = "https://tekkendocs.com/api/t8";
 const tdSlug = (c) => c.toLowerCase().replace(/\s+/g, "-");
 
 /** {character: {moveId: {hom?, stp?, dck?, trn?, intr?}}} — only the tags the bot uses. */
-export async function fetchTekkenDocsTags(characters, { fetchImpl = fetch, pauseMs = 300 } = {}) {
+export async function fetchTekkenDocsTags(characters, { fetchImpl = fetch, pauseMs = 300, onProgress, withReport = false } = {}) {
   const keep = ["hom", "stp", "dck", "trn", "intr"];
-  const out = {};
-  for (const character of characters) {
-    try {
-      const res = await fetchImpl(`${TD_URL}/${tdSlug(character)}/framedata`, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const body = await res.json();
-      const tags = {};
-      for (const m of body.framesNormal ?? []) {
-        const t = Object.fromEntries(Object.entries(m.tags ?? {}).filter(([k]) => keep.includes(k)));
-        if (Object.keys(t).length && m.id) tags[m.id] = t;
-      }
-      if (Object.keys(tags).length) out[character] = tags;
-    } catch {
-      // TekkenDocs down or character missing: Wavu notes remain the source
+  const r = await perCharacter(characters, async (character) => {
+    const res = await fetchImpl(`${TD_URL}/${tdSlug(character)}/framedata`, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body = await res.json();
+    const tags = {};
+    for (const m of body.framesNormal ?? []) {
+      const t = Object.fromEntries(Object.entries(m.tags ?? {}).filter(([k]) => keep.includes(k)));
+      if (Object.keys(t).length && m.id) tags[m.id] = t;
     }
-    await sleep(pauseMs);
-  }
-  return out;
+    return tags;
+  }, { pauseMs, onProgress });
+  return withReport ? r : r.data;
 }
