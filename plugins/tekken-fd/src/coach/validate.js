@@ -97,7 +97,9 @@ export function validateGuide(raw, dossier) {
     const withoutRefs = value.replace(REF, "");
     if (/\[\[|\]\]/.test(withoutRefs)) errors.push(`${path}: malformed move reference`);
     const prose = NAMES ? withoutRefs.replace(NAMES, " ") : withoutRefs;
-    if (refs.length > 12) errors.push(`${path}: too many move references`);
+    // long teaching sections (gameplan, neutral, Heat/wall) legitimately cite more moves
+    const refLimit = max >= 1500 ? 25 : 12;
+    if (refs.length > refLimit) errors.push(`${path}: too many move references (${refs.length}, max ${refLimit}); keep the most important`);
     const claims = [...prose.matchAll(NUMBER), ...prose.matchAll(WORD_NUMBER)].map((m) => m[0]);
     if (!claims.length) return value;
     for (const claim of claims) strippedNumbers.push({ path, value: claim });
