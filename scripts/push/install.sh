@@ -15,6 +15,7 @@ ssh-keygen -F github.com -f /root/.ssh/known_hosts | grep -v '^#' > "$HOME_DIR/k
 chown tekkenpush:tekkenpush "$HOME_DIR/known_hosts"; chmod 644 "$HOME_DIR/known_hosts"
 # status dir: written by the service, read by the bot (uid 1000 in the container)
 install -d -o tekkenpush -g tekkenpush -m 755 /opt/clan-bots/.push
+install -d -m 755 /usr/local/libexec
 install -o root -g root -m 755 "$HERE/push-github.sh" /usr/local/libexec/tekken-bot-push
 install -o root -g root -m 644 "$HERE/tekken-bot-push.service" "$HERE/tekken-bot-push.path" /etc/systemd/system/
 systemctl daemon-reload
