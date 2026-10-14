@@ -14,7 +14,7 @@ import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { AliasStore, parseAliasReply } from "./src/aliases.js";
 import { analyze, isHelpCommand, needMoveText, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
 import { readMeta } from "./src/snapshot.js";
-import { chatIdFrom, sendReply, setMyCommands } from "./src/telegram.js";
+import { chatIdFrom, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
@@ -130,7 +130,7 @@ export default {
         return done(await answer(event, ctx, `❌ ${parsed.error}. Reply with an exact name, e.g. "${characters[0]}" or "${pending.alias} = ${characters[0]}".`));
       }
       const added = await aliases.add(parsed.alias, parsed.character, characters, { by: `telegram:${digits(event.senderId) ?? "?"}` });
-      savePending(pendingAliases().filter((x) => !(x.chatId === pending.chatId && x.messageId === pending.messageId)));
+      savePending(pendingAliases().filter((x) => !(x.at === pending.at && x.args === pending.args)));
       api.logger?.info?.(`tekken-fd alias added: ${added.alias} → ${added.character} (${added.commit})`);
       await answer(event, ctx, `✅ Alias added: ${added.alias} → ${added.character}${added.previous && added.previous !== added.character ? ` (was ${added.previous})` : ""}`);
       // Answer the original question now that the character is known.
@@ -140,7 +140,7 @@ export default {
         : retry?.kind === "unresolved" ? unresolvedText(retry) : null;
       if (text && pending.originalMessageId) {
         try {
-          await sendReply(pending.chatId, pending.originalMessageId, text);
+          await sendReply(pending.askChatId ?? pending.chatId, pending.originalMessageId, text);
         } catch (err) {
           api.logger?.warn?.(`tekken-fd: re-answer failed: ${err.message}`);
         }
@@ -180,12 +180,23 @@ export default {
           case "need_move":
             return done(await answer(event, ctx, needMoveText(a.character)));
           case "unknown_character": {
-            const r = await answer(event, ctx, unknownCharacterText(a));
-            if (r.sentId && r.chatId) {
-              savePending([...pendingAliases(), {
-                chatId: r.chatId, messageId: r.sentId, originalMessageId: event?.messageId ?? null,
-                alias: a.token.toLowerCase(), args: a.args, at: new Date().toISOString(),
-              }]);
+            const base = { originalMessageId: event?.messageId ?? null, alias: a.token.toLowerCase(), args: a.args, at: new Date().toISOString() };
+            // In groups and in an admin's own DM the admin can reply right there.
+            if (!isDirect || isAdmin) {
+              const r = await answer(event, ctx, unknownCharacterText(a));
+              if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...base, chatId: r.chatId, messageId: r.sentId, askChatId: r.chatId }]);
+              return done(r);
+            }
+            // Someone else's DM: tell them an admin was asked, and send the request to the admins.
+            const r = await answer(event, ctx, `❓ Unknown character: "${a.token.slice(0, 30)}". I've asked an admin to add it — you'll get the answer here.`);
+            const who = digits(event?.senderId) ?? "?";
+            for (const admin of admins()) {
+              try {
+                const sent = await sendMessage(admin, `❓ Unknown character "${a.token.slice(0, 30)}" from user ${who}: "!fd ${a.args.slice(0, 80)}"\nReply to this message with the character name to add "${a.token.slice(0, 30).toLowerCase()}" as an alias.`);
+                if (sent?.message_id) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.message_id, askChatId: r.chatId ?? chatId }]);
+              } catch (err) {
+                api.logger?.warn?.(`tekken-fd: alias request to admin ${admin} failed: ${err.message}`);
+              }
             }
             return done(r);
           }
