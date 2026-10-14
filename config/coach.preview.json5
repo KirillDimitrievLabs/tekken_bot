@@ -1,0 +1,12 @@
+// Apply explicitly with scripts/apply-config.sh --coach-preview after owner approval.
+// The user selected gpt-6.1-sol high. No benchmark or alternate-model evaluation is run.
+{
+  plugins: {
+    entries: {
+      "tekken-fd": {
+        llm: { allowModelOverride: true, allowedModels: ["openai/gpt-6.1-sol"] },
+        config: { coach: { enabled: true, access: "admins", model: "openai/gpt-6.1-sol" }, tips: { openSubmissions: false } },
+      },
+    },
+  },
+}

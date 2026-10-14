@@ -27,6 +27,7 @@ import { headCommit, lastDataCommit, paths, rebuild, sync } from "./src/sync.js"
 import { ProgressBoard, SYNC_STEPS } from "./src/progress.js";
 import { pushAndWait, pushStatusLine } from "./src/push.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
+import { createCoachTransport } from "./src/coach/transport.js";
 
 
 const configSchema = {
@@ -42,6 +43,8 @@ const configSchema = {
       publicAgents: { type: "array", items: { type: "string" } },
       adminIds: { type: "array", items: { type: "string" } },
       quiz: { type: "object", properties: { dailyAt: { type: "string" }, tz: { type: "string" }, daily: { type: "boolean" } } },
+      coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } } } },
+      tips: { type: "object", properties: { openSubmissions: { type: "boolean" } } },
     },
   },
   safeParse(value) {
@@ -155,6 +158,9 @@ export default {
       return { handled: true, text: toPlain(html) };
     }
     const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
+    // Created once; model calls remain command-triggered and access-checked.
+    const coachTransport = createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done,
+      ownerOnly: (handler) => ownerOnly(handler), exclusive: (label, fn) => exclusive(label, fn) });
 
     // ---- "did you mean" (buttons, asker only) — removed when the asker gets a card (#6)
     async function cleanupSuggestions(chatId, askerId) {
@@ -291,6 +297,7 @@ export default {
         // 1) admin replies: unknown-character requests and "did you mean" (move aliases)
         const replyTo = String(event?.replyToId ?? "");
         if (replyTo && chatId) {
+          if (await coachTransport.handleAdminReply(event, ctx, senderId, replyTo)) return { handled: true };
           const pending = pendingAliases().find((x) => x.chatId === chatId && String(x.messageId) === replyTo);
           if (pending) return isAdmin ? await handleAliasReply(event, ctx, pending) : { handled: true };
           const sug = allTokens(p.statePath).find((t) => t.suggest && t.chatId === chatId && String(t.messageId) === replyTo);
@@ -308,12 +315,20 @@ export default {
         const replies = bot.handle(body, { senderId, chatId, senderName, isDirect });
         if (!replies) return isPublic && isDirect ? done(await answer(event, ctx, HELP_HTML)) : undefined;
         if (replies.length > 1) {
+          if (replies.some((r) => ["coach", "tip", "tips", "mytips", "coachPreference"].includes(r.kind))) return done(await answer(event, ctx, "Send coach and tip commands on their own."));
           stats.record("multi");
           return done(await answer(event, ctx, combined(replies)));
         }
         const r = replies[0];
         if (r.stat) stats.record(...r.stat);
         switch (r.kind) {
+          case "coach":
+          case "coachPreference":
+          case "tip":
+          case "tips":
+          case "mytips":
+            try { return await coachTransport.handle(r, event, ctx, senderId); }
+            catch (err) { return done(await answer(event, ctx, `❌ ${esc(err.message)}`)); }
           case "reply":
             if (r.stat?.[0] === "card") {
               api.logger?.info?.(`tekken-fd fast path: ${r.stat[1].moveId} in ${Date.now() - started}ms (${sessionKey})`);
@@ -343,6 +358,7 @@ export default {
         }
       } catch (err) {
         api.logger?.warn?.(`tekken-fd before_dispatch failed: ${err.stack ?? err.message}`);
+        if (/^\s*!(?:vs|coach(?:lang|level)?|tip(?:s)?|mytips|мы|сщфср|сщфсрдфтп|сщфсрдумуд|ешз|ешзы|ьнешзы)(?=\s|$)/i.test(String(body))) return { handled: true, text: "Coach data is unavailable. Ask an admin to check /fd_status and /fd_rebuild." };
         return isPublic && isDirect ? { handled: true, text: toPlain(HELP_HTML) } : undefined;
       }
     });
@@ -380,6 +396,8 @@ export default {
           if (t.kind !== "actions") return { handled: true };
           const action = t.actions[i];
           if (!action) return { handled: true };
+          // Coach feedback/voting and admin review buttons check their own permissions.
+          if (await coachTransport.action(action, t, presser)) return { handled: true };
           if (action.type === "quiz") {
             const name = ictx.senderUsername ? `@${ictx.senderUsername}` : await memberName(t.chatId, presser).catch(() => presser);
             const res = quiz.answer(action.qid, presser, name, action.i);
@@ -529,6 +547,7 @@ export default {
         busy = null;
       }
     };
+    coachTransport.registerCommands();
 
     api.registerCommand({
       name: "fd_sync",
@@ -543,6 +562,11 @@ export default {
         let result;
         try {
           result = await sync(p, { dryRun: dry, force: args.includes("force"), progress: board });
+          if (!dry && result.changed) {
+            coachTransport.coach.cache.invalidate();
+            const flagged = await coachTransport.tips.flagChangedMoves(result.digest ?? {});
+            for (const tip of flagged ?? []) await coachTransport.notifyQueue(tip);
+          }
         } catch (err) {
           board.skipRest();
           await board.finish(`❌ Sync failed: ${err.message}`);
@@ -605,6 +629,7 @@ export default {
       requiredScopes: ["operator.admin"],
       handler: ownerOnly(() => exclusive("rebuild", async () => {
         const r = rebuild(p);
+        coachTransport.coach.cache.invalidate();
         return { text: `✅ Index rebuilt: ${r.moves} moves, ${r.characters} characters.` };
       })),
     });
@@ -709,12 +734,13 @@ export default {
           logger: api.logger,
         });
       },
-      stop() {
+      async stop() {
         clearTimeout(menuTimer);
         clearInterval(statsTimer);
         try { stats.flush(); } catch {}
         stopWatcher?.();
         stopWatcher = null;
+        await coachTransport.close();
         index.close();
       },
     });

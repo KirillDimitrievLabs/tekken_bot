@@ -44,6 +44,14 @@ Cyrillic character names (`aliases.ru.json`) and Russian keyboard layout (`!ав
 `/fd_sync [dry|force]` (with a patch digest preview + 📢 Post-to-group button), `/fd_rebuild`, `/fd_status`,
 `/fd_check`, `/fd_stats` (usage counters in `/opt/openclaw/data/state/tekken-fd/stats.json`).
 
+### Coach and clan tips
+`!vs Reina` / `!coach Kazuya vs Reina` use **gpt-6.1-sol, high** with indexed facts,
+Wavu guides and approved clan advice. `!coachlang en|ru` and `!coachlevel mid|high`
+save user choices. `!tip`, `!tips`, `!mytips` provide moderated clan knowledge.
+Initially admin preview; launch access is configured clan members, including their DMs.
+Owner tools: `/coach_dossier`, `/coach_status`, `/tips_queue`, `/coach_warm mains`.
+See [coach.md](docs/coach.md) for prompt contents, privacy, limits and explicit activation.
+
 ### Updating data (manual by design)
 - Telegram DM to the bot (owner only): `/fd_sync dry` → preview, `/fd_sync` → fetch, commit, rebuild, push to GitHub.
   A live progress message shows each step (frame data, punishers, combos, TekkenDocs tags, commit, push) with
@@ -80,6 +88,8 @@ Restart the gateway after plugin code changes: `docker compose -f /opt/openclaw/
 | `data/wavu/t8-punishers.json` | Wavu "`<Character> punishers`" pages | community-picked punishers (⭐), combo/mini damage, hard flags |
 | `data/wavu/t8-combos.json` | Wavu "`<Character> combos`" pages | combo damage per launcher (route without Heat/Rage, Heat route separately) |
 | `data/tekkendocs/t8-tags.json` | [TekkenDocs](https://tekkendocs.com) API | second source for homing / step (SSL/SSR/SWL/SWR) / duckable / tornado tags |
+| `data/wavu/t8-guides.json` | Wavu counterplay / strategy / tech pages | grounded coach prose and matchup-specific community knowledge |
+| `data/tips/t8-tips.json` | Admin-approved clan submissions | credited clan advice (display names only) |
 
 Every sync keeps a source's previous file if a fetch comes back (nearly) empty, writes stable sorted JSON,
 commits the change, rebuilds the index and lists which sources changed. The daily watcher reports edits to

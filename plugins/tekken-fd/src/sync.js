@@ -8,6 +8,7 @@ import { diffFrames } from "./digest.js";
 import { counter, reportText } from "./progress.js";
 import { assertPlausible, diffSnapshots, readMeta, readSnapshots, writeSnapshots } from "./snapshot.js";
 import { fetchAllMoves, fetchCombos, fetchPunishers, fetchTekkenDocsTags } from "./wavu.js";
+import { fetchGuides, mergeGuideSnapshots } from "./guides.js";
 import fs from "node:fs";
 
 const run = promisify(execFile);
@@ -19,6 +20,7 @@ export function paths(repoDir, stateDir) {
     punishersPath: path.join(repoDir, "data", "wavu", "t8-punishers.json"),
     combosPath: path.join(repoDir, "data", "wavu", "t8-combos.json"),
     tdTagsPath: path.join(repoDir, "data", "tekkendocs", "t8-tags.json"),
+    guidesPath: path.join(repoDir, "data", "wavu", "t8-guides.json"),
     dbPath: path.join(stateDir, "t8.sqlite"),
     statePath: path.join(stateDir, "state.json"),
   };
@@ -54,7 +56,7 @@ export function rebuild(p) {
 
 /**
  * @param {{dryRun?: boolean, force?: boolean, progress?: import("./progress.js").ProgressBoard}} opts
- *   progress: optional board updated per step (moves, punishers, combos, tags, save).
+ *   progress: optional board updated per step (moves, punishers, combos, tags, guides, save).
  * @returns {Promise<{changed: boolean, changes: object[], commit?: string, totals: object, message: string}>}
  */
 export async function sync(p, { dryRun = false, force = false, fetchImpl, progress } = {}) {
@@ -77,14 +79,23 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl, progre
     { id: "punishers", name: "punishers (Wavu)", file: p.punishersPath, fetch: fetchPunishers, opts: { fetchImpl } },
     { id: "combos", name: "combos (Wavu)", file: p.combosPath, fetch: fetchCombos, opts: { fetchImpl } },
     { id: "tags", name: "tags (TekkenDocs)", file: p.tdTagsPath, fetch: fetchTekkenDocsTags, opts: { fetchImpl: fetchImpl ?? fetch } },
+    { id: "guides", name: "guides (Wavu)", file: p.guidesPath ?? path.join(p.repoDir, "data", "wavu", "t8-guides.json"), fetch: fetchGuides, opts: { fetchImpl } },
   ];
   const extras = [];
   for (const src of sources) {
     step(src.id, "run", `0/${chars.length}`);
     const { data, report } = await src.fetch(chars, { ...src.opts, withReport: true, onProgress: (e) => step(src.id, "run", counter(e)) });
     const old = fs.existsSync(src.file) ? fs.readFileSync(src.file, "utf8") : "";
-    const enough = Object.keys(data).length >= 20;
-    const fresh = enough ? `${JSON.stringify(sorted(data), null, 2)}\n` : old;
+    // Guides have uneven coverage: one useful page is a valid update. Keep previous good
+    // pages when other pages/characters fail or return a template-only response.
+    const enough = Object.keys(data).length >= (src.id === "guides" ? 1 : 20);
+    let next = data;
+    if (src.id === "guides" && enough) {
+      let previous = {};
+      try { previous = JSON.parse(old || "{}"); } catch { /* damaged optional snapshot */ }
+      next = mergeGuideSnapshots(previous, data, report);
+    }
+    const fresh = enough ? `${JSON.stringify(sorted(next), null, 2)}\n` : old;
     const changed = fresh !== old;
     step(src.id, enough && !report.errors.length ? "done" : "warn", `${reportText(report, { kept: !enough })}${changed ? " · changed" : ""}`);
     extras.push({ ...src, data, report, old, fresh, changed });
@@ -135,6 +146,11 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl, progre
     step("save", "fail", `index build failed, data restored`);
     await git(p.repoDir, "checkout", "--", rel).catch(() => {});
     await git(p.repoDir, "clean", "-fdq", "--", rel).catch(() => {});
+    for (const x of extras) {
+      if (!x.changed) continue;
+      if (x.old) fs.writeFileSync(x.file, x.old);
+      else fs.rmSync(x.file, { force: true });
+    }
     throw new Error(`index build failed, data restored: ${err.message}`);
   }
   step("save", "run", "committing");

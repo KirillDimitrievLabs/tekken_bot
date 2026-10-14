@@ -12,8 +12,9 @@ import { b, cardHtml, code, esc, LEGEND_HTML } from "./render.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 import { formatThrows } from "./throws.js";
 import { formatWhiff } from "./whiff.js";
+import { parseCoachTarget, parseTip } from "./coach/commands.js";
 
-export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "legend", "main", "mains", "mu", "gaps", "ss", "beat", "whiff", "throws", "quiz", "top", "heat", "wall"];
+export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "legend", "main", "mains", "mu", "gaps", "ss", "beat", "whiff", "throws", "quiz", "top", "heat", "wall", "vs", "coach", "coachlang", "coachlevel", "tip", "tips", "mytips"];
 const COMMAND_RE = new RegExp(`^\\s*(?:@\\w+\\s+)?!(${COMMANDS.join("|")})\\b\\s*([\\s\\S]*)$`, "i");
 export const MENTION_PATTERN = `^\\s*!(${COMMANDS.join("|")})\\b`;
 const MAX_MULTI = 5;
@@ -22,6 +23,8 @@ const MAX_MULTI = 5;
 export function parseCommands(text) {
   const m = COMMAND_RE.exec(String(text ?? ""));
   if (!m) return [];
+  // Tip prose may contain semicolons and line breaks; keep it as one submission.
+  if (m[1].toLowerCase() === "tip") return [{ cmd: "tip", args: m[2].trim() }];
   const out = [];
   let cmd = m[1].toLowerCase();
   for (const raw of m[2].split(/[;\n]/)) {
@@ -62,14 +65,21 @@ const HELP = {
   throws: ["!throws <character> — every throw with its break", "!throws king"],
   quiz: ["!quiz [character] — frame quiz (everyone answers once)", "!top · !top <character> — leaderboard"],
   heat: ["!heat <character> — engagers (with heat dash), smash, burst, heat moves", "!wall <character> — wall crush/splat, balcony, floor breaks"],
+  coach: ["!coach <you> vs <them> — a grounded matchup guide", "!vs reina / !coach reina — a counter-guide; offers your !main matchup", "!coachlang en|ru — save your guide language", "!coachlevel mid|high — save your level", "Per-request options: --lang ru --level high", "Coach is available to configured clan members after admin preview."],
+  tip: ["!tip vs reina #defense: your advice — submit a clan tip for admin approval", "!tip kazuya vs reina: matchup advice (20–400 characters)", "!tips vs reina · !mytips — approved tips and your submissions"],
 };
+HELP.vs = HELP.coach;
+HELP.coachlang = HELP.coach;
+HELP.coachlevel = HELP.coach;
+HELP.tips = HELP.tip;
+HELP.mytips = HELP.tip;
 HELP.top = HELP.quiz;
 HELP.wall = HELP.heat;
 HELP.mains = HELP.main;
 
 export const HELP_HTML = [
   `🤖 ${b("Tekken 8 frame data")}`,
-  ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
+  ...["fd", "punish", "unsafe", "list", "mu", "gaps", "beat", "ss", "whiff", "throws", "heat", "quiz", "main", "coach", "tip"].map((k) => `${code(HELP[k][0].split(" — ")[0])} — ${esc(HELP[k][0].split(" — ")[1] ?? "")}`),
   `${code("!help <command>")} — examples, e.g. ${code("!help punish")} · ${code("!legend")} — what the emojis mean`,
   "<i>Nicknames (fahk, kaz, казуя), move names, hopkick/hellsweep/ewgf and Russian layout all work. Data: wavu.wiki</i>",
 ].join("\n");
@@ -147,6 +157,19 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
   function run({ cmd, args }, ctx, single) {
     const main = ctx.senderId ? mains.get(ctx.senderId) : null;
     switch (cmd) {
+      case "vs":
+      case "coach":
+      case "tips": {
+        const target = parseCoachTarget(args, characters(), aliases.all());
+        return target.error ? reply(esc(target.error)) : { kind: cmd === "tips" ? "tips" : "coach", target };
+      }
+      case "tip": {
+        const tip = parseTip(args, characters(), aliases.all());
+        return tip.error ? reply(esc(tip.error)) : { kind: "tip", tip };
+      }
+      case "mytips": return { kind: "mytips" };
+      case "coachlang":
+      case "coachlevel": return { kind: "coachPreference", preference: cmd === "coachlang" ? { language: args.toLowerCase() } : { level: args.toLowerCase() } };
       case "fd":
         return fdLookup(args, main, { single });
       case "legend":

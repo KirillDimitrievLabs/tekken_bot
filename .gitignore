@@ -7,3 +7,7 @@ node_modules/
 config/local.env
 config/clan-chat-id
 .push/
+tips-state.json
+tips-state.json.*
+coach-users.json
+eval/

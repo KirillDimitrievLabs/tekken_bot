@@ -1,12 +1,12 @@
 // B1: !mu <A> vs <B> — for each of B's punishable moves, A's best punish.
-import { hitLevelOf, levelClass } from "./frames.js";
+import { hitLevelsOf, levelClass } from "./frames.js";
 import { cleanInline } from "./format.js";
 import { bestPunishFor, minus, PUNISH_LEGEND } from "./queries.js";
 import { b, code, details, esc } from "./render.js";
 
 /** Best single punish for a move at its block value (low → A is crouching); curated ⭐ first. */
 export function bestPunish(index, a, move) {
-  const stance = levelClass(hitLevelOf(move.target)) === "low" ? "crouching" : "standing";
+  const stance = levelClass(hitLevelsOf(move.target).at(-1)) === "low" ? "crouching" : "standing";
   const p = bestPunishFor(index, a, stance, Math.abs(move.block_n));
   return p ? { ...p, stance } : null;
 }

@@ -1,0 +1,4 @@
+// Apply explicitly with scripts/apply-config.sh --coach-launch when ready to open to the clan.
+{
+  plugins: { entries: { "tekken-fd": { config: { coach: { enabled: true, access: "clan", model: "openai/gpt-6.1-sol" } } } } },
+}

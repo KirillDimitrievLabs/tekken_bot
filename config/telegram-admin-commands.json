@@ -270,5 +270,25 @@
   {
     "command": "side",
     "description": "Ask a side question without changing future session context."
+  },
+  {
+    "command": "coach_dossier",
+    "description": "Owner: inspect the raw factual coach dossier"
+  },
+  {
+    "command": "coach_status",
+    "description": "Owner: coach coverage, cache and access status"
+  },
+  {
+    "command": "coach_probe",
+    "description": "Owner: test isolated coach completion"
+  },
+  {
+    "command": "coach_warm",
+    "description": "Owner: generate guides for clan mains"
+  },
+  {
+    "command": "tips_queue",
+    "description": "Owner: approve, edit or reject clan tips"
   }
 ]

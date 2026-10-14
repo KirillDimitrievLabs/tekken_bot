@@ -63,6 +63,12 @@ export async function memberName(chatId, userId, opts) {
   return u.username ? `@${u.username}` : [u.first_name, u.last_name].filter(Boolean).join(" ") || String(userId);
 }
 
+/** Verify membership before authorizing subscription-backed coach calls in DMs. */
+export async function isChatMember(chatId, userId, opts) {
+  const r = await call("getChatMember", { chat_id: chatId, user_id: Number(userId) }, opts);
+  return ["creator", "administrator", "member"].includes(r?.status) || (r?.status === "restricted" && r.is_member === true);
+}
+
 /** Set the command menu for a scope ({type:"default"}, {type:"chat", chat_id}, {type:"chat_member", chat_id, user_id}). */
 export function setMyCommands(commands, scope, opts) {
   return call("setMyCommands", { commands, scope }, opts);

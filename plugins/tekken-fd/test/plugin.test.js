@@ -4,10 +4,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { after, before, test } from "node:test";
+import { fileURLToPath } from "node:url";
 import plugin from "../index.js";
 import { toPlain, isWellFormed } from "../src/render.js";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const fx = JSON.parse(fs.readFileSync(new URL("./fixtures/Fahkumram.json", import.meta.url), "utf8"));
 const OWNER = "100000001";
 const FRIEND = "100000002";
@@ -56,7 +57,8 @@ before(() => {
   });
 });
 
-after(() => {
+after(async () => {
+  for (const service of services) await service.stop();
   globalThis.fetch = realFetch;
   fs.rmSync(tmp, { recursive: true, force: true });
 });
