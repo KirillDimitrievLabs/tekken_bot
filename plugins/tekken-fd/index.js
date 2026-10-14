@@ -127,7 +127,12 @@ export default {
       const characters = characterNames();
       const parsed = parseAliasReply(event.content ?? event.body, pending.alias, aliases, characters);
       if (parsed.error) {
-        return done(await answer(event, ctx, `❌ ${parsed.error}. Reply with an exact name, e.g. "${characters[0]}" or "${pending.alias} = ${characters[0]}".`));
+        const closest = resolveCharacter(pending.alias, characters, aliases.all()).candidates;
+        const example = closest[0] ?? characters[0];
+        const r = await answer(event, ctx, `❌ ${parsed.error}.${closest.length ? ` Closest: ${closest.join(" · ")}.` : ""}\nReply to this message with an exact name, e.g. "${example}" or "${pending.alias} = ${example}".`);
+        // the correction may be a reply to this error message, too
+        if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...pending, chatId: r.chatId, messageId: r.sentId }]);
+        return done(r);
       }
       const added = await aliases.add(parsed.alias, parsed.character, characters, { by: `telegram:${digits(event.senderId) ?? "?"}` });
       savePending(pendingAliases().filter((x) => !(x.at === pending.at && x.args === pending.args)));
@@ -192,7 +197,8 @@ export default {
             const who = digits(event?.senderId) ?? "?";
             for (const admin of admins()) {
               try {
-                const sent = await sendMessage(admin, `❓ Unknown character "${a.token.slice(0, 30)}" from user ${who}: "!fd ${a.args.slice(0, 80)}"\nReply to this message with the character name to add "${a.token.slice(0, 30).toLowerCase()}" as an alias.`);
+                const closest = a.candidates.length ? `\nClosest: ${a.candidates.join(" · ")}` : "";
+                const sent = await sendMessage(admin, `❓ Unknown character "${a.token.slice(0, 30)}" from user ${who}: "!fd ${a.args.slice(0, 80)}"${closest}\nReply to this message with the character name to add "${a.token.slice(0, 30).toLowerCase()}" as an alias.`);
                 if (sent?.message_id) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.message_id, askChatId: r.chatId ?? chatId }]);
               } catch (err) {
                 api.logger?.warn?.(`tekken-fd: alias request to admin ${admin} failed: ${err.message}`);

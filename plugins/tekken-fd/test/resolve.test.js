@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { after, before, test } from "node:test";
 import { buildDatabase, MoveIndex } from "../src/db.js";
-import { resolveCharacter, resolveMove } from "../src/resolve.js";
+import { editDistance, resolveCharacter, resolveMove } from "../src/resolve.js";
 
 const fx = JSON.parse(fs.readFileSync(new URL("./fixtures/Fahkumram.json", import.meta.url), "utf8"));
 const aliases = JSON.parse(fs.readFileSync(new URL("../aliases.json", import.meta.url), "utf8"));
@@ -70,4 +70,11 @@ test("alias dotlist and entity names are cleaned in the index", () => {
     ix.close();
     fs.rmSync(d, { recursive: true, force: true });
   }
+});
+
+test("typo distance counts adjacent swaps once", () => {
+  assert.equal(editDistance("byron", "bryan"), 2);
+  assert.equal(editDistance("kazuya", "kazuya"), 0);
+  assert.equal(editDistance("kzauya", "kazuya"), 1);
+  assert.equal(resolveCharacter("byron", ["Bob", "Bryan", "Leroy"], {}).candidates[0], "Bryan");
 });
