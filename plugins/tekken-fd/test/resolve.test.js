@@ -48,3 +48,26 @@ test("moves: miss returns candidates, not a guess", () => {
 test("chain walks parents root → move", () => {
   assert.deepEqual(index.chain("Fahkumram-3,1,2").map((m) => m.id), ["Fahkumram-3", "Fahkumram-3,1", "Fahkumram-3,1,2"]);
 });
+
+test("alias dotlist and entity names are cleaned in the index", () => {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), "tekken-fd-"));
+  const moves = [
+    { id: "Paul-qcf", num: "1", name: "Cormorant Step", input: "qcf", parent: null,
+      alias: "&lt;div class=&quot;dotlist&quot;&gt;\n\n* CS\n* qcf\n&lt;/div&gt;", alt: null },
+    { id: "Paul-df+1+3,qcf+2", num: "2", name: "Kongo Blast &gt; Phoenix Smasher", input: ",qcf+2", parent: null, alias: null, alt: null },
+    { id: "Law-db+4", num: "3", name: "Dragon&#039;s Tail", input: "db+4", parent: null, alias: null, alt: null },
+  ];
+  buildDatabase(path.join(d, "x.sqlite"), new Map([["Paul", moves.slice(0, 2)], ["Law", moves.slice(2)]]));
+  const ix = new MoveIndex(path.join(d, "x.sqlite"));
+  try {
+    assert.equal(resolveMove(ix, "Paul", "cs").move.id, "Paul-qcf");
+    const qcf2 = resolveMove(ix, "Paul", "qcf2");
+    assert.equal(qcf2.status, "ambiguous");
+    assert.equal(qcf2.candidates[0].id, "Paul-df+1+3,qcf+2");
+    assert.equal(resolveMove(ix, "Law", "Dragon's Tail").move.id, "Law-db+4");
+    assert.ok(resolveMove(ix, "Law", "dragon tail").candidates.some((m) => m.id === "Law-db+4"));
+  } finally {
+    ix.close();
+    fs.rmSync(d, { recursive: true, force: true });
+  }
+});

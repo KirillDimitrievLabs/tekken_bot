@@ -60,8 +60,12 @@ export function resolveMove(index, character, text) {
   if (loose.length === 1) return { status: "match", move: loose[0], candidates: [] };
   if (loose.length > 1) return { status: "ambiguous", candidates: loose.slice(0, 8) };
 
-  const fts = index.search(character, raw, 8);
-  return { status: fts.length ? "ambiguous" : "none", candidates: fts.length ? fts : nearestByKey(index, character, raw) };
+  const seen = new Set();
+  const related = [...index.containsLoose(character, looseKey(raw)), ...index.search(character, raw, 8)]
+    .filter((m) => !seen.has(m.id) && seen.add(m.id))
+    .slice(0, 8);
+  // fuzzy hits are never auto-posted: the model confirms (hybrid resolution)
+  return { status: related.length ? "ambiguous" : "none", candidates: related.length ? related : nearestByKey(index, character, raw) };
 }
 
 /** Closest move keys by edit distance on the loose key (for "did you mean"). */

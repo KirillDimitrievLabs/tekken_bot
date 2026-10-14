@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { cleanInline, noteItems } from "./format.js";
 import { looseKey, moveKeyFromId, strictKey } from "./notation.js";
 
 const SCHEMA = `
@@ -22,10 +23,9 @@ CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT);
 const COLUMNS = ["id", "character", "key", "num", "name", "input", "alias", "alt", "parent",
   "target", "damage", "startup", "recv", "tot", "crush", "block", "hit", "ch", "notes"];
 
-/** Alternative inputs listed in Wavu's alias/alt fields (comma- or semicolon-separated ids/inputs). */
+/** Alternative inputs/nicknames in Wavu's alias/alt fields (plain value or an HTML "dotlist"). */
 function altKeys(value, character) {
-  if (!value) return [];
-  return String(value).split(/[;\n]/).map((v) => moveKeyFromId(v.trim(), character)).filter(Boolean);
+  return noteItems(value).map((v) => moveKeyFromId(v, character)).filter(Boolean);
 }
 
 /** Build the index atomically: write to a temp file, then rename over dbPath. */
@@ -49,11 +49,15 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         if (seen.has(m.id)) continue; // Wavu duplicate rows: first (most complete after dedupe) wins
         seen.add(m.id);
         const key = moveKeyFromId(m.id, character);
-        insMove.run(m.id, character, key, m.num === null ? null : Number(m.num), m.name, m.input, m.alias, m.alt, m.parent,
-          m.target, m.damage, m.startup, m.recv, m.tot, m.crush, m.block, m.hit, m.ch, m.notes);
-        const keys = [["id", key], ...altKeys(m.alias, character).map((k) => ["alias", k]), ...altKeys(m.alt, character).map((k) => ["alt", k])];
+        const name = m.name ? cleanInline(m.name) : null;
+        const aliases = altKeys(m.alias, character);
+        const alts = altKeys(m.alt, character);
+        const v = (x) => x ?? null;
+        insMove.run(m.id, character, key, m.num == null ? null : Number(m.num), name, v(m.input), aliases.join(" · ") || null, alts.join(" · ") || null, v(m.parent),
+          v(m.target), v(m.damage), v(m.startup), v(m.recv), v(m.tot), v(m.crush), v(m.block), v(m.hit), v(m.ch), v(m.notes));
+        const keys = [["id", key], ...aliases.map((k) => ["alias", k]), ...alts.map((k) => ["alt", k])];
         for (const [kind, k] of keys) insKey.run(character, m.id, kind, strictKey(k), looseKey(k));
-        insFts.run(m.id, character, [key, m.name, m.alias, m.alt].filter(Boolean).join(" | "));
+        insFts.run(m.id, character, [key, name, ...aliases, ...alts].filter(Boolean).join(" | "));
         total++;
       }
     }
@@ -128,14 +132,24 @@ export class MoveIndex {
       .all(character, text);
   }
 
-  /** Trigram full-text search over key/name/alias (needs ≥ 3 chars). */
+  /** Trigram full-text search over key/name/alias: every word of ≥ 3 chars must appear. */
   search(character, text, limit = 8) {
-    const q = String(text).replace(/"/g, " ").trim();
-    if (q.length < 3) return [];
+    const words = String(text).toLowerCase().split(/[^a-z0-9+,.:~*']+/).filter((w) => w.length >= 3);
+    if (!words.length) return [];
+    const match = `text : (${words.map((w) => `"${w.replace(/"/g, "")}"`).join(" AND ")})`;
     return this.handle()
       .prepare(`SELECT m.* FROM moves_fts f JOIN moves m ON m.id = f.id
                 WHERE moves_fts MATCH ? AND f.character = ? ORDER BY rank LIMIT ?`)
-      .all(`text : "${q}"`, character, limit);
+      .all(match, character, limit);
+  }
+
+  /** Moves whose loose key contains the query's loose key ("qcf2" → "df+1+3,qcf+2"). */
+  containsLoose(character, loose, limit = 8) {
+    if (loose.length < 2) return [];
+    return this.handle()
+      .prepare(`SELECT DISTINCT m.* FROM move_keys k JOIN moves m ON m.id = k.id
+                WHERE k.character = ? AND instr(k.loose, ?) > 0 ORDER BY length(k.loose), m.num LIMIT ?`)
+      .all(character, loose, limit);
   }
 
   /** Keys of this character's moves, for nearest-match suggestions. */
