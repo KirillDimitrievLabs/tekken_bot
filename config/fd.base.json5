@@ -43,7 +43,7 @@
         // Code Mode would hide these tools behind a JS `exec` (Node vm, not a sandbox) — keep it off
         // for an agent that untrusted group members can prompt.
         tools: { allow: ["tekken_frame_data", "tekken_pick_move"], codeMode: { enabled: false } },
-        groupChat: { mentionPatterns: ["^\\s*!fd\\b"], historyLimit: 10 },
+        groupChat: { mentionPatterns: ["^\\s*!(fd|punish|unsafe|list)\\b"], historyLimit: 10 },
       },
     },
   },

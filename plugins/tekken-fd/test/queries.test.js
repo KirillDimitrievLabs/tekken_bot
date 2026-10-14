@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { blockOf, isLauncher, levelClass, stanceOf, startupOf } from "../src/frames.js";
+import { blockOf, effectiveStartup, isLauncher, isMotionInput, levelClass, stanceOf, startupOf } from "../src/frames.js";
 import { diffFrames, formatDigest, hasFrameChanges } from "../src/digest.js";
 import { resolveFilter, tagsFor } from "../src/tags.js";
 
@@ -47,4 +47,14 @@ test("digest shows frame changes, ignores notes-only edits", () => {
   assert.match(text, /Kazuya df\+1: block -7 → -5/);
   assert.match(text, /🆕 Kazuya: 1 new move\(s\): 2/);
   assert.ok(!hasFrameChanges(diffFrames(before, new Map([["Kazuya", before.get("Kazuya").map((m) => ({ ...m, notes: "z" }))]]))));
+});
+
+test("motion inputs cost frames; Wavu's realistic bracket value wins", () => {
+  for (const k of ["f,n,d,df+2", "f,n,d,df:2", "qcf+1", "b,f+2", "d,df+1", "hcb,f+1+2"]) assert.ok(isMotionInput(k), k);
+  for (const k of ["1,2", "df+1", "d+1,2", "ws2", "1+2"]) assert.ok(!isMotionInput(k), k);
+  assert.equal(effectiveStartup("f,n,d,df+2", "i11~12"), 13); // Kazuya EWGF → punishes −13, not −11
+  assert.equal(effectiveStartup("f,n,d,df+2", "i11~12 (i14+)"), 14); // Armor King: Wavu's own note
+  assert.equal(effectiveStartup("f,n,d,df:2", "i11~12 (~i13)"), 13); // Reina
+  assert.equal(effectiveStartup("df+1", "i13"), 13);
+  assert.equal(effectiveStartup("qcf+2", null), null);
 });

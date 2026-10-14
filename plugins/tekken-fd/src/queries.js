@@ -16,10 +16,10 @@ export function punishOptions(index, character, stance, frames) {
     .filter((r) => ["high", "mid", "low"].includes(levelClass(hitLevelOf(r.target))) && damageOf(r.damage) > 0);
   const options = [];
   for (const r of roots) {
-    options.push({ key: r.key, startup: r.startup_n, damage: damageOf(r.damage), launcher: isLauncher(r.hit) });
+    options.push({ key: r.key, startup: r.startup_eff, listed: r.startup_n, damage: damageOf(r.damage), launcher: isLauncher(r.hit) });
     for (const c of index.children(r.id)) {
       if (!noteItems(c.notes).some((n) => COMBO_FROM_FIRST.test(n))) continue;
-      options.push({ key: c.key, startup: r.startup_n, damage: damageOf(r.damage) + damageOf(c.damage), launcher: isLauncher(c.hit) });
+      options.push({ key: c.key, startup: r.startup_eff, listed: r.startup_n, damage: damageOf(r.damage) + damageOf(c.damage), launcher: isLauncher(c.hit) });
     }
   }
   return options.sort((a, b) => Number(b.launcher) - Number(a.launcher) || b.damage - a.damage || a.startup - b.startup);
@@ -37,7 +37,7 @@ function pick(options, limit = 6) {
   return out.sort((a, b) => a.startup - b.startup || b.damage - a.damage);
 }
 
-const optionLine = (o) => `  i${o.startup} ${o.key} — ${o.damage} dmg${o.launcher ? " 🚀" : ""}`;
+const optionLine = (o) => `  i${o.startup} ${o.key} — ${o.damage} dmg${o.launcher ? " 🚀" : ""}${o.listed != null && o.listed < o.startup ? ` (i${o.listed} + motion)` : ""}`;
 
 export function formatPunish(index, character, frames) {
   const standing = pick(punishOptions(index, character, "standing", frames));

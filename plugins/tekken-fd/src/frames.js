@@ -7,6 +7,35 @@ export function startupOf(value) {
   return m ? Number(m[1]) : null;
 }
 
+const DIRECTION = /^(?:[udfbn]|d[fb]|u[fb])$/i;
+
+/** Motion input before the button: "f,n,d,df+2", "f,n,d,df:2", "qcf+1", "b,f+2", "d,df+1" (not strings like "1,2"). */
+export function isMotionInput(key) {
+  const k = String(key ?? "").trim();
+  if (/^(?:qc[fb]|hc[fb]|dp)/i.test(k)) return true;
+  for (const t of k.split(",")) {
+    const tok = t.trim();
+    if (/\d/.test(tok)) return false;
+    if (DIRECTION.test(tok)) return true;
+  }
+  return false;
+}
+
+export const MOTION_INPUT_FRAMES = 2;
+
+/**
+ * Startup you can actually punish with. Wavu sometimes notes a realistic value in brackets
+ * ("i11~12 (i14+)", "i11~12 (~i13)") — use it; otherwise motion inputs cost +2 frames
+ * (EWGF i11 → i13: "f, df:2" takes two inputs before the button).
+ */
+export function effectiveStartup(key, startup) {
+  const base = startupOf(startup);
+  if (base === null) return null;
+  const real = cleanInline(startup).match(/\(\s*~?\s*i\s*(\d+)\s*\+?\s*\)/i);
+  if (real) return Math.max(base, Number(real[1]));
+  return isMotionInput(key) ? base + MOTION_INPUT_FRAMES : base;
+}
+
 /**
  * Guaranteed on-block frames: "-12" → -12, "-14~-13" → -13 (the attacker's best case),
  * "+5c" → 5, "-9~+1" → 1; "!" (unblockable) and unparseable → null.
