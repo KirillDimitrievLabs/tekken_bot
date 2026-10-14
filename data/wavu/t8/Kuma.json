@@ -2050,28 +2050,6 @@
       "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Alternative input: db+3+4\n* Transition to ROL with input SIT.F\n* Transition to California Roll with input SIT.B\n&lt;/div&gt;"
     },
     {
-      "id": "Kuma-d+3+4",
-      "num": null,
-      "name": "Bear Sit",
-      "input": "d+3+4",
-      "alias": null,
-      "alt": null,
-      "parent": null,
-      "target": "sp",
-      "damage": null,
-      "reach": null,
-      "tracksLeft": null,
-      "tracksRight": null,
-      "startup": null,
-      "recv": "SIT",
-      "tot": null,
-      "crush": null,
-      "block": null,
-      "hit": null,
-      "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to SIT\n* Transition to ROL with input f\n&lt;/div&gt;"
-    },
-    {
       "id": "Kuma-d+4",
       "num": null,
       "name": "Crouch Shin Kick",

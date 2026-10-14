@@ -2204,28 +2204,6 @@
       "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 2nd hit\n* Airborne combo from 1st hit (+10a (+9))\n* 9 chip damage on block in heat\n&lt;/div&gt;"
     },
     {
-      "id": "Hwoarang-RFS.d+4,H.3,4",
-      "num": "135",
-      "name": "Predator Bardiche",
-      "input": ",4",
-      "alias": "H.RFS.d+4,3,4",
-      "alt": null,
-      "parent": "Hwoarang-RFS.d+4,H.3",
-      "target": ",h",
-      "damage": ",25 (12)",
-      "reach": null,
-      "tracksLeft": null,
-      "tracksRight": null,
-      "startup": "i27~28",
-      "recv": "r36",
-      "tot": "110",
-      "crush": "js22~34, fs35~37",
-      "block": "-9",
-      "hit": "+28a (+2) / +10a (+9)",
-      "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 2nd hit\n* Airborne combo from 1st hit (+10a (+9))\n* Interrupt with i4 from 2nd block\n* 9 chip damage on block in heat\n&lt;/div&gt;"
-    },
-    {
       "id": "Hwoarang-RFS.b+3",
       "num": "136",
       "name": "Left Heel Lance",
