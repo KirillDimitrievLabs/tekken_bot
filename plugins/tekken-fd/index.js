@@ -12,13 +12,17 @@ import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { AliasStore, parseAliasReply } from "./src/aliases.js";
-import { analyze, commandHelp, isHelpCommand, needMoveText, parseCharacterArgs, parseCommand, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
-import { choiceData, createToken, getToken, keyboard, NAMESPACE as BUTTON_NAMESPACE, parsePayload, postData, removeTokens, updateToken } from "./src/buttons.js";
-import { filterHelp, formatList, formatPunish, formatUnsafe, resolveFilter } from "./src/queries.js";
+import { isHelpCommand } from "./src/fastpath.js";
+import { createBot, HELP_HTML, MENTION_PATTERN } from "./src/bot.js";
+import { MoveAliasStore } from "./src/nicknames.js";
+import { Mains } from "./src/mains.js";
+import { makeQuestion, Quiz, questionHtml, REVEAL_AFTER_MS } from "./src/quiz.js";
+import { b, code, esc, toPlain } from "./src/render.js";
+import { actionData, allTokens, createToken, getToken, keyboard, NAMESPACE as BUTTON_NAMESPACE, parsePayload, postData, removeTokens, updateToken } from "./src/buttons.js";
 import { formatDigest, hasFrameChanges } from "./src/digest.js";
 import { Stats } from "./src/stats.js";
 import { readMeta } from "./src/snapshot.js";
-import { chatIdFrom, deleteMessage, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
+import { chatIdFrom, deleteMessage, editMessageText, memberName, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
@@ -35,6 +39,7 @@ const configSchema = {
       fastPathAgents: { type: "array", items: { type: "string" } },
       publicAgents: { type: "array", items: { type: "string" } },
       adminIds: { type: "array", items: { type: "string" } },
+      quiz: { type: "object", properties: { dailyAt: { type: "string" }, tz: { type: "string" }, daily: { type: "boolean" } } },
     },
   },
   safeParse(value) {
@@ -84,141 +89,135 @@ export default {
       return index.characters().map((c) => c.name);
     };
 
-    const cardFor = (move) => formatCard({ character: move.character, key: move.key, chain: index.chain(move.id) });
+    const cardFor = (move) => formatCard({ character: move.character, key: move.key, chain: index.chain(move.id) }); // model path (plain)
     const aliases = new AliasStore({
       curatedPath: api.resolvePath ? api.resolvePath("aliases.json") : path.join(repoDir, "plugins/tekken-fd/aliases.json"),
       addedPath: path.join(repoDir, "data", "aliases.json"),
       repoDir,
     });
+    const moveAliases = new MoveAliasStore({ file: path.join(repoDir, "data", "move-aliases.json"), repoDir });
+    const mains = new Mains(path.join(stateDir, "mains.json"));
+    const quiz = new Quiz(path.join(stateDir, "quiz.json"));
+    const ruNames = (() => {
+      try {
+        return new Set(Object.keys(JSON.parse(fs.readFileSync(api.resolvePath ? api.resolvePath("aliases.ru.json") : path.join(repoDir, "plugins/tekken-fd/aliases.ru.json"), "utf8"))));
+      } catch {
+        return new Set();
+      }
+    })();
+    const bot = createBot({ index, aliases, moveAliases, mains, ruNames });
     const digits = (v) => (String(v ?? "").match(/-?\d{5,}/) ?? [null])[0];
     const admins = () => new Set([ownerChatIdFrom(api), ...(api.pluginConfig?.adminIds ?? [])].filter(Boolean).map(String));
     // Agents whose sessions may hand vague !fd queries to the model; elsewhere the plugin answers itself.
     const reasoningAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
-    const PUBLIC_AGENTS = api.pluginConfig?.publicAgents ?? ["fd"]; // DMs here only get !fd, /start, /help
+    const PUBLIC_AGENTS = api.pluginConfig?.publicAgents ?? ["fd"]; // DMs here only get bot commands and help
+    const stats = new Stats(path.join(stateDir, "stats.json"));
+    const clanGroups = () => Object.keys(api.config?.channels?.telegram?.groups ?? {}).filter((id) => /^-\d+$/.test(id));
+    const quizCfg = { dailyAt: api.pluginConfig?.quiz?.dailyAt ?? "19:00", tz: api.pluginConfig?.quiz?.tz ?? "Europe/Moscow", daily: api.pluginConfig?.quiz?.daily !== false };
+    const HTML = { parseMode: "HTML" };
 
-    // Reply threaded to the asking message. The before_dispatch result can't carry a reply target,
-    // so on Telegram the plugin sends via the Bot API (falling back to a plain gateway reply).
-    const answer = async (event, ctx, text) => {
+    // ---- transport: HTML message with action buttons (callback_data "tekken-fd:a:<token>:<i>")
+    function markupFor(token, buttons) {
+      let i = 0;
+      return keyboard([], 3, buttons.map((row) => row.map((btn) => ({ text: btn.text, callback_data: actionData(token, i++) }))));
+    }
+    // Telegram caps messages at 4096 visible characters; long replies degrade to truncated plain text
+    const MAX_VISIBLE = 4000;
+    function fit(html) {
+      const plain = toPlain(html);
+      if (plain.length <= MAX_VISIBLE) return { text: html, extra: HTML };
+      return { text: `${plain.slice(0, MAX_VISIBLE - 40)}\n… (truncated)`, extra: {} };
+    }
+    async function sendHtml(chatId, replyTo, html, { buttons = [], askerId = null, askerOnly = true, meta = {} } = {}) {
+      const actions = buttons.flat().map((btn) => btn.action);
+      const token = actions.length ? createToken(p.statePath, { kind: "actions", chatId: String(chatId), askerId, askerOnly, actions, originalMessageId: replyTo, ...meta }) : null;
+      const f = fit(html);
+      const extra = { ...f.extra, ...(token ? { replyMarkup: markupFor(token, buttons) } : {}) };
+      const sent = replyTo ? await sendReply(chatId, replyTo, f.text, undefined, extra) : await sendMessage(chatId, f.text, undefined, extra);
+      if (token) updateToken(p.statePath, token, { messageId: sent?.message_id ?? null });
+      return { messageId: sent?.message_id ?? null, token };
+    }
+    /** Threaded reply for a dispatch event; falls back to a plain gateway reply off Telegram. */
+    async function answer(event, ctx, html, opts = {}) {
       const channel = String(ctx?.channelId ?? event?.channel ?? "");
       const chatId = chatIdFrom(ctx?.conversationId);
       const messageId = event?.messageId ?? ctx?.messageId;
       if (channel === "telegram" && chatId && /^\d+$/.test(String(messageId ?? ""))) {
         try {
-          const sent = await sendReply(chatId, messageId, text);
-          return { handled: true, sentId: sent?.message_id, chatId };
+          const r = await sendHtml(chatId, messageId, html, { askerId: String(digits(event?.senderId) ?? ""), ...opts });
+          return { handled: true, sentId: r.messageId, chatId };
         } catch (err) {
-          api.logger?.warn?.(`tekken-fd threaded reply failed (${err.message}); sending unthreaded`);
+          api.logger?.warn?.(`tekken-fd reply failed (${err.message}); sending plain`);
         }
       }
-      return { handled: true, text };
-    };
-    const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
-    const stats = new Stats(path.join(stateDir, "stats.json"));
-
-    // Pending "unknown character" requests waiting for an admin reply (persisted in state.json).
-    const pendingAliases = () => (readState(p.statePath).pendingAliases ?? []).filter((x) => Date.now() - Date.parse(x.at) < 14 * 864e5);
-    const savePending = (list) => writeState(p.statePath, { pendingAliases: list.slice(-100) });
-
-    const helpText = [
-      "🤖 Tekken 8 frame data",
-      "",
-      USAGE,
-      "",
-      "Character nicknames work too (fahk, kaz, dvj, …).",
-      "Data: wavu.wiki",
-    ].join("\n");
-
-    // ---- deterministic replies for every command (also used to re-answer after an alias is added)
-    const frameArg = (rest) => {
-      const m = String(rest ?? "").match(/[+-]?\d+/);
-      return m ? Math.abs(Number(m[0])) : null;
-    };
-    /** @returns {{kind: string, text?: string, move?: object, analysis?: object, unknown?: object, character?: string}} */
-    function compute(cmd, args, body) {
-      const characters = index.characters().map((c) => c.name);
-      if (cmd === "fd") {
-        const a = analyze(index, body ?? `!fd ${args}`, aliases.all());
-        if (!a) return { kind: "none" };
-        if (a.kind === "match") return { kind: "card", move: a.move, character: a.move.character, text: cardFor(a.move) };
-        if (a.kind === "usage") return { kind: "usage", text: USAGE };
-        if (a.kind === "need_move") return { kind: "usage", text: needMoveText(a.character) };
-        if (a.kind === "unknown_character") return { kind: "unknown", unknown: { token: a.token, args: a.args, candidates: a.candidates } };
-        return { kind: "unresolved", analysis: a, character: a.character, text: unresolvedText(a) };
-      }
-      const usage = { punish: "Usage: !punish <character> <frames>, e.g. !punish kaz -13",
-        unsafe: "Usage: !unsafe <character> [frames], e.g. !unsafe jin or !unsafe jin -13",
-        list: `Usage: !list <character> <filter>, e.g. !list steve lows\n${filterHelp()}` }[cmd];
-      const who = parseCharacterArgs(args, characters, aliases.all());
-      if (who.empty) return { kind: "usage", text: usage };
-      if (who.unknown) return { kind: "unknown", unknown: { token: who.unknown, args, candidates: who.candidates } };
-      if (cmd === "punish") {
-        const f = frameArg(who.rest);
-        if (!f) return { kind: "usage", text: usage };
-        return { kind: "punish", character: who.character, text: formatPunish(index, who.character, Math.min(f, 30)) };
-      }
-      if (cmd === "unsafe") {
-        const f = frameArg(who.rest);
-        return { kind: "unsafe", character: who.character, text: formatUnsafe(index, who.character, f ? -f : -10) };
-      }
-      const tag = resolveFilter(who.rest);
-      if (!tag) return { kind: "usage", text: `${who.rest ? `Unknown filter "${who.rest.slice(0, 30)}". ` : ""}${usage}` };
-      return { kind: "list", character: who.character, text: formatList(index, who.character, tag) };
+      return { handled: true, text: toPlain(html) };
     }
+    const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
 
-    // ---- "did you mean" with buttons; removed as soon as the asker gets a card (#6)
+    // ---- "did you mean" (buttons, asker only) — removed when the asker gets a card (#6)
     async function cleanupSuggestions(chatId, askerId) {
       const cutoff = Date.now() - 15 * 60 * 1000;
-      const old = removeTokens(p.statePath, (t) => t.kind === "suggest" && t.chatId === chatId && t.askerId === askerId && Date.parse(t.at) >= cutoff);
-      for (const t of old) {
-        if (t.suggestionMessageId) await deleteMessage(t.chatId, t.suggestionMessageId).catch(() => {});
-      }
+      const old = removeTokens(p.statePath, (t) => t.suggest && t.chatId === chatId && t.askerId === askerId && Date.parse(t.at) >= cutoff);
+      for (const t of old) if (t.messageId) await deleteMessage(t.chatId, t.messageId).catch(() => {});
     }
-
     async function sendSuggestions(event, ctx, a) {
       const chatId = chatIdFrom(ctx?.conversationId);
       const askerId = String(digits(event?.senderId) ?? "");
-      const choices = a.candidates.slice(0, 6);
-      const textOut = unresolvedText(a);
-      const messageId = event?.messageId ?? ctx?.messageId;
-      if (!chatId || !choices.length || !/^\d+$/.test(String(messageId ?? ""))) return done(await answer(event, ctx, textOut));
-      await cleanupSuggestions(chatId, askerId); // only the latest suggestion per asker stays
-      const token = createToken(p.statePath, { kind: "suggest", chatId, askerId, originalMessageId: messageId, choices: choices.map((m) => m.id) });
-      const markup = keyboard(choices.map((m, i) => ({ text: m.key.slice(0, 24), callback_data: choiceData(token, i) })));
-      try {
-        const sent = await sendReply(chatId, messageId, `${textOut}\n(tap the right one)`, undefined, { replyMarkup: markup });
-        updateToken(p.statePath, token, { suggestionMessageId: sent?.message_id ?? null });
-        return { handled: true };
-      } catch (err) {
-        api.logger?.warn?.(`tekken-fd suggestion buttons failed (${err.message}); plain text`);
-        removeTokens(p.statePath, (t) => t.token === token);
-        return done(await answer(event, ctx, textOut));
-      }
+      const choices = (a.candidates ?? []).slice(0, 6);
+      const head = `❌ Not found: ${b(a.character)} ${code(a.move.slice(0, 60))}`;
+      if (!choices.length) return done(await answer(event, ctx, head));
+      if (chatId) await cleanupSuggestions(chatId, askerId);
+      const buttons = [];
+      for (let i = 0; i < choices.length; i += 3) buttons.push(choices.slice(i, i + 3).map((m) => ({ text: m.key.slice(0, 24), action: { type: "pick", moveId: m.id } })));
+      const html = `${head}\nDid you mean: ${choices.map((m) => code(m.key)).join(" · ")}\n<i>tap the right one${admins().size ? " · admin: reply with the input to teach this name" : ""}</i>`;
+      return done(await answer(event, ctx, html, { buttons, meta: { suggest: { character: a.character, query: a.move } } }));
     }
-
-    async function sendCard(event, ctx, move) {
-      const r = await answer(event, ctx, cardFor(move));
+    async function sendCardReply(event, ctx, r) {
+      const res = await answer(event, ctx, r.html, { buttons: r.buttons ?? [] });
       const chatId = chatIdFrom(ctx?.conversationId);
       if (chatId) await cleanupSuggestions(chatId, String(digits(event?.senderId) ?? ""));
-      return done(r);
+      return done(res);
+    }
+
+    // ---- quiz (B6)
+    async function postQuiz(chatId, replyTo, q) {
+      if (!q) return null;
+      const id = quiz.create(chatId, q);
+      const buttons = [q.options.slice(0, 2), q.options.slice(2, 4)].map((row, r) => row.map((opt, c) => ({ text: opt, action: { type: "quiz", qid: id, i: r * 2 + c } })));
+      const sent = await sendHtml(chatId, replyTo, questionHtml(q), { buttons, askerOnly: false });
+      quiz.setMessage(id, sent.messageId);
+      setTimeout(() => revealQuiz(id).catch(() => {}), REVEAL_AFTER_MS).unref?.();
+      stats.record("quiz", { character: q.character });
+      return id;
+    }
+    async function revealQuiz(id) {
+      const q = quiz.get(id);
+      const html = quiz.reveal(id);
+      if (!html || !q?.messageId) return;
+      await editMessageText(q.chatId, q.messageId, html, undefined, HTML).catch((err) => api.logger?.warn?.(`tekken-fd quiz reveal failed: ${err.message}`));
+      removeTokens(p.statePath, (t) => t.actions?.some?.((a) => a.type === "quiz" && a.qid === id));
     }
 
     // ---- unknown character → alias request (groups/admin DM: in place; other DMs: to the admins)
-    async function askAlias(event, ctx, cmd, unknown, isDirect, isAdmin) {
+    const pendingAliases = () => (readState(p.statePath).pendingAliases ?? []).filter((x) => Date.now() - Date.parse(x.at) < 14 * 864e5);
+    const savePending = (list) => writeState(p.statePath, { pendingAliases: list.slice(-100) });
+    async function askAlias(event, ctx, cmd, args, unknown, isDirect, isAdmin) {
       const chatId = chatIdFrom(ctx?.conversationId);
-      const base = { originalMessageId: event?.messageId ?? null, alias: unknown.token.toLowerCase(), cmd, args: unknown.args, at: new Date().toISOString() };
-      stats.record("unknown", { unknown: unknown.token });
+      const token = unknown.token.slice(0, 30);
+      const base = { originalMessageId: event?.messageId ?? null, alias: token.toLowerCase(), cmd, args, at: new Date().toISOString() };
+      stats.record("unknown", { unknown: token });
+      const closest = unknown.candidates?.length ? `\nClosest: ${unknown.candidates.map((c) => b(c)).join(" · ")}` : "";
       if (!isDirect || isAdmin) {
-        const r = await answer(event, ctx, unknownCharacterText(unknown));
+        const r = await answer(event, ctx, `❓ Unknown character: ${code(token)}${closest}\n<i>Admin: reply to this message with the character name to add “${esc(token.toLowerCase())}” as an alias.</i>`);
         if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...base, chatId: r.chatId, messageId: r.sentId, askChatId: r.chatId }]);
         return done(r);
       }
-      const r = await answer(event, ctx, `❓ Unknown character: "${unknown.token.slice(0, 30)}". I've asked an admin to add it — you'll get the answer here.`);
+      const r = await answer(event, ctx, `❓ Unknown character: ${code(token)}. I've asked an admin to add it — you'll get the answer here.`);
       const who = digits(event?.senderId) ?? "?";
       for (const admin of admins()) {
         try {
-          const closest = unknown.candidates.length ? `\nClosest: ${unknown.candidates.join(" · ")}` : "";
-          const sent = await sendMessage(admin, `❓ Unknown character "${unknown.token.slice(0, 30)}" from user ${who}: "!${cmd} ${unknown.args.slice(0, 80)}"${closest}\nReply to this message with the character name to add "${unknown.token.slice(0, 30).toLowerCase()}" as an alias.`);
-          if (sent?.message_id) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.message_id, askChatId: r.chatId ?? chatId }]);
+          const sent = await sendHtml(admin, null, `❓ Unknown character ${code(token)} from user ${esc(who)}: ${code(`!${cmd} ${String(args).slice(0, 80)}`)}${closest}\nReply to this message with the character name to add “${esc(token.toLowerCase())}” as an alias.`);
+          if (sent.messageId) savePending([...pendingAliases(), { ...base, chatId: String(admin), messageId: sent.messageId, askChatId: r.chatId ?? chatId }]);
         } catch (err) {
           api.logger?.warn?.(`tekken-fd: alias request to admin ${admin} failed: ${err.message}`);
         }
@@ -232,25 +231,49 @@ export default {
       if (parsed.error) {
         const closest = resolveCharacter(pending.alias, characters, aliases.all()).candidates;
         const example = closest[0] ?? characters[0];
-        const r = await answer(event, ctx, `❌ ${parsed.error}.${closest.length ? ` Closest: ${closest.join(" · ")}.` : ""}\nReply to this message with an exact name, e.g. "${example}" or "${pending.alias} = ${example}".`);
-        // the correction may be a reply to this error message, too
+        const r = await answer(event, ctx, `❌ ${esc(parsed.error)}.${closest.length ? ` Closest: ${closest.map((c) => b(c)).join(" · ")}.` : ""}\nReply to this message with an exact name, e.g. ${code(example)} or ${code(`${pending.alias} = ${example}`)}.`);
         if (r.sentId && r.chatId) savePending([...pendingAliases(), { ...pending, chatId: r.chatId, messageId: r.sentId }]);
         return done(r);
       }
       const added = await aliases.add(parsed.alias, parsed.character, characters, { by: `telegram:${digits(event.senderId) ?? "?"}` });
       savePending(pendingAliases().filter((x) => !(x.at === pending.at && x.args === pending.args)));
       api.logger?.info?.(`tekken-fd alias added: ${added.alias} → ${added.character} (${added.commit})`);
-      await answer(event, ctx, `✅ Alias added: ${added.alias} → ${added.character}${added.previous && added.previous !== added.character ? ` (was ${added.previous})` : ""}`);
-      // Answer the original question now that the character is known.
-      const retry = compute(pending.cmd ?? "fd", pending.args);
-      if (retry.text && retry.kind !== "unknown" && pending.originalMessageId) {
-        try {
-          await sendReply(pending.askChatId ?? pending.chatId, pending.originalMessageId, retry.text);
-        } catch (err) {
-          api.logger?.warn?.(`tekken-fd: re-answer failed: ${err.message}`);
-        }
+      await answer(event, ctx, `✅ Alias added: ${code(added.alias)} → ${b(added.character)}${added.previous && added.previous !== added.character ? ` (was ${esc(added.previous)})` : ""}`);
+      // answer the original question now that the character is known
+      if (pending.originalMessageId) {
+        const replies = bot.handle(`!${pending.cmd ?? "fd"} ${pending.args}`, { senderId: null, chatId: pending.askChatId ?? pending.chatId });
+        const first = replies?.[0];
+        if (first?.kind === "reply") await sendHtml(pending.askChatId ?? pending.chatId, pending.originalMessageId, first.html).catch(() => {});
       }
       return { handled: true };
+    }
+
+    /** Admin replies to a "did you mean" with the right input → move alias for that character. */
+    async function handleMoveAliasReply(event, ctx, t) {
+      const input = String(event.content ?? event.body ?? "").trim();
+      const res = resolveMove(index, t.suggest.character, input, moveAliases);
+      if (res.status !== "match") return done(await answer(event, ctx, `❌ ${b(t.suggest.character)} ${code(input.slice(0, 40))} isn't an exact move — reply with the input, e.g. ${code("df+2")}.`));
+      const added = await moveAliases.add(t.suggest.character, t.suggest.query, res.move.key, { by: `telegram:${digits(event.senderId) ?? "?"}` });
+      removeTokens(p.statePath, (x) => x.token === t.token);
+      if (t.messageId) await deleteMessage(t.chatId, t.messageId).catch(() => {});
+      await answer(event, ctx, `✅ Move alias added: ${b(added.character)} ${code(added.alias)} → ${code(added.key)}`);
+      if (t.originalMessageId) {
+        const card = bot.handle(`!fd ${t.suggest.character} ${res.move.key}`, { senderId: null, chatId: t.chatId })?.[0];
+        if (card?.kind === "reply") await sendHtml(t.chatId, t.originalMessageId, card.html, { buttons: card.buttons, askerId: t.askerId }).catch(() => {});
+      }
+      return { handled: true };
+    }
+
+    /** Several lookups in one message → one combined reply (no buttons). */
+    function combined(replies) {
+      return replies.map((r) => {
+        if (r.kind === "reply") return r.html;
+        if (r.kind === "unknown") return `❓ Unknown character: ${code(r.unknown.token)}`;
+        if (r.kind === "unresolved") return `❌ Not found: ${b(r.analysis.character)} ${code(r.analysis.move)}${r.analysis.candidates?.length ? ` — did you mean ${r.analysis.candidates.slice(0, 4).map((m) => code(m.key)).join(" · ")}` : ""}`;
+        if (r.kind === "quiz") return "🎯 quiz: send !quiz on its own";
+        if (r.kind === "top") return quiz.leaderboard("_", {});
+        return "";
+      }).filter(Boolean).join("\n\n");
     }
 
     api.on("before_dispatch", async (event, ctx) => {
@@ -258,97 +281,135 @@ export default {
       const body = event?.content ?? event?.body;
       const isPublic = PUBLIC_AGENTS.some((id) => sessionKey.startsWith(`agent:${id}:`));
       const isDirect = event?.isGroup === false;
-      const isAdmin = admins().has(String(digits(event?.senderId) ?? ""));
+      const senderId = String(digits(event?.senderId) ?? "");
+      const isAdmin = admins().has(senderId);
       const chatId = chatIdFrom(ctx?.conversationId);
       const started = Date.now();
       try {
-        // 1) Admin replying to an "unknown character" request.
+        // 1) admin replies: unknown-character requests and "did you mean" (move aliases)
         const replyTo = String(event?.replyToId ?? "");
         if (replyTo && chatId) {
           const pending = pendingAliases().find((x) => x.chatId === chatId && String(x.messageId) === replyTo);
           if (pending) return isAdmin ? await handleAliasReply(event, ctx, pending) : { handled: true };
+          const sug = allTokens(p.statePath).find((t) => t.suggest && t.chatId === chatId && String(t.messageId) === replyTo);
+          if (sug && isAdmin && !/^\s*!/.test(String(body))) return await handleMoveAliasReply(event, ctx, sug);
         }
-        // 2) /start and /help: our help for everyone except the owner's own agent sessions.
+        // 2) /start and /help
         if (isHelpCommand(body) && (isPublic || !isAdmin)) {
           stats.record("help");
-          return done(await answer(event, ctx, helpText));
+          return done(await answer(event, ctx, HELP_HTML));
         }
-        const cmd = parseCommand(body);
-        // 3) Not a bot command: public DMs only get the help text; everything else passes through.
-        if (!cmd) return isPublic && isDirect ? done(await answer(event, ctx, helpText)) : undefined;
-        if (cmd.cmd === "help") {
-          stats.record("help");
-          const detail = cmd.args ? commandHelp(cmd.args, filterHelp().replace(/^Filters: /, "")) : null;
-          return done(await answer(event, ctx, detail ?? helpText));
-        }
-
+        // 3) bot commands
+        const isMain = /^\s*!(?:main|ьфшт)(?=\s|$)/i.test(String(body));
+        const senderName = isMain && chatId && senderId ? await memberName(chatId, senderId).catch(() => null) : null;
         ensureIndex();
-        const r = compute(cmd.cmd, cmd.args, cmd.cmd === "fd" ? body : undefined);
+        const replies = bot.handle(body, { senderId, chatId, senderName, isDirect });
+        if (!replies) return isPublic && isDirect ? done(await answer(event, ctx, HELP_HTML)) : undefined;
+        if (replies.length > 1) {
+          stats.record("multi");
+          return done(await answer(event, ctx, combined(replies)));
+        }
+        const r = replies[0];
+        if (r.stat) stats.record(...r.stat);
         switch (r.kind) {
-          case "card":
-            api.logger?.info?.(`tekken-fd fast path: ${r.move.id} in ${Date.now() - started}ms (${sessionKey})`);
-            stats.record("card", { character: r.character, moveId: r.move.id });
-            return await sendCard(event, ctx, r.move);
+          case "reply":
+            if (r.stat?.[0] === "card") {
+              api.logger?.info?.(`tekken-fd fast path: ${r.stat[1].moveId} in ${Date.now() - started}ms (${sessionKey})`);
+              return await sendCardReply(event, ctx, r);
+            }
+            return done(await answer(event, ctx, r.html, { buttons: r.buttons ?? [], askerOnly: r.askerOnly !== false }));
           case "unknown":
-            return await askAlias(event, ctx, cmd.cmd, r.unknown, isDirect, isAdmin);
+            return await askAlias(event, ctx, r.cmd, r.args, r.unknown, isDirect, isAdmin);
           case "unresolved":
-            if (r.analysis.candidates.length) {
-              stats.record("suggest", { character: r.character });
+            if (r.analysis.candidates?.length) {
+              stats.record("suggest", { character: r.analysis.character });
               return await sendSuggestions(event, ctx, r.analysis);
             }
-            if (reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) {
-              stats.record("model", { character: r.character });
-              return undefined; // nothing close: let the fd model reason about a descriptive query
+            if (!r.viaMain && reasoningAgents.some((id) => sessionKey.startsWith(`agent:${id}:`))) {
+              stats.record("model", { character: r.analysis.character });
+              return undefined; // nothing close: the fd model reasons about a descriptive query
             }
-            stats.record("suggest", { character: r.character });
-            return done(await answer(event, ctx, r.text));
-          case "none":
-            return undefined;
+            return done(await answer(event, ctx, `❌ Not found: ${b(r.analysis.character)} ${code(r.analysis.move)}`));
+          case "quiz":
+            if (!chatId) return done(await answer(event, ctx, "Quiz works in Telegram chats."));
+            await postQuiz(chatId, event?.messageId ?? null, r.question);
+            return { handled: true };
+          case "top":
+            return done(await answer(event, ctx, quiz.leaderboard(chatId, { character: r.character })));
           default:
-            stats.record(r.kind, { character: r.character });
-            return done(await answer(event, ctx, r.text));
+            return undefined;
         }
       } catch (err) {
-        api.logger?.warn?.(`tekken-fd before_dispatch failed: ${err.message}`);
-        return isPublic && isDirect ? { handled: true, text: helpText } : undefined;
+        api.logger?.warn?.(`tekken-fd before_dispatch failed: ${err.stack ?? err.message}`);
+        return isPublic && isDirect ? { handled: true, text: toPlain(HELP_HTML) } : undefined;
       }
     });
 
     // ---- button presses (OpenClaw routes callback_data "tekken-fd:…" here)
-    const clanGroups = () => Object.keys(api.config?.channels?.telegram?.groups ?? {}).filter((id) => /^-\d+$/.test(id));
     api.registerInteractiveHandler?.({
       channel: "telegram",
       namespace: BUTTON_NAMESPACE,
-      handler: async (ctx) => {
-        const { action, token, index: i } = parsePayload(ctx?.callback?.payload);
-        const presser = String(digits(ctx?.senderId) ?? "");
+      handler: async (ictx) => {
+        const { action: kind, token, index: i } = parsePayload(ictx?.callback?.payload);
+        const presser = String(digits(ictx?.senderId) ?? "");
         const t = getToken(p.statePath, token);
         if (!t) {
-          await Promise.resolve(ctx?.respond?.clearButtons?.()).catch(() => {}); // expired: remove stale buttons
+          await Promise.resolve(ictx?.respond?.clearButtons?.()).catch(() => {}); // expired: remove stale buttons
           return { handled: true };
         }
         try {
-          if (action === "s") {
-            if (presser !== t.askerId) return { handled: true }; // only the person who asked
-            ensureIndex();
+          // legacy tokens from v1 messages
+          if (kind === "s" && t.kind === "suggest") {
+            if (presser !== t.askerId) return { handled: true };
             const move = index.move(t.choices[i]);
             removeTokens(p.statePath, (x) => x.token === token);
-            await ctx.respond.deleteMessage().catch(() => {});
-            if (!move) return { handled: true };
-            await sendReply(t.chatId, t.originalMessageId, cardFor(move));
-            stats.record("button", { character: move.character, moveId: move.id });
+            await ictx.respond.deleteMessage().catch(() => {});
+            if (move) await sendHtml(t.chatId, t.originalMessageId, bot.handle(`!fd ${move.character} ${move.key}`, {})?.[0]?.html ?? cardFor(move));
             return { handled: true };
           }
-          if (action === "post") {
+          if (kind === "post" || t.kind === "post") {
             if (!admins().has(presser)) return { handled: true };
             const groups = clanGroups();
             for (const g of groups) await sendMessage(g, t.text);
             removeTokens(p.statePath, (x) => x.token === token);
-            await ctx.respond.editMessage({ text: `${t.text}\n\n✅ Posted to ${groups.length} group(s).` });
+            await ictx.respond.editMessage({ text: `${t.text}\n\n✅ Posted to ${groups.length} group(s).` });
             return { handled: true };
           }
+          if (t.kind !== "actions") return { handled: true };
+          const action = t.actions[i];
+          if (!action) return { handled: true };
+          if (action.type === "quiz") {
+            const name = ictx.senderUsername ? `@${ictx.senderUsername}` : await memberName(t.chatId, presser).catch(() => presser);
+            const res = quiz.answer(action.qid, presser, name, action.i);
+            if (res.status === "accepted") stats.record(res.correct ? "quizRight" : "quizWrong");
+            if (res.reveal) await revealQuiz(action.qid);
+            return { handled: true };
+          }
+          if (t.askerOnly && presser !== t.askerId) return { handled: true }; // only the person who asked
+          if (action.type === "pick") {
+            const move = index.move(action.moveId);
+            removeTokens(p.statePath, (x) => x.token === token);
+            await ictx.respond.deleteMessage().catch(() => {});
+            if (!move) return { handled: true };
+            const card = bot.handle(`!fd ${move.character} ${move.key}`, {})[0];
+            await sendHtml(t.chatId, t.originalMessageId, card.html, { buttons: card.buttons ?? [], askerId: t.askerId });
+            stats.record("button", { character: move.character, moveId: move.id });
+            return { handled: true };
+          }
+          if (action.type === "quizStart") {
+            await postQuiz(t.chatId, null, makeQuestion(index, { character: action.character, type: action.qtype }));
+            return { handled: true };
+          }
+          const popular = Object.entries(stats.data?.total?.characters ?? {}).sort((x, y) => y[1] - x[1]).map(([c]) => c);
+          const out = bot.action({ ...action, popular: popular.length >= 6 ? popular : undefined }, { senderId: presser });
+          if (out.edit) {
+            removeTokens(p.statePath, (x) => x.token === token);
+            const newToken = out.edit.buttons?.length ? createToken(p.statePath, { kind: "actions", chatId: t.chatId, askerId: t.askerId, askerOnly: true, actions: out.edit.buttons.flat().map((x) => x.action), originalMessageId: t.originalMessageId, messageId: t.messageId }) : null;
+            await editMessageText(t.chatId, t.messageId, out.edit.html, undefined, { ...HTML, ...(newToken ? { replyMarkup: markupFor(newToken, out.edit.buttons) } : {}) });
+          }
+          if (out.reply) await sendHtml(t.chatId, t.messageId ?? t.originalMessageId, out.reply.html, { buttons: out.reply.buttons ?? [], askerId: t.askerId });
         } catch (err) {
-          api.logger?.warn?.(`tekken-fd button ${action} failed: ${err.message}`);
+          api.logger?.warn?.(`tekken-fd button failed: ${err.stack ?? err.message}`);
         }
         return { handled: true };
       },
@@ -555,7 +616,7 @@ export default {
     // (config/telegram-admin-commands.json) in their DM and in configured groups.
     const PUBLIC_COMMANDS = [
       { command: "start", description: "How to use the frame data bot" },
-      { command: "help", description: "Commands: !fd !punish !unsafe !list !help" },
+      { command: "help", description: "All commands with examples (!fd, !punish, !mu, !quiz …)" },
     ];
     async function syncCommandMenus() {
       let full = [];
@@ -585,6 +646,16 @@ export default {
         menuTimer.unref?.();
         statsTimer = setInterval(() => {
           try { stats.flush(); } catch (err) { api.logger?.warn?.(`tekken-fd stats flush failed: ${err.message}`); }
+          // quizzes whose reveal timer was lost (restart) + the daily auto quiz in clan groups
+          for (const q of quiz.overdue()) revealQuiz(q.id).catch(() => {});
+          if (quizCfg.daily) {
+            for (const g of clanGroups()) {
+              if (!quiz.dueDaily(g, quizCfg)) continue;
+              const pending = readState(p.statePath).pendingCharacters ?? [];
+              const character = pending.length ? pending[Math.floor(Math.random() * pending.length)] : null;
+              postQuiz(g, null, makeQuestion(index, { character })).catch((err) => api.logger?.warn?.(`tekken-fd daily quiz failed: ${err.message}`));
+            }
+          }
         }, 60_000);
         statsTimer.unref?.();
         try {

@@ -37,7 +37,7 @@ export function isHelpCommand(text) {
   return HELP_COMMAND.test(String(text ?? ""));
 }
 
-const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9а-яё]/g, "");
 
 /**
  * Split "<character words> <move>" trying the longest character prefix first.

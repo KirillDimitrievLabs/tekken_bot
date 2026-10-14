@@ -5,7 +5,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 
 const run = promisify(execFile);
-const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9а-яё]/g, "");
 
 export function normalizeAlias(text) {
   return String(text ?? "").toLowerCase().replace(/\s+/g, " ").trim();
@@ -33,7 +33,8 @@ export class AliasStore {
   all() {
     const mtime = fs.statSync(this.addedPath, { throwIfNoEntry: false })?.mtimeMs ?? 0;
     if (!this.cache || mtime !== this.mtime) {
-      this.cache = { ...readJson(this.curatedPath), ...readJson(this.addedPath) };
+      const ru = this.curatedPath.replace(/aliases\.json$/, "aliases.ru.json");
+      this.cache = { ...readJson(this.curatedPath), ...readJson(ru), ...readJson(this.addedPath) };
       this.mtime = mtime;
     }
     return this.cache;

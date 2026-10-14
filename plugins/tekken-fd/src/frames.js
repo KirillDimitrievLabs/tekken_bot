@@ -108,7 +108,7 @@ export function stanceOf(key) {
   const k = String(key ?? "").trim();
   if (/^ws/i.test(k) || /^FC\./.test(k)) return "crouching";
   if (/^[A-Za-z]{2,}\./.test(k) || /^[A-Z]\./.test(k)) return "other"; // BT. SS. H. R. hFC. …
-  if (/^(?:f,F|f,f|uf,n|b,B|b,b|u,U)/.test(k) || /[(\s]/.test(k)) return "other"; // dashes, "(Back to wall)…", "Back throw"
+  if (/^(?:f,F|f,f|uf,n|b,B|b,b|u,U|wr|WR)/.test(k) || /[(\s]/.test(k)) return "other"; // dashes, "(Back to wall)…", "Back throw"
   return "standing";
 }
 
@@ -135,4 +135,32 @@ export function isUnblockable(target, block) {
 /** Total damage of a single move's own hits ("10,12" → 22). */
 export function damageOf(value) {
   return (cleanInline(value).match(/\d+/g) ?? []).map(Number).reduce((a, b) => a + b, 0);
+}
+
+/** Knockdown or launch on that outcome ("+43d (+35)", "+38a"). */
+export function isKnockdown(value) {
+  return /^[+-]?\d+(?:~[+-]?\d+)?[ad]/i.test(cleanInline(value));
+}
+
+/** "r27", "r21 FC" → 27; null if unknown. */
+export function recoveryOf(value) {
+  const m = cleanInline(value).match(/r\s*(\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+
+/** Total frames "86", "71?" → 86. */
+export function totalOf(value) {
+  const m = cleanInline(value).match(/^(\d+)/);
+  return m ? Number(m[1]) : null;
+}
+
+export function reachOf(value) {
+  const n = Number.parseFloat(cleanInline(value));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Plus on hit (any positive first number). */
+export function hitAdvantageOf(value) {
+  const m = cleanInline(value).match(/^([+-]?\d+)/);
+  return m ? Number(m[1]) : null;
 }

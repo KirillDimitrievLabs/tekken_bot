@@ -1,4 +1,5 @@
 // Deterministic resolution of (character, move) text to Wavu move ids.
+import { resolveNickname } from "./nicknames.js";
 import { looseKey, strictKey } from "./notation.js";
 
 /** Optimal-string-alignment distance: edits plus adjacent swaps ("byron" → "bryan" = 2). */
@@ -15,7 +16,7 @@ export function editDistance(a, b) {
   return d[a.length][b.length];
 }
 
-const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9а-яё]/g, "");
 
 /**
  * @param {string} text user text ("fahk", "Devil Jin", "jack8")
@@ -45,16 +46,25 @@ export function resolveCharacter(text, characters, aliases = {}) {
  * @param {import('./db.js').MoveIndex} index
  * @returns {{status: 'match'|'ambiguous'|'none', move?: object, candidates: object[]}}
  */
-export function resolveMove(index, character, text) {
+export function resolveMove(index, character, text, moveAliases = null) {
   const raw = String(text ?? "").trim();
   if (!raw) return { status: "none", candidates: [] };
 
   const strict = index.byKey(character, "strict", strictKey(raw));
   if (strict.length === 1) return { status: "match", move: strict[0], candidates: [] };
-  if (strict.length > 1) return { status: "ambiguous", candidates: strict.slice(0, 8) };
+  if (strict.length > 1) {
+    // e.g. Wavu alias "Hellsweep" sits on several strings of f,n,d,DF+4: the archetype picks the move itself
+    const nick = resolveNickname(index, character, raw, moveAliases);
+    if (nick?.status === "match") return { status: "match", move: nick.move, candidates: [] };
+    return { status: "ambiguous", candidates: strict.slice(0, 8) };
+  }
 
   const named = index.byName(character, raw);
   if (named.length === 1) return { status: "match", move: named[0], candidates: [] };
+
+  const nick = resolveNickname(index, character, raw, moveAliases);
+  if (nick?.status === "match") return { status: "match", move: nick.move, candidates: [] };
+  if (nick?.status === "ambiguous") return { status: "ambiguous", candidates: nick.candidates };
 
   const loose = index.byKey(character, "loose", looseKey(raw));
   if (loose.length === 1) return { status: "match", move: loose[0], candidates: [] };

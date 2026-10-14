@@ -36,6 +36,7 @@ export function removeTokens(statePath, predicate) {
 
 /** callback_data for a choice / action. */
 export const choiceData = (token, i) => `${NAMESPACE}:s:${token}:${i}`;
+export const actionData = (token, i) => `${NAMESPACE}:a:${token}:${i}`;
 export const postData = (token) => `${NAMESPACE}:post:${token}`;
 
 /** Parse the payload after "tekken-fd:" → {action, token, index}. */
@@ -44,9 +45,10 @@ export function parsePayload(payload) {
   return { action, token, index: index === undefined ? null : Number(index) };
 }
 
-/** Inline keyboard rows: up to 3 buttons per row. */
-export function keyboard(buttons, perRow = 3) {
-  const rows = [];
-  for (let i = 0; i < buttons.length; i += perRow) rows.push(buttons.slice(i, i + perRow));
-  return { inline_keyboard: rows };
+/** Inline keyboard: flat `buttons` split into rows of `perRow`, or explicit `rows`. */
+export function keyboard(buttons, perRow = 3, rows = null) {
+  if (rows) return { inline_keyboard: rows.filter((r) => r.length) };
+  const out = [];
+  for (let i = 0; i < buttons.length; i += perRow) out.push(buttons.slice(i, i + perRow));
+  return { inline_keyboard: out };
 }

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { cleanInline, listText, noteItems } from "./format.js";
-import { blockOf, inputTiming, isLauncher, isThrow, startupOf, stanceOf } from "./frames.js";
+import { blockOf, inputTiming, isLauncher, isThrow, reachOf, recoveryOf, startupOf, stanceOf, totalOf } from "./frames.js";
 import { tagsFor } from "./tags.js";
 import { looseKey, moveKeyFromId, strictKey } from "./notation.js";
 
@@ -14,8 +14,10 @@ CREATE TABLE moves (
   name TEXT, input TEXT, alias TEXT, alt TEXT, parent TEXT,
   target TEXT, damage TEXT, startup TEXT, recv TEXT, tot TEXT, crush TEXT,
   block TEXT, hit TEXT, ch TEXT, notes TEXT,
-  root INTEGER, startup_n INTEGER, startup_eff INTEGER, timing_note TEXT, block_n INTEGER, launcher INTEGER, stance TEXT, throw INTEGER
+  root INTEGER, startup_n INTEGER, startup_eff INTEGER, timing_note TEXT, block_n INTEGER, launcher INTEGER, stance TEXT, throw INTEGER,
+  recv_n INTEGER, tot_n INTEGER, reach_n REAL, throw_break TEXT, heat_dash TEXT, root_id TEXT
 );
+CREATE INDEX moves_parent ON moves (parent);
 CREATE INDEX moves_punish ON moves (character, root, stance, startup_eff);
 CREATE TABLE tags (id TEXT NOT NULL, character TEXT NOT NULL, tag TEXT NOT NULL);
 CREATE INDEX tags_lookup ON tags (character, tag);
@@ -28,11 +30,31 @@ CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT);
 
 const COLUMNS = ["id", "character", "key", "num", "name", "input", "alias", "alt", "parent",
   "target", "damage", "startup", "recv", "tot", "crush", "block", "hit", "ch", "notes",
-  "root", "startup_n", "startup_eff", "timing_note", "block_n", "launcher", "stance", "throw"];
+  "root", "startup_n", "startup_eff", "timing_note", "block_n", "launcher", "stance", "throw",
+  "recv_n", "tot_n", "reach_n", "throw_break", "heat_dash", "root_id"];
 
 /** Alternative inputs/nicknames in Wavu's alias/alt fields (plain value or an HTML "dotlist"). */
 function altKeys(value, character) {
   return noteItems(value).map((v) => moveKeyFromId(v, character)).filter(Boolean);
+}
+
+/** "Throw break: 1 or 2" → "1 or 2"; "none" for unbreakable; null if not a throw note. */
+export function throwBreakOf(notes) {
+  for (const n of noteItems(notes)) {
+    let m = n.match(/^throw break[:\s]*(1\+2|1 or 2|3\+4|1|2|none)\b/i) ?? n.match(/^(1\+2|1 or 2|3\+4|1|2) throw break\b/i);
+    if (m) return m[1].toLowerCase();
+    if (/^unbreakable\b|cannot (?:be )?(?:throw )?break|can'?t (?:be )?(?:throw )?break/i.test(n)) return "none";
+  }
+  return null;
+}
+
+/** "Heat Dash +5, +43d (+35)" → "+5, +43d (+35)". */
+export function heatDashOf(notes) {
+  for (const n of noteItems(notes)) {
+    const m = n.match(/^heat dash\s+([+-]\d.*)$/i);
+    if (m) return m[1].trim();
+  }
+  return null;
 }
 
 /** Build the index atomically: write to a temp file, then rename over dbPath. */
@@ -49,6 +71,14 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
     const insFts = db.prepare("INSERT INTO moves_fts VALUES (?, ?, ?)");
     const insTag = db.prepare("INSERT INTO tags VALUES (?, ?, ?)");
     db.exec("BEGIN");
+    const byId = new Map([...snapshots.values()].flat().map((m) => [m.id, m]));
+    const rootOf = (m) => {
+      let cur = m;
+      for (let guard = 0; cur.parent && byId.has(cur.parent) && guard < 20; guard++) cur = byId.get(cur.parent);
+      return cur;
+    };
+    const kidsOf = new Map();
+    for (const m of byId.values()) if (m.parent) (kidsOf.get(m.parent) ?? kidsOf.set(m.parent, []).get(m.parent)).push(m);
     let total = 0;
     const seen = new Set();
     for (const [character, moves] of snapshots) {
@@ -57,6 +87,7 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         if (seen.has(m.id)) continue; // Wavu duplicate rows: first (most complete after dedupe) wins
         seen.add(m.id);
         const key = moveKeyFromId(m.id, character);
+        const root = rootOf(m);
         const timing = inputTiming(key, m);
         const name = m.name ? listText(m.name, " / ") : null;
         const aliases = altKeys(m.alias, character);
@@ -65,8 +96,9 @@ export function buildDatabase(dbPath, snapshots, meta = {}) {
         insMove.run(m.id, character, key, m.num == null ? null : Number(m.num), name, v(m.input), aliases.join(" · ") || null, alts.join(" · ") || null, v(m.parent),
           v(m.target), v(m.damage), v(m.startup), v(m.recv), v(m.tot), v(m.crush), v(m.block), v(m.hit), v(m.ch), v(m.notes),
           m.parent ? 0 : 1, startupOf(m.startup), timing.eff, timing.note || null, cleanInline(m.block) === "!" ? null : blockOf(m.block),
-          isLauncher(m.hit) ? 1 : 0, stanceOf(key), isThrow(m.target) ? 1 : 0);
-        for (const tag of tagsFor(m, key)) insTag.run(m.id, character, tag);
+          isLauncher(m.hit) ? 1 : 0, stanceOf(key), isThrow(m.target) ? 1 : 0,
+          recoveryOf(m.recv), totalOf(m.tot), reachOf(m.reach), throwBreakOf(m.notes), heatDashOf(m.notes), root.id);
+        for (const tag of tagsFor(m, key, root, kidsOf.get(m.id) ?? [])) insTag.run(m.id, character, tag);
         const keys = [["id", key], ...aliases.map((k) => ["alias", k]), ...alts.map((k) => ["alt", k])];
         for (const [kind, k] of keys) insKey.run(character, m.id, kind, strictKey(k), looseKey(k));
         insFts.run(m.id, character, [key, name, ...aliases, ...alts].filter(Boolean).join(" | "));
@@ -178,6 +210,15 @@ export class MoveIndex {
       .prepare(`SELECT * FROM moves WHERE character = ? AND root = 1 AND block_n IS NOT NULL AND block_n <= ?
                 ORDER BY block_n, num`)
       .all(character, threshold);
+  }
+
+  /** Rows matching a raw SQL condition for one character (internal helper for feature modules). */
+  where(character, condition, params = [], order = "num") {
+    return this.handle().prepare(`SELECT * FROM moves WHERE character = ? AND (${condition}) ORDER BY ${order}`).all(character, ...params);
+  }
+
+  tagsOf(id) {
+    return this.handle().prepare("SELECT tag FROM tags WHERE id = ?").all(id).map((r) => r.tag);
   }
 
   children(id) {

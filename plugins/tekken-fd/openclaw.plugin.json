@@ -48,6 +48,20 @@
         "items": {
           "type": "string"
         }
+      },
+      "quiz": {
+        "type": "object",
+        "properties": {
+          "dailyAt": {
+            "type": "string"
+          },
+          "tz": {
+            "type": "string"
+          },
+          "daily": {
+            "type": "boolean"
+          }
+        }
       }
     }
   }

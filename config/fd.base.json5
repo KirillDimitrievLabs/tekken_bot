@@ -25,7 +25,7 @@
   ],
   plugins: {
     load: { paths: ["/opt/clan-bots/plugins/tekken-fd"] },
-    entries: { "tekken-fd": { enabled: true, config: { repoDir: "/opt/clan-bots" } } },
+    entries: { "tekken-fd": { enabled: true, config: { repoDir: "/opt/clan-bots", quiz: { daily: true, dailyAt: "19:00", tz: "Europe/Moscow" } } } },
   },
   agents: {
     // Global: don't seed onboarding files (BOOTSTRAP.md, SOUL.md, …) into new workspaces.
@@ -43,7 +43,7 @@
         // Code Mode would hide these tools behind a JS `exec` (Node vm, not a sandbox) — keep it off
         // for an agent that untrusted group members can prompt.
         tools: { allow: ["tekken_frame_data", "tekken_pick_move"], codeMode: { enabled: false } },
-        groupChat: { mentionPatterns: ["^\\s*!(fd|punish|unsafe|list|help)\\b"], historyLimit: 10 },
+        groupChat: { mentionPatterns: ["^\\s*!(?:fd|punish|unsafe|list|help|main|mains|mu|gaps|ss|beat|whiff|throws|quiz|top|heat|wall|ав|згтшыр|гтыфау|дшые|рудз|ьфшт|ьфшты|ьг|пфзы|ыы|иуфе|цршаа|еркщцы|йгшя|ещз|руфе|цфдд)(?=\\s|$)"], historyLimit: 10 },
       },
     },
   },

@@ -25,6 +25,7 @@ export function sendMessage(chatId, text, opts, extra = {}) {
     text,
     disable_web_page_preview: true,
     ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
+    ...(extra.parseMode ? { parse_mode: extra.parseMode } : {}),
   }, opts);
 }
 
@@ -36,6 +37,7 @@ export function sendReply(chatId, messageId, text, opts, extra = {}) {
     disable_web_page_preview: true,
     reply_parameters: { message_id: Number(messageId), allow_sending_without_reply: true },
     ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
+    ...(extra.parseMode ? { parse_mode: extra.parseMode } : {}),
   }, opts);
 }
 
@@ -50,7 +52,15 @@ export function editMessageText(chatId, messageId, text, opts, extra = {}) {
     text,
     disable_web_page_preview: true,
     ...(extra.replyMarkup ? { reply_markup: extra.replyMarkup } : {}),
+    ...(extra.parseMode ? { parse_mode: extra.parseMode } : {}),
   }, opts);
+}
+
+/** Display name of a chat member ("@nick" or first name). */
+export async function memberName(chatId, userId, opts) {
+  const r = await call("getChatMember", { chat_id: chatId, user_id: Number(userId) }, opts);
+  const u = r?.user ?? {};
+  return u.username ? `@${u.username}` : [u.first_name, u.last_name].filter(Boolean).join(" ") || String(userId);
 }
 
 /** Set the command menu for a scope ({type:"default"}, {type:"chat", chat_id}, {type:"chat_member", chat_id, user_id}). */

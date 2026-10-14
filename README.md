@@ -16,17 +16,29 @@ move was meant; all data comes from [Wavu Wiki](https://wavu.wiki) (CC BY-SA 4.0
 Built index (not in git): `/opt/openclaw/data/state/tekken-fd/t8.sqlite`.
 
 ### Commands (everyone)
+Replies use Telegram formatting; long sections are collapsed (tap to expand).
+
 | Command | Example | Answer |
 |---|---|---|
-| `!fd <char> <move>` | `!fd Fahkumram 312` | frame-data card; typos → "did you mean" buttons (only the asker can tap) |
-| `!punish <char> <frames>` | `!punish kaz -13` | fastest/best standing and crouching punishers, 🚀 = launch |
-| `!unsafe <char> [frames]` | `!unsafe jin` | moves at −10 (or given) or worse on block, grouped |
-| `!list <char> <filter>` | `!list steve lows` | lows/mids/highs, homing, power crush, heat engagers, launchers, tornado, balcony, throws, plus, safe, … |
-| `!help [command]` | `!help punish` | all commands with examples, or details for one (`!help list` shows every filter) |
-| `/start`, `/help` | | usage |
+| `!fd <char> <move>` | `!fd Fahkumram 312` · `!fd kaz hellsweep` · `!fd jin ewgf` | compact card; buttons ◀ ▶ (walk the string), Strings, 🥊 Punish (asker only) |
+| several at once | `!fd kaz df1; jin d3` or one per line | one combined reply (max 5) |
+| `!punish <char> <frames>` | `!punish kaz -13` | standing / crouching punishers, motion-input timing |
+| `!unsafe <char> [frames]` | `!unsafe jin` | moves at −10 (or given) or worse |
+| `!list <char> <filter>` | `!list steve lows` · `!list kaz hopkick` | levels, tags, Wavu archetypes |
+| `!main <char>` / `!mains` | `!main lars` | your default character (an explicit character still wins); roster |
+| `!mu <you> vs <them>` | `!mu lars vs jin` · `!mu jin` | punish sheet for every punishable move |
+| `!gaps <char> [string]` | `!gaps jin` · `!gaps jin 1,2,4` | interrupts, jails, CH-only follow-ups |
+| `!ss <char>` / `!beat <char> <move> [as <you>]` | `!beat kaz df+2 as lars` | tracking (sparse in Wavu), crush/power crush/punish answers |
+| `!whiff <char> <move> [as <you>]` | `!whiff kaz df+2` | recovery window + your options (≈, reach rarely known) |
+| `!throws <char>` | `!throws king` | throws with breaks + 🎯 throw-break quiz |
+| `!heat <char>` / `!wall <char>` | `!heat kaz` | heat engagers/dash/smash; wall crush/splat/balcony/floor |
+| `!quiz [char]` / `!top [char]` | `!quiz jin` | quiz (anyone answers once, all correct score); daily quiz 19:00 MSK in clan groups |
+| `!help [command]` | `!help mu` | |
 
-A "did you mean" disappears when the asker taps a button or sends a corrected command within 15 min.
-(Telegram message *edits* aren't forwarded to plugins by OpenClaw, so editing doesn't trigger anything.)
+Nicknames: Wavu move aliases, glossary (ewgf, wgf, jab, heat burst…), Wavu archetypes (hopkick, hellsweep,
+magic four, orbital, snake edge, power low, shadow cutter, stature kick, clef cannon, slash kick, mid check),
+admin-taught move aliases (admin replies to a "did you mean" with the input → `data/move-aliases.json`),
+Cyrillic character names (`aliases.ru.json`) and Russian keyboard layout (`!ав кфя ва1` = `!fd kaz df1`).
 
 ### Owner commands
 `/fd_sync [dry|force]` (with a patch digest preview + 📢 Post-to-group button), `/fd_rebuild`, `/fd_status`,
