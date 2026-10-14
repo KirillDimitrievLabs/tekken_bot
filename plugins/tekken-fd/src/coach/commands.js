@@ -10,7 +10,7 @@ export function parseCoachTarget(args, characters, aliases, { tip = false } = {}
     if (options.level && !["mid", "high"].includes(options.level)) return { error: "Level: --level mid or --level high." };
   }
   const parts = text.replace(/^vs\.?\s+/i, "").split(/\s+vs\.?\s+|\s+против\s+/i);
-  if (!text || parts.length > 2) return { error: "Use !vs reina or !coach kazuya vs reina. Options: --lang en|ru --level mid|high." };
+  if (!text || parts.length > 2) return { error: "Use !vs reina or !coach kazuya vs reina. Options: --lang en|ru --level high|mid (high is the default)." };
   const as = parts.length === 2 ? resolveCharacter(parts[0], characters, aliases).match : null;
   const opponent = resolveCharacter(parts.at(-1), characters, aliases).match;
   if (!opponent || (parts.length === 2 && !as)) return { error: "Unknown character. Use a character name or a known nickname." };

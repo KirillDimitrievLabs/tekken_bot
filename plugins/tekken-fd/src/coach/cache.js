@@ -57,7 +57,7 @@ export class CoachCache {
     this.db.prepare("UPDATE coach_limits SET generations=generations-1 WHERE user_id=? AND day=? AND generations>0").run(String(userId), day);
   }
   preference(userId) {
-    return this.db.prepare("SELECT language,level FROM coach_users WHERE user_id=?").get(String(userId)) ?? { language: "en", level: "mid" };
+    return this.db.prepare("SELECT language,level FROM coach_users WHERE user_id=?").get(String(userId)) ?? { language: "en", level: "high" };
   }
   setPreference(userId, preference) {
     const p = { ...this.preference(userId), ...preference };

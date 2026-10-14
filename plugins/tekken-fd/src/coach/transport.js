@@ -38,7 +38,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     complete: api.runtime?.llm?.complete ? (input) => api.runtime.llm.complete(input) : null });
   const cfg = () => api.pluginConfig?.coach ?? {};
   const telegraph = new TelegraphClient({ stateDir });
-  const pageId = (target, mode) => JSON.stringify([mode, target.as ?? null, target.opponent, target.language ?? "en", target.level ?? "mid"]);
+  const pageId = (target, mode) => JSON.stringify([mode, target.as ?? null, target.opponent, target.language ?? "en", target.level ?? "high"]);
   /** Publish (or update) the full guide on telegra.ph; returns its URL, or null if disabled/failed. */
   async function ensurePage(result, target) {
     if (cfg().telegraph === false || !result?.guide || !result.key) return null;
@@ -240,7 +240,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     register("coach_dossier", "Owner: inspect the raw coach dossier", async (ctx) => {
       const target = parseCoachTarget(ctx.args, index.characters().map((c) => c.name), {});
       if (target.error) return { text: target.error };
-      const d = coach.dossier({ ...target, language: "en", level: "mid" });
+      const d = coach.dossier({ ...target, language: "en", level: "high" });
       // Raw dossier is potentially too large for Telegram; expose bounded sections, never truncate mid-token.
       const chatId = chatIdFrom(ctx.originatingTo ?? ctx.to) ?? String(ctx.senderId).replace(/^telegram:/, "");
       for (const block of d.text.split(/(?=\n## )/)) {
@@ -272,7 +272,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       const raw = String(ctx.args ?? "");
       const opts = raw.match(/--(?:lang|level)\s+\S+/gi)?.join(" ") ?? "";
       const specs = raw.replace(/--(?:lang|level)\s+\S+/gi, "").split(/[;\n]/).map((x) => x.trim()).filter(Boolean);
-      if (!specs.length || specs.length > 10) return { text: "Use /coach_test vs reina; jin vs reina [--lang en|ru] [--level mid|high] (1–10 guides)." };
+      if (!specs.length || specs.length > 10) return { text: "Use /coach_test vs reina; jin vs reina [--lang en|ru] [--level high|mid] (1–10 guides; high is the default)." };
       const names = index.characters().map((c) => c.name);
       const targets = [];
       for (const spec of specs) {

@@ -79,7 +79,7 @@ const LANGUAGE = {
 };
 
 /** Style snippets are synthetic templates, never clan-reviewed examples or game facts. */
-export function buildPrompt(dossier, { language = "ru", level = "mid" } = {}) {
+export function buildPrompt(dossier, { language = "ru", level = "high" } = {}) {
   const lang = language === "en" ? "en" : "ru";
   const mode = dossier.mode === "matchup" ? "matchup" : "counter";
   const coverage = {

@@ -11,7 +11,7 @@ the plugin stores no provider credentials.
 * `!coach kazuya vs reina`: matchup guide with both forward and reverse punish evidence.
 * Guides open on an Overview (summary + how the character plays). Buttons switch the same message to Stances, Threats, Defense, Punish, Neutral & pressure, Heat/wall, Mistakes, Drills and Notes (long views are paged); feedback marks the pressed button.
 * `!coachlang en` / `!coachlang ru`: save language. English is used before a choice.
-* `!coachlevel mid` / `!coachlevel high`: save level. Mid is used before a choice.
+* `!coachlevel high` / `!coachlevel mid`: save level. High is used before a choice.
 * Per-request overrides: `!coach kazuya vs reina --lang ru --level high`.
 * `!tip vs reina #defense: ...` / `!tip kazuya vs reina: ...`: draft, confirm, admin review.
 * `!tips vs reina` / `!mytips`: approved advice and your submissions.

@@ -66,7 +66,7 @@ const HELP = {
   throws: ["!throws <character> — every throw with its break", "!throws king"],
   quiz: ["!quiz [character] — frame quiz (everyone answers once)", "!top · !top <character> — leaderboard"],
   heat: ["!heat <character> — engagers (with heat dash), smash, burst, heat moves", "!wall <character> — wall crush/splat, balcony, floor breaks"],
-  coach: ["!coach <you> vs <them> — a grounded matchup guide", "!vs reina / !coach reina — a counter-guide; offers your !main matchup", "!coachlang en|ru — save your guide language", "!coachlevel mid|high — save your level", "Per-request options: --lang ru --level high", "Coach is available to configured clan members after admin preview."],
+  coach: ["!coach <you> vs <them> — a grounded matchup guide", "!vs reina / !coach reina — a counter-guide; offers your !main matchup", "!coachlang en|ru — save your guide language", "!coachlevel high|mid — save your level (high is the default)", "Per-request options: --lang ru --level high", "Coach is available to configured clan members after admin preview."],
   tip: ["!tip vs reina #defense: your advice — submit a clan tip for admin approval", "!tip kazuya vs reina: matchup advice (20–400 characters)", "!tips vs reina · !mytips — approved tips and your submissions"],
 };
 HELP.vs = HELP.coach;

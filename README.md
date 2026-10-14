@@ -46,7 +46,7 @@ Cyrillic character names (`aliases.ru.json`) and Russian keyboard layout (`!ав
 
 ### Coach and clan tips
 `!vs Reina` / `!coach Kazuya vs Reina` use **gpt-6.1-sol, high** with indexed facts,
-Wavu guides and approved clan advice. `!coachlang en|ru` and `!coachlevel mid|high`
+Wavu guides and approved clan advice. `!coachlang en|ru` and `!coachlevel high|mid` (high by default)
 save user choices. `!tip`, `!tips`, `!mytips` provide moderated clan knowledge.
 Initially admin preview; launch access is configured clan members, including their DMs.
 Owner tools: `/coach_dossier`, `/coach_status`, `/tips_queue`, `/coach_warm mains`.

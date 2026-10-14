@@ -100,7 +100,7 @@ function punishLine(row) {
 }
 
 /** Build a bounded dossier from indexed facts, command-synced guides and approved tips. */
-export function buildDossier(index, { as = null, opponent, language = "ru", level = "mid", guides = {}, tips = [] } = {}) {
+export function buildDossier(index, { as = null, opponent, language = "ru", level = "high", guides = {}, tips = [] } = {}) {
   if (!opponent) throw new Error("opponent is required");
   const known = new Set(index.characters().map((c) => c.name));
   if (!known.has(opponent) || (as && !known.has(as))) throw new Error("unknown coach character");

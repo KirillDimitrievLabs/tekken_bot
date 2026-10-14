@@ -258,3 +258,11 @@ test("fallbacks and failures do not use the daily limit; delivered guides do", a
   for (let i = 0; i < 5; i++) assert.equal((await coach.generate({ ...target, opponent: `Ok${i}` }, { userId: "user-a" })).fallback, undefined);
   await assert.rejects(coach.generate({ ...target, opponent: "Ok5" }, { userId: "user-a" }), /Daily limit/);
 });
+
+test("guide level defaults to high until a user saves a choice", (t) => {
+  const root = temp(t);
+  const cache = new CoachCache(path.join(root, "coach.sqlite"));
+  t.after(() => cache.close());
+  assert.deepEqual(cache.preference("new-user"), { language: "en", level: "high" });
+  assert.deepEqual(cache.setPreference("new-user", { level: "mid" }), { language: "en", level: "mid" });
+});
