@@ -86,6 +86,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "telegraph": {
+            "type": "boolean"
           }
         }
       },

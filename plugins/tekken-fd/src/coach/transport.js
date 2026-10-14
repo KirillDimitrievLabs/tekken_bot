@@ -13,6 +13,7 @@ import { guideCoverage } from "../guides.js";
 import { parseCoachTarget } from "./commands.js";
 import { readState, writeState } from "../watcher.js";
 import { availableViews, renderView, VIEWS } from "./render.js";
+import { guideNodes, guideTitle, TelegraphClient } from "./telegraph.js";
 
 const run = promisify(execFile);
 const title = (t) => t.as ? `${t.as} vs ${t.opponent}` : `vs ${t.opponent}`;
@@ -36,6 +37,25 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
   coach = new Coach({ index, repoDir, stateDir, tips, config: api.pluginConfig?.coach ?? {}, logger: api.logger,
     complete: api.runtime?.llm?.complete ? (input) => api.runtime.llm.complete(input) : null });
   const cfg = () => api.pluginConfig?.coach ?? {};
+  const telegraph = new TelegraphClient({ stateDir });
+  const pageId = (target, mode) => JSON.stringify([mode, target.as ?? null, target.opponent, target.language ?? "en", target.level ?? "mid"]);
+  /** Publish (or update) the full guide on telegra.ph; returns its URL, or null if disabled/failed. */
+  async function ensurePage(result, target) {
+    if (cfg().telegraph === false || !result?.guide || !result.key) return null;
+    const id = pageId(target, result.dossier.mode);
+    const existing = coach.cache.page(id);
+    if (existing?.key === result.key) return existing.url;
+    try {
+      const page = await telegraph.publish({ pagePath: existing?.path ?? null, title: guideTitle(result.dossier),
+        content: guideNodes(index, result.guide, result.dossier, { model: result.model, createdAt: result.createdAt ?? result.created_at }) });
+      coach.cache.setPage(id, { ...page, key: result.key });
+      return page.url;
+    } catch (err) {
+      api.logger?.warn?.(`coach telegra.ph publish failed: ${err.message}`);
+      return existing?.url ?? null;
+    }
+  }
+  const pageUrl = (target, mode) => coach.cache.page(pageId(target, mode))?.url ?? null;
   const allowed = async (userId, chatId, { submissions = false, verifyMembership = false } = {}) => {
     if (!userId) return false;
     if (admins().has(String(userId))) return true;
@@ -51,17 +71,17 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
    * Keyboard for one guide view: other views, pager, feedback, tip, admin regenerate.
    * Rebuilt on every view change; the token's action list is replaced to match.
    */
-  const guideRows = ({ key, target, userId, guide, view = "overview", page = 0, pages = 1, voted = null }) => {
+  const guideRows = ({ key, target, userId, guide, view = "overview", page = 0, pages = 1, voted = null, url = null }) => {
     const lang = target.language === "ru" ? "ru" : "en";
     const nav = availableViews(guide).filter((v) => v !== view && !(v === "plan" && !target.as))
       .map((v) => ({ text: VIEWS[v][lang], action: { type: "coachSection", key, target, section: v, page: 0 } }));
-    const rows = [];
+    const rows = url ? [[{ text: lang === "ru" ? "📖 Полный гайд" : "📖 Full guide", url }]] : [];
     for (let i = 0; i < nav.length; i += 3) rows.push(nav.slice(i, i + 3));
     if (pages > 1) {
       const pager = [];
       if (page > 0) pager.push({ text: `◀ ${page}/${pages}`, action: { type: "coachSection", key, target, section: view, page: page - 1 } });
       if (page < pages - 1) pager.push({ text: `${page + 2}/${pages} ▶`, action: { type: "coachSection", key, target, section: view, page: page + 1 } });
-      rows.unshift(pager);
+      rows.splice(url ? 1 : 0, 0, pager);
     }
     rows.push([1, -1, 0].map((vote, i) => ({ text: `${["👍", "👎", "⚠️ Wrong"][i]}${voted === vote ? " ✓" : ""}`, action: { type: "coachFeedback", key, vote, target, view, page } })));
     const extra = [{ text: lang === "ru" ? "➕ Совет" : "➕ Add tip", action: { type: "tipStart", target, key, view, page } }];
@@ -72,7 +92,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
   };
   /** Edit a guide message in place and point its token at the new keyboard. */
   async function editGuide(t, html, rows, state) {
-    updateToken(p.statePath, t.token, { actions: rows.flat().map((x) => x.action), ...state });
+    updateToken(p.statePath, t.token, { actions: rows.flat().filter((x) => !x.url).map((x) => x.action), ...state });
     await editMessageText(t.chatId, t.messageId, html, undefined, { parseMode: "HTML", replyMarkup: markupFor(t.token, rows) });
   }
   async function postGuide(target, userId, chatId, replyTo, { force = false } = {}) {
@@ -102,7 +122,8 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       return;
     }
     const view = renderView(index, result.guide, result.dossier, { view: "overview", model: result.model, createdAt: result.createdAt ?? result.created_at });
-    const rows = guideRows({ key: result.key, target, userId, guide: result.guide, view: "overview", page: view.page, pages: view.pages });
+    const url = await ensurePage(result, target);
+    const rows = guideRows({ key: result.key, target, userId, guide: result.guide, view: "overview", page: view.page, pages: view.pages, url });
     await sendHtml(chatId, replyTo, view.html, { buttons: rows, askerId: String(userId), askerOnly: true, meta: { view: "overview", page: view.page } });
   }
   const tipHtml = (tip) => `${b(`${tip.id} · ${title(tip)} · ${tip.category}`)}\n${esc(tip.text)}\n<i>${esc(tip.author)} · ${esc(tip.status)}${tip.needsReview ? " · may be outdated" : ""}${tip.votes !== undefined ? ` · votes ${tip.votes}` : ""}</i>`;
@@ -196,10 +217,10 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
           voted = a.vote;
           if (a.vote <= 0) for (const adminId of admins()) await sendHtml(adminId, null, `Coach feedback: ${a.vote === 0 ? "reported problem" : "👎"} · ${esc(title(a.target))}`, { askerOnly: false, buttons: [[{ text: "🔄 Regenerate", action: { type: "coachGenerate", target: a.target, force: true } }]] }).catch(() => {});
         }
-        const rows = guideRows({ key: a.key, target: a.target, userId, guide: hit.guide, view: r.view, page: r.page, pages: r.pages, voted });
+        const rows = guideRows({ key: a.key, target: a.target, userId, guide: hit.guide, view: r.view, page: r.page, pages: r.pages, voted, url: pageUrl(a.target, current.mode) });
         if (a.type === "coachFeedback") {
           // feedback only marks the pressed button; the text stays as it is
-          updateToken(p.statePath, t.token, { actions: rows.flat().map((x) => x.action), voted });
+          updateToken(p.statePath, t.token, { actions: rows.flat().filter((x) => !x.url).map((x) => x.action), voted });
           await editMessageReplyMarkup(t.chatId, t.messageId, markupFor(t.token, rows));
         } else {
           const html = a.type === "tipStart"
@@ -275,7 +296,8 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
             await sendMessage(owner, `${title(target)}: ${note}`);
             if (result.fallback || !result.key) { for (const html of result.parts) await sendHtml(owner, null, html); continue; }
             const view = renderView(index, result.guide, result.dossier, { view: "overview", model: result.model, createdAt: result.createdAt ?? result.created_at });
-            await sendHtml(owner, null, view.html, { buttons: guideRows({ key: result.key, target, userId: owner, guide: result.guide, page: view.page, pages: view.pages }),
+            const url = await ensurePage(result, target);
+            await sendHtml(owner, null, view.html, { buttons: guideRows({ key: result.key, target, userId: owner, guide: result.guide, page: view.page, pages: view.pages, url }),
               askerId: String(owner), askerOnly: true, meta: { view: "overview", page: view.page } });
           }
           await sendMessage(owner, `🧪 Coach test finished: ${targets.length} guide(s).`);

@@ -97,3 +97,12 @@ up to two `general_knowledge` items from its own Tekken 8 knowledge: a known gam
 mechanic the data does not cover. They obey the same rules (no numbers, only supplied move ids) and
 are shown under "⚠️ General knowledge (unverified)". For rich characters the field must be empty.
 
+
+## Full guide on telegra.ph
+
+Each delivered guide is also published as a telegra.ph page (opens in Telegram's Instant View) and the
+overview gets a "📖 Full guide" button. One page per guide identity (mode, characters, language, level);
+regenerating edits the same page, so links stay valid. Pages are public to anyone with the link and cannot
+be deleted (only emptied): they contain no Telegram ids and no tip author names ("a clan member"), and
+carry one source credit for Wavu Wiki (CC BY-SA 4.0). The bot's Telegraph access token is stored in the
+private state dir (`telegraph.json`). Disable with plugin config `coach.telegraph: false`.

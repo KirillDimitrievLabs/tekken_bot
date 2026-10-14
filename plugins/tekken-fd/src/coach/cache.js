@@ -18,6 +18,7 @@ export class CoachCache {
         created_at TEXT NOT NULL, model TEXT NOT NULL, hits INTEGER NOT NULL DEFAULT 0, a TEXT, b TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS coach_limits (user_id TEXT NOT NULL, day TEXT NOT NULL, generations INTEGER NOT NULL, PRIMARY KEY(user_id,day));
       CREATE TABLE IF NOT EXISTS coach_users (user_id TEXT PRIMARY KEY, language TEXT NOT NULL, level TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS coach_pages (id TEXT PRIMARY KEY, path TEXT NOT NULL, url TEXT NOT NULL, key TEXT NOT NULL, updated_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS coach_feedback (key TEXT NOT NULL, user_id TEXT NOT NULL, vote INTEGER NOT NULL, at TEXT NOT NULL, PRIMARY KEY(key,user_id));`);
   }
   get(key, { count = true } = {}) {
@@ -68,6 +69,11 @@ export class CoachCache {
     if (!this.get(key, { count: false }) || ![-1, 0, 1].includes(vote)) return false;
     this.db.prepare("INSERT OR REPLACE INTO coach_feedback VALUES(?,?,?,?)").run(key, String(userId), vote, new Date(this.now()).toISOString());
     return true;
+  }
+  /** telegra.ph page for a guide identity (mode, characters, language, level); edited in place on regeneration. */
+  page(id) { return this.db.prepare("SELECT * FROM coach_pages WHERE id=?").get(id) ?? null; }
+  setPage(id, { path, url, key }) {
+    this.db.prepare("INSERT OR REPLACE INTO coach_pages VALUES(?,?,?,?,?)").run(id, path, url, key, new Date(this.now()).toISOString());
   }
   stats() { return this.db.prepare("SELECT count(*) AS guides,coalesce(sum(hits),0) AS hits FROM coach_cache").get(); }
   close() { this.db.close(); }

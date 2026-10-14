@@ -44,7 +44,7 @@ const configSchema = {
       publicAgents: { type: "array", items: { type: "string" } },
       adminIds: { type: "array", items: { type: "string" } },
       quiz: { type: "object", properties: { dailyAt: { type: "string" }, tz: { type: "string" }, daily: { type: "boolean" } } },
-      coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } } } },
+      coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } }, telegraph: { type: "boolean" } } },
       tips: { type: "object", properties: { openSubmissions: { type: "boolean" } } },
     },
   },
@@ -126,7 +126,8 @@ export default {
     // ---- transport: HTML message with action buttons (callback_data "tekken-fd:a:<token>:<i>")
     function markupFor(token, buttons) {
       let i = 0;
-      return keyboard([], 3, buttons.map((row) => row.map((btn) => ({ text: btn.text, callback_data: actionData(token, i++) }))));
+      // URL buttons (telegra.ph guide) open a link and do not take an action slot
+      return keyboard([], 3, buttons.map((row) => row.map((btn) => (btn.url ? { text: btn.text, url: btn.url } : { text: btn.text, callback_data: actionData(token, i++) }))));
     }
     // Telegram caps messages at 4096 visible characters; long replies degrade to truncated plain text
     const MAX_VISIBLE = 4000;
@@ -136,7 +137,7 @@ export default {
       return { text: `${plain.slice(0, MAX_VISIBLE - 40)}\n… (truncated)`, extra: {} };
     }
     async function sendHtml(chatId, replyTo, html, { buttons = [], askerId = null, askerOnly = true, meta = {} } = {}) {
-      const actions = buttons.flat().map((btn) => btn.action);
+      const actions = buttons.flat().filter((btn) => !btn.url).map((btn) => btn.action);
       const token = actions.length ? createToken(p.statePath, { kind: "actions", chatId: String(chatId), askerId, askerOnly, actions, originalMessageId: replyTo, ...meta }) : null;
       const f = fit(html);
       const extra = { ...f.extra, ...(token ? { replyMarkup: markupFor(token, buttons) } : {}) };
