@@ -129,3 +129,15 @@ test("/fd_stats counts outcomes", async () => {
   assert.match(r.text, /suggest \d+/);
   assert.match(r.text, /punish 1/);
 });
+
+test("!help lists commands; !help <cmd> gives details", async () => {
+  await send("!help");
+  assert.match(lastSend().body.text, /!punish <character> <frames>/);
+  assert.match(lastSend().body.text, /!help \[command\]/);
+  await send("!help list");
+  assert.match(lastSend().body.text, /Filters: .*lows/);
+  await send("!help punish", { chat: FRIEND, isGroup: false });
+  assert.match(lastSend().body.text, /!punish lars 14/);
+  await send("!help nonsense");
+  assert.match(lastSend().body.text, /Tekken 8 frame data/);
+});

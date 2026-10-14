@@ -12,7 +12,7 @@ import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
 import { AliasStore, parseAliasReply } from "./src/aliases.js";
-import { analyze, isHelpCommand, needMoveText, parseCharacterArgs, parseCommand, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
+import { analyze, commandHelp, isHelpCommand, needMoveText, parseCharacterArgs, parseCommand, unknownCharacterText, unresolvedText, USAGE } from "./src/fastpath.js";
 import { choiceData, createToken, getToken, keyboard, NAMESPACE as BUTTON_NAMESPACE, parsePayload, postData, removeTokens, updateToken } from "./src/buttons.js";
 import { filterHelp, formatList, formatPunish, formatUnsafe, resolveFilter } from "./src/queries.js";
 import { formatDigest, hasFrameChanges } from "./src/digest.js";
@@ -276,6 +276,11 @@ export default {
         const cmd = parseCommand(body);
         // 3) Not a bot command: public DMs only get the help text; everything else passes through.
         if (!cmd) return isPublic && isDirect ? done(await answer(event, ctx, helpText)) : undefined;
+        if (cmd.cmd === "help") {
+          stats.record("help");
+          const detail = cmd.args ? commandHelp(cmd.args, filterHelp().replace(/^Filters: /, "")) : null;
+          return done(await answer(event, ctx, detail ?? helpText));
+        }
 
         ensureIndex();
         const r = compute(cmd.cmd, cmd.args, cmd.cmd === "fd" ? body : undefined);
@@ -550,7 +555,7 @@ export default {
     // (config/telegram-admin-commands.json) in their DM and in configured groups.
     const PUBLIC_COMMANDS = [
       { command: "start", description: "How to use the frame data bot" },
-      { command: "help", description: "Commands: !fd !punish !unsafe !list" },
+      { command: "help", description: "Commands: !fd !punish !unsafe !list !help" },
     ];
     async function syncCommandMenus() {
       let full = [];

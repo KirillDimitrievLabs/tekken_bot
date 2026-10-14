@@ -22,6 +22,7 @@ Built index (not in git): `/opt/openclaw/data/state/tekken-fd/t8.sqlite`.
 | `!punish <char> <frames>` | `!punish kaz -13` | fastest/best standing and crouching punishers, 🚀 = launch |
 | `!unsafe <char> [frames]` | `!unsafe jin` | moves at −10 (or given) or worse on block, grouped |
 | `!list <char> <filter>` | `!list steve lows` | lows/mids/highs, homing, power crush, heat engagers, launchers, tornado, balcony, throws, plus, safe, … |
+| `!help [command]` | `!help punish` | all commands with examples, or details for one (`!help list` shows every filter) |
 | `/start`, `/help` | | usage |
 
 A "did you mean" disappears when the asker taps a button or sends a corrected command within 15 min.

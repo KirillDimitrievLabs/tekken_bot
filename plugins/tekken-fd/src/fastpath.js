@@ -11,7 +11,7 @@ export function parseTrigger(text) {
   return m ? m[1].replace(/\s+/g, " ").trim() : null;
 }
 
-const COMMAND = /^\s*(?:@\w+\s+)?!(fd|punish|unsafe|list)\b\s*(.*)$/is;
+const COMMAND = /^\s*(?:@\w+\s+)?!(fd|punish|unsafe|list|help)\b\s*(.*)$/is;
 
 /** "!punish kaz -13" → {cmd: "punish", args: "kaz -13"}; null if not a bot command. */
 export function parseCommand(text) {
@@ -89,6 +89,44 @@ export function fastResolve(index, text, aliases) {
   return a?.kind === "match" ? { move: a.move } : null;
 }
 
+/** Detailed help for one command ("!help punish"); null for unknown topics. */
+export function commandHelp(topic, filters) {
+  const t = String(topic ?? "").toLowerCase().replace(/^!/, "").trim();
+  const pages = {
+    fd: [
+      "!fd <character> <move> — frame data card",
+      "Move as notation, shorthand or name:",
+      "  !fd Fahkumram 312      (= 3,1,2)",
+      "  !fd kaz df1            (nicknames work)",
+      "  !fd devil jin ws2",
+      "  !fd law dragon's tail  (move name)",
+      "Typos get \"did you mean\" buttons — only you can tap them.",
+    ],
+    punish: [
+      "!punish <character> <frames> — best punishers for a move at −frames on block",
+      "  !punish kaz -13",
+      "  !punish lars 14        (sign optional)",
+      "Shows standing and crouching (after a blocked low) options; 🚀 = launch.",
+      "Motion inputs include their input time (e.g. EWGF via f,n,df); ≈ = unconfirmed.",
+    ],
+    unsafe: [
+      "!unsafe <character> [frames] — moves punishable on block",
+      "  !unsafe jin            (−10 or worse)",
+      "  !unsafe jin -13        (−13 or worse)",
+      "Grouped: launch punishable (≤ −15), −13/−14, −10…−12.",
+    ],
+    list: [
+      "!list <character> <filter> — moves with a property",
+      "  !list steve lows",
+      "  !list jin homing",
+      "  !list alisa power crush",
+      `Filters: ${filters}`,
+    ],
+    help: ["!help — all commands", "!help <command> — details, e.g. !help punish"],
+  };
+  return pages[t] ? pages[t].join("\n") : null;
+}
+
 export const USAGE = [
   "!fd <character> <move> — frame data card",
   "   !fd Fahkumram 312 · !fd kaz df1 · !fd devil jin ws2",
@@ -98,6 +136,7 @@ export const USAGE = [
   "   !unsafe jin · !unsafe jin -13",
   "!list <character> <filter> — e.g. lows, homing, power crush, heat engagers, launchers, tornado",
   "   !list steve lows",
+  "!help [command] — this list, or details: !help punish",
 ].join("\n");
 
 export function needMoveText(character) {
