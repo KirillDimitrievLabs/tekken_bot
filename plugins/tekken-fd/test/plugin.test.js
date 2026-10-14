@@ -46,7 +46,7 @@ before(() => {
   commands = {};
   services = [];
   plugin.register({
-    pluginConfig: { repoDir: path.join(tmp, "repo"), stateDir: path.join(tmp, "state"), watcher: false },
+    pluginConfig: { repoDir: path.join(tmp, "repo"), stateDir: path.join(tmp, "state"), watcher: false, notifyMessages: false },
     config: { commands: { ownerAllowFrom: [`telegram:${OWNER}`] }, channels: { telegram: { groups: { [GROUP]: {} } } } },
     logger: { info() {}, warn: (m) => process.env.FD_DEBUG && console.error("WARN", m) },
     resolvePath: (p) => path.join(ROOT, p),

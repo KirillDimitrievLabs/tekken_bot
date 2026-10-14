@@ -256,6 +256,10 @@
     "description": "Owner: usage stats (lookups, top moves, unknown words, model share)"
   },
   {
+    "command": "fd_notify",
+    "description": "Owner: forward users' messages to you (on/off)"
+  },
+  {
     "command": "fd_sync",
     "description": "⏳ ~5 min: fetch Wavu data, commit, rebuild, push"
   },

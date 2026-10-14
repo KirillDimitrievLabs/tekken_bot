@@ -104,6 +104,12 @@
             "type": "boolean"
           }
         }
+      },
+      "deployNotify": {
+        "type": "boolean"
+      },
+      "notifyMessages": {
+        "type": "boolean"
       }
     }
   }

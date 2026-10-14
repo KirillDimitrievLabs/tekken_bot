@@ -152,7 +152,7 @@ export function formatPunishComputed(index, character, frames) {
   ].join("\n");
 }
 
-export function formatUnsafe(index, character, threshold = -10, cap = 60) {
+export function formatUnsafe(index, character, threshold = -10) {
   const moves = index.unsafeMoves(character, threshold);
   if (!moves.length) return `🛡 ${b(character)}: nothing at ${minus(threshold)} or worse on block.`;
   const groups = [
@@ -161,15 +161,10 @@ export function formatUnsafe(index, character, threshold = -10, cap = 60) {
     [`🟨 ${minus(threshold)} … −12`, (x) => x > -13],
   ];
   const lines = [`🩸 ${b(`${character} — unsafe on block (${minus(threshold)} or worse): ${moves.length}`)}`];
-  let shown = 0;
   for (const [label, test] of groups) {
     const group = moves.filter((m) => test(m.block_n));
     if (!group.length) continue;
-    const part = group.slice(0, Math.max(0, cap - shown));
-    shown += part.length;
-    const body = part.map((m) => `${mk(m.character, m.key)} ${esc(cleanInline(m.block))}`).join(" · ")
-      + (group.length > part.length ? ` · +${group.length - part.length} more` : "");
-    lines.push(b(label), part.length > 12 ? details(body) : body);
+    lines.push(b(`${label} (${group.length})`), group.map((m) => `${mk(m.character, m.key)} ${esc(cleanInline(m.block))}`).join(" · "));
   }
   return lines.join("\n");
 }
@@ -180,17 +175,14 @@ export const moveLine = (m) => {
   return `${mk(m.character, m.key)}${name}${block}`;
 };
 
-export function formatList(index, character, tag, cap = 40) {
+export function formatList(index, character, tag) {
   const moves = index.byTag(character, tag);
   const label = FILTER_LABELS[tag] ?? tag;
   if (!moves.length) return `📋 ${b(`${character} — ${label}`)}: none`;
-  const lines = moves.slice(0, cap).map(moveLine);
-  if (moves.length > cap) lines.push(`…and ${moves.length - cap} more`);
-  const head = `📋 ${b(`${character} — ${label} (${moves.length})`)}`;
-  return lines.length > 10 ? `${head}\n${details(lines.join("\n"))}` : `${head}\n${lines.join("\n")}`;
+  return `📋 ${b(`${character} — ${label} (${moves.length})`)}\n${moves.map(moveLine).join("\n")}`;
 }
 
-const sec = (title, rows) => (rows.length ? [b(title), rows.length > 8 ? details(rows.join("\n")) : rows.join("\n")] : []);
+const sec = (title, rows) => (rows.length ? [b(`${title} (${rows.length})`), rows.join("\n")] : []);
 
 /** B7: heat sheet — engagers with heat-dash results, smash, burst, heat-only moves. */
 export function formatHeat(index, character) {

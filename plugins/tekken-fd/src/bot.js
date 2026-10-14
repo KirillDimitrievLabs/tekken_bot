@@ -8,7 +8,8 @@ import { formatMatchup } from "./matchup.js";
 import { fixLayout } from "./nicknames.js";
 import { filterHelp, formatHeat, formatList, formatPunish, formatUnsafe, formatWall, minus, resolveFilter } from "./queries.js";
 import { questionHtml, makeQuestion } from "./quiz.js";
-import { b, cardHtml, code, details, mk, esc, LEGEND_HTML } from "./render.js";
+import { b, cardHtml, code, details, mk, esc, isWellFormed, LEGEND_HTML } from "./render.js";
+import { splitHtml } from "./coach/render.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 import { formatThrows } from "./throws.js";
 import { formatWhiff } from "./whiff.js";
@@ -19,6 +20,8 @@ export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "legend", "ma
 const COMMAND_RE = new RegExp(`^\\s*(?:@\\w+\\s+)?!(${COMMANDS.join("|")})\\b\\s*([\\s\\S]*)$`, "i");
 export const MENTION_PATTERN = `^\\s*!(${COMMANDS.join("|")})\\b`;
 const MAX_MULTI = 5;
+// raw HTML per page; visible text is shorter, so pages stay under Telegram's 4096 limit with the page title
+const PAGE_LIMIT = 3400;
 
 /** "!fd kaz df1; jin d3\n!punish lars 14" → [{cmd, args}…] (segments inherit the previous command). */
 export function parseCommands(text) {
@@ -91,6 +94,7 @@ HELP.mains = HELP.main;
 export const START_HTML = [
   `🤖 ${b("Бот с фреймдатой Tekken 8 и тренер по матчапам")}`,
   "Пишите боту в личку. Команды начинаются с «!». Русская раскладка работает (!ав = !fd), персонажей можно писать по-русски и прозвищами: казуя, рейна, фенг, кинг.",
+  "<i>Сообщения боту видит админ — так я замечаю ошибки и непонятые запросы.</i>",
   "",
   `📋 ${b("Фреймдата — отвечает сразу")}`,
   `${code("!fd казуя df1")} — карточка приёма: стартап, блок, хит, урон`,
@@ -212,6 +216,34 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
   }
 
   /** One command → reply. */
+  /** Full answer for a list command; long ones are paged, never cut. */
+  function viewHtml(v) {
+    switch (v.cmd) {
+      case "mu": return formatMatchup(index, v.a, v.b);
+      case "unsafe": return formatUnsafe(index, v.c, v.threshold);
+      case "list": return formatList(index, v.c, v.tag);
+      case "gaps": return formatCharacterGaps(index, v.c);
+      case "ss": return formatSidestep(index, v.c);
+      case "throws": return formatThrows(index, v.c);
+      case "heat": return formatHeat(index, v.c);
+      case "wall": return formatWall(index, v.c);
+      default: return "";
+    }
+  }
+  /** One page of a list answer with ◀ ▶ buttons that edit the same message. */
+  function paged(view, page = 0, { stat } = {}) {
+    const html = viewHtml(view);
+    const pages = splitHtml(html, PAGE_LIMIT);
+    const n = Math.min(Math.max(0, page), pages.length - 1);
+    const title = html.split("\n")[0];
+    const body = n && isWellFormed(title) ? `${title} <i>(${n + 1}/${pages.length})</i>\n${pages[n]}` : pages[n];
+    const nav = [];
+    if (n > 0) nav.push({ text: `◀ ${n}/${pages.length}`, action: { type: "page", view, page: n - 1 } });
+    if (n < pages.length - 1) nav.push({ text: `${n + 2}/${pages.length} ▶`, action: { type: "page", view, page: n + 1 } });
+    const extra = view.cmd === "throws" ? [[{ text: "🎯 Throw-break quiz", action: { type: "quizStart", character: view.c, qtype: "break" } }]] : [];
+    return reply(body, { ...(stat ? { stat } : {}), buttons: [...(nav.length ? [nav] : []), ...extra] });
+  }
+
   function run({ cmd, args }, ctx, single) {
     const main = ctx.senderId ? mains.get(ctx.senderId) : null;
     switch (cmd) {
@@ -281,7 +313,7 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
         const A = resolveCharacter(a, characters(), aliases.all()).match;
         const B = resolveCharacter(bTxt, characters(), aliases.all()).match;
         if (!A || !B) return { kind: "unknown", unknown: { token: (!A ? a : bTxt).split(" ")[0], args, candidates: resolveCharacter(!A ? a : bTxt, characters(), aliases.all()).candidates } };
-        return reply(formatMatchup(index, A, B), { stat: ["mu", { character: B }] });
+        return paged({ cmd: "mu", a: A, b: B }, 0, { stat: ["mu", { character: B }] });
       }
       case "beat":
       case "whiff": {
@@ -311,26 +343,26 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
       }
       case "unsafe": {
         const f = frameArg(r.rest);
-        return reply(formatUnsafe(index, c, f ? -f : -10), { stat });
+        return paged({ cmd: "unsafe", c, threshold: f ? -f : -10 }, 0, { stat });
       }
       case "list": {
         const tag = resolveFilter(r.rest);
         if (!tag) return reply(`${r.rest ? `Unknown filter “${esc(r.rest.slice(0, 30))}”. ` : ""}${esc(HELP.list.join("\n"))}\n<i>${esc(filterHelp())}</i>`);
-        return reply(formatList(index, c, tag), { stat });
+        return paged({ cmd: "list", c, tag }, 0, { stat });
       }
       case "gaps": {
-        if (!r.rest) return reply(formatCharacterGaps(index, c), { stat });
+        if (!r.rest) return paged({ cmd: "gaps", c }, 0, { stat });
         const move = moveOf(c, r.rest);
         return move ? reply(formatString(index, c, move), { stat }) : reply(`❌ ${b(c)} ${code(r.rest)} not found`);
       }
       case "ss":
-        return reply(formatSidestep(index, c), { stat });
+        return paged({ cmd: "ss", c }, 0, { stat });
       case "throws":
-        return reply(formatThrows(index, c), { stat, buttons: [[{ text: "🎯 Throw-break quiz", action: { type: "quizStart", character: c, qtype: "break" } }]] });
+        return paged({ cmd: "throws", c }, 0, { stat });
       case "heat":
-        return reply(formatHeat(index, c), { stat });
+        return paged({ cmd: "heat", c }, 0, { stat });
       case "wall":
-        return reply(formatWall(index, c), { stat });
+        return paged({ cmd: "wall", c }, 0, { stat });
       default:
         return reply(HELP_HTML);
     }
@@ -355,6 +387,8 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
           const m = index.move(a.moveId);
           return m ? { edit: cardReply(m) } : {};
         }
+        case "page":
+          return a.view ? { edit: paged(a.view, a.page) } : {};
         case "strings": {
           const m = index.move(a.moveId);
           if (!m) return {};

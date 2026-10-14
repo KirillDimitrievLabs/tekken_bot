@@ -33,7 +33,7 @@ function cannedGuide(input) {
   };
 }
 
-function harness(t, { access = "clan", enabled = true, guestDailyLimit, beforeTelegramResult = async () => {} } = {}) {
+function harness(t, { access = "clan", enabled = true, guestDailyLimit, notify = false, beforeTelegramResult = async () => {} } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fd-coach-transport-"));
   const repoDir = path.join(dir, "repo"), stateDir = path.join(dir, "state");
   const data = path.join(repoDir, "data/wavu/t8"), tipFile = path.join(repoDir, "data/tips/t8-tips.json");
@@ -62,7 +62,7 @@ function harness(t, { access = "clan", enabled = true, guestDailyLimit, beforeTe
     return { ok: true, json: async () => { call.completed = true; return { ok: true, result }; } };
   };
   const api = {
-    pluginConfig: { repoDir, stateDir, watcher: false, coach: { enabled, access, ...(guestDailyLimit != null ? { guestDailyLimit } : {}) } },
+    pluginConfig: { repoDir, stateDir, watcher: false, notifyMessages: notify, coach: { enabled, access, ...(guestDailyLimit != null ? { guestDailyLimit } : {}) } },
     config: { commands: { ownerAllowFrom: [`telegram:${OWNER}`] }, channels: { telegram: { groups: { [GROUP]: {} } } } },
     runtime: { llm: { complete: async (input) => { completions.push(input); return { text: JSON.stringify(cannedGuide(input)) }; } } },
     logger: { info() {}, warn: (message) => { warnings.push(message); if (process.env.FD_DEBUG) console.error(message); } }, resolvePath: (file) => path.join(ROOT, file),
@@ -310,4 +310,24 @@ test("access all: anyone can get a guide in DM; guests share a daily pool, membe
   assert.match(plain(h.lastSend("100000010")), /🎓/, "cached guides stay available to guests");
   await h.send("!vs kazuya --lang ru", { sender: MEMBER, chat: MEMBER });
   assert.equal(h.completions.length, 2, "clan members are not limited by the guest pool");
+});
+
+test("owner gets every DM users send and bot commands from groups; /fd_notify off stops it", async (t) => {
+  const h = harness(t, { notify: true });
+  const forwarded = () => h.sent(OWNER).filter((c) => plain(c).startsWith("📨"));
+  const settle = () => new Promise((r) => setTimeout(r, 20));
+  await h.send("hello, how do I punish Reina?", { sender: STRANGER, chat: STRANGER }); await settle();
+  assert.equal(forwarded().length, 1);
+  assert.match(forwarded()[0].body.text, /tg:\/\/user\?id=100000009/);
+  assert.match(plain(forwarded()[0]), /· DM\nhello, how do I punish Reina\?/);
+  await h.send("just chatting in the group", { sender: MEMBER, chat: GROUP }); await settle();
+  assert.equal(forwarded().length, 1, "ordinary group chatter is not forwarded");
+  await h.send("!fd kazuya b+4", { sender: MEMBER, chat: GROUP }); await settle();
+  assert.equal(forwarded().length, 2, "bot commands in groups are forwarded");
+  await h.send("my own note", { sender: OWNER, chat: OWNER }); await settle();
+  assert.equal(forwarded().length, 2, "the owner's own messages are not forwarded");
+  const reply = await h.commands.fd_notify.handler({ args: "off", senderIsOwner: true, senderId: OWNER });
+  assert.match(reply.text, /OFF/);
+  await h.send("anything", { sender: STRANGER, chat: STRANGER }); await settle();
+  assert.equal(forwarded().length, 2);
 });

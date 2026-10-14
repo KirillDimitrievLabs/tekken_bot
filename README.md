@@ -52,6 +52,15 @@ Initially admin preview; launch access is configured clan members, including the
 Owner tools: `/coach_dossier`, `/coach_status`, `/tips_queue`, `/coach_warm mains`.
 See [coach.md](docs/coach.md) for prompt contents, privacy, limits and explicit activation.
 
+### Owner notifications
+- Every DM users send to the bot (and their bot commands in groups) is forwarded to the owner as
+  "📨 Name · DM" with the text. `/fd_notify on|off` toggles it (plugin config `notifyMessages: false` disables it).
+  `/start` tells users that the admin sees messages.
+- Every deploy (plugin start) sends "🚀 Bot deployed · <commit>" with the commits since the last deploy,
+  or "♻️ Bot restarted" when the code did not change (`deployNotify: false` disables it).
+- Long list answers (`!throws`, `!unsafe`, `!list`, `!gaps`, `!ss`, `!heat`, `!wall`, `!mu`) are never cut:
+  they are paged with ◀ ▶ buttons that edit the same message.
+
 ### Updating data (manual by design)
 - Telegram DM to the bot (owner only): `/fd_sync dry` → preview, `/fd_sync` → fetch, commit, rebuild, push to GitHub.
   A live progress message shows each step (frame data, punishers, combos, TekkenDocs tags, commit, push) with

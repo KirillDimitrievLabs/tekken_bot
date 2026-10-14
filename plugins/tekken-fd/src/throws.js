@@ -19,10 +19,9 @@ export function formatThrows(index, character) {
   };
   const standard = moves.filter((m) => stanceOf(m.key) === "standing");
   const situational = moves.filter((m) => stanceOf(m.key) !== "standing");
-  const capped = (list, n) => [...list.slice(0, n).map(row), ...(list.length > n ? [`…and ${list.length - n} more`] : [])];
+  // full list: long answers are paged by the router, never cut
   const out = [`🤼 ${b(`${character} — throws (${moves.length})`)}`, b(`Standing (${standard.length})`)];
-  const std = capped(standard, 25);
-  out.push(std.length > 12 ? details(std.join("\n")) : std.join("\n") || "none");
-  if (situational.length) out.push(b(`Situational / stance / OTG (${situational.length})`), details(capped(situational, 20).join("\n")));
+  out.push(standard.map(row).join("\n") || "none");
+  if (situational.length) out.push(b(`Situational / stance / OTG (${situational.length})`), situational.map(row).join("\n"));
   return out.join("\n");
 }

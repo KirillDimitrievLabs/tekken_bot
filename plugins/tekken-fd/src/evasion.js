@@ -24,7 +24,7 @@ function tracking(tags) {
 }
 
 /** Key neutral moves: standing roots that are launchers, lows, plus-on-block or quick mids. */
-export function formatSidestep(index, character, cap = 40) {
+export function formatSidestep(index, character) {
   const roots = index.where(character, "root = 1 AND throw = 0 AND startup_n IS NOT NULL AND startup_n <= 25");
   const known = [];
   const unknown = [];
@@ -48,11 +48,11 @@ export function formatSidestep(index, character, cap = 40) {
   const stepLine = (label, list) => (list.length ? [`${label} (${list.length})`, list.length > 12 ? details(list.join(" · ")) : list.join(" · ")] : []);
   return [
     `👣 ${b(`${character} — sidestep / tracking`)}`,
-    b(`Single moves with tracking info (${known.length})`), known.length ? (known.length > 10 ? details(known.slice(0, cap).join("\n")) : known.join("\n")) : "none",
+    b(`Single moves with tracking info (${known.length})`), known.length ? known.join("\n") : "none",
     b("Strings you can step after blocking the 1st hit"),
     ...stepLine("➡ step right (SSR)", steppable.ssr), ...stepLine("⬅ step left (SSL)", steppable.ssl), ...stepLine("↔ either side", steppable.both),
     ...(steppable.ssr.length + steppable.ssl.length + steppable.both.length ? [] : ["none annotated"]),
-    b(`Key moves without tracking data (${unknown.length})`), unknown.length ? details(unknown.slice(0, cap).join(" · ")) : "none",
+    b(`Key moves without tracking data (${unknown.length})`), unknown.length ? unknown.join(" · ") : "none",
     TRACKING_NOTE,
   ].join("\n");
 }

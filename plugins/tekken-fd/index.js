@@ -6,8 +6,10 @@
 // Owner commands: /fd_sync [dry|force], /fd_rebuild, /fd_status, /fd_check
 // Service: daily Wavu change watcher → DM to the owner.
 // Hook: before_dispatch fast path — "!fd <char> <move>" that resolves exactly is answered without the model.
+import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { promisify } from "node:util";
 import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
@@ -31,6 +33,8 @@ import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js
 import { createCoachTransport } from "./src/coach/transport.js";
 
 
+const runFile = promisify(execFile);
+
 const configSchema = {
   jsonSchema: {
     type: "object",
@@ -43,6 +47,8 @@ const configSchema = {
       fastPathAgents: { type: "array", items: { type: "string" } },
       publicAgents: { type: "array", items: { type: "string" } },
       adminIds: { type: "array", items: { type: "string" } },
+      deployNotify: { type: "boolean" },
+      notifyMessages: { type: "boolean" },
       quiz: { type: "object", properties: { dailyAt: { type: "string" }, tz: { type: "string" }, daily: { type: "boolean" } } },
       coach: { type: "object", properties: { enabled: { type: "boolean" }, access: { enum: ["admins", "clan", "all"] }, model: { type: "string" }, models: { type: "object" }, allowlist: { type: "array", items: { type: "string" } }, telegraph: { type: "boolean" }, guestDailyLimit: { type: "integer", minimum: 0 } } },
       tips: { type: "object", properties: { openSubmissions: { type: "boolean" } } },
@@ -115,6 +121,42 @@ export default {
     const bot = createBot({ index, aliases, moveAliases, mains, ruNames });
     const digits = (v) => (String(v ?? "").match(/-?\d{5,}/) ?? [null])[0];
     const admins = () => new Set([ownerChatIdFrom(api), ...(api.pluginConfig?.adminIds ?? [])].filter(Boolean).map(String));
+    // ---- owner notifications: what users write, and every deploy
+    const senderNames = new Map(); // userId → {name, at}; cached for an hour to avoid a lookup per message
+    async function senderName(chatId, userId) {
+      const hit = senderNames.get(userId);
+      if (hit && Date.now() - hit.at < 3600_000) return hit.name;
+      const name = await memberName(chatId, userId).catch(() => userId);
+      senderNames.set(userId, { name, at: Date.now() });
+      return name;
+    }
+    /** Forward a user's message to the owner (DMs: everything; groups: only bot commands). */
+    function notifyOwnerOfMessage({ senderId, chatId, body, isDirect }) {
+      const owner = ownerChatIdFrom(api);
+      const text = String(body ?? "").trim();
+      if (!owner || !senderId || senderId === String(owner) || !text || !chatId) return;
+      if (!isDirect && !/^\s*[!\/]/.test(text)) return;
+      if (api.pluginConfig?.notifyMessages === false || readState(p.statePath).notifyMessages === false) return;
+      (async () => {
+        const name = await senderName(chatId, senderId);
+        const where = isDirect ? "DM" : `group ${chatId}`;
+        await sendMessage(owner, `📨 <a href="tg://user?id=${senderId}">${esc(name)}</a> · ${where}\n${esc(text.slice(0, 1500))}${text.length > 1500 ? "…" : ""}`, undefined, HTML);
+      })().catch((err) => api.logger?.warn?.(`tekken-fd message notify failed: ${err.message}`));
+    }
+    /** "🚀 Bot deployed" with the changes since the last deploy, or "♻️ restarted" for the same code. */
+    async function notifyDeploy() {
+      const owner = ownerChatIdFrom(api);
+      if (!owner || api.pluginConfig?.deployNotify === false) return;
+      const git = async (...args) => (await runFile("git", ["-C", repoDir, ...args])).stdout.trim();
+      const head = await git("rev-parse", "HEAD");
+      const last = readState(p.statePath).lastDeployCommit;
+      writeState(p.statePath, { lastDeployCommit: head });
+      if (last === head) return sendMessage(owner, `♻️ Bot restarted · ${head.slice(0, 7)} (no code changes)`);
+      const subject = await git("log", "-1", "--format=%s");
+      const since = last ? (await git("log", "--format=%h %s", `${last}..HEAD`).catch(() => "")).split("\n").filter(Boolean) : [];
+      const list = since.length > 1 ? `\n\nSince the last deploy (${since.length} commits):\n${since.slice(0, 15).map((l) => `• ${l}`).join("\n")}${since.length > 15 ? `\n…and ${since.length - 15} older` : ""}` : "";
+      return sendMessage(owner, `🚀 Bot deployed · ${head.slice(0, 7)}\n${subject}${list}`);
+    }
     // Agents whose sessions may hand vague !fd queries to the model; elsewhere the plugin answers itself.
     const reasoningAgents = api.pluginConfig?.fastPathAgents ?? ["fd"];
     const PUBLIC_AGENTS = api.pluginConfig?.publicAgents ?? ["fd"]; // DMs here only get bot commands and help
@@ -296,6 +338,7 @@ export default {
       const isAdmin = admins().has(senderId);
       const chatId = chatIdFrom(ctx?.conversationId);
       const started = Date.now();
+      notifyOwnerOfMessage({ senderId, chatId, body, isDirect });
       try {
         // 1) admin replies: unknown-character requests and "did you mean" (move aliases)
         const replyTo = String(event?.replyToId ?? "");
@@ -637,6 +680,20 @@ export default {
     }
 
     api.registerCommand({
+      name: "fd_notify",
+      description: "Owner: forward users' messages to you (on | off | status)",
+      acceptsArgs: true,
+      requireAuth: true,
+      requiredScopes: ["operator.admin"],
+      handler: ownerOnly(async (ctx) => {
+        const arg = String(ctx.args ?? "").trim().toLowerCase();
+        if (arg === "on" || arg === "off") writeState(p.statePath, { notifyMessages: arg === "on" });
+        const on = readState(p.statePath).notifyMessages !== false;
+        return { text: `📨 Message forwarding is ${on ? "ON" : "OFF"}: ${on ? "you get every DM users send to the bot and their bot commands in groups" : "nothing is forwarded"}. Use /fd_notify on|off.` };
+      }),
+    });
+
+    api.registerCommand({
       name: "fd_rebuild",
       description: "Owner: rebuild the frame-data index from the git snapshots (after a git revert)",
       requireAuth: true,
@@ -712,6 +769,7 @@ export default {
       api.logger?.info?.(`tekken-fd: command menus set (public ${PUBLIC_COMMANDS.length}, admin ${adminMenu.length}, groups ${groups.length})`);
     }
     let menuTimer = null;
+    let deployTimer = null;
     let statsTimer = null;
 
     let stopWatcher = null;
@@ -720,6 +778,8 @@ export default {
       start() {
         // after the Telegram provider has started (it may register its own menu on start)
         menuTimer = setTimeout(() => syncCommandMenus().catch((err) => api.logger?.warn?.(`tekken-fd: command menus failed: ${err.message}`)), 30_000);
+        deployTimer = setTimeout(() => notifyDeploy().catch((err) => api.logger?.warn?.(`tekken-fd: deploy notify failed: ${err.message}`)), 20_000);
+        deployTimer.unref?.();
         menuTimer.unref?.();
         statsTimer = setInterval(() => {
           try { stats.flush(); } catch (err) { api.logger?.warn?.(`tekken-fd stats flush failed: ${err.message}`); }
@@ -750,6 +810,7 @@ export default {
       },
       async stop() {
         clearTimeout(menuTimer);
+        clearTimeout(deployTimer);
         clearInterval(statsTimer);
         try { stats.flush(); } catch {}
         stopWatcher?.();

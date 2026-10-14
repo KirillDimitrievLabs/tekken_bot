@@ -50,7 +50,7 @@ export function formatString(index, character, move) {
 }
 
 /** All exploitable strings: interruptible gaps ≥ i10 (fastest to exploit first), then CH-only follow-ups. */
-export function formatCharacterGaps(index, character, cap = 40) {
+export function formatCharacterGaps(index, character) {
   const strings = index.where(character, "root = 0");
   const gaps = [];
   const chOnly = [];
@@ -60,12 +60,12 @@ export function formatCharacterGaps(index, character, cap = 40) {
     else if (f.comboCh && !f.comboHit && !f.jail) chOnly.push({ m, f });
   }
   gaps.sort((x, y) => y.f.interrupt.frames - x.f.interrupt.frames);
-  const g = gaps.slice(0, cap).map(({ m, f }) => `${mk(m.character, m.key)} ✋ i${f.interrupt.frames} from ${ordTxt(f.interrupt.from)} ${f.interrupt.on}`);
-  const c = chOnly.slice(0, cap).map(({ m }) => mk(m.character, m.key)).join(" · ");
+  const g = gaps.map(({ m, f }) => `${mk(m.character, m.key)} ✋ i${f.interrupt.frames} from ${ordTxt(f.interrupt.from)} ${f.interrupt.on}`);
+  const c = chOnly.map(({ m }) => mk(m.character, m.key)).join(" · ");
   return [
     `🧩 ${b(`${character} — string gaps`)}`,
-    b(`✋ Interruptible (i10+ gap): ${gaps.length}`), gaps.length ? (g.length > 10 ? details(g.join("\n")) : g.join("\n")) : "none",
-    b(`⚡ Natural only on CH (duck/interrupt on normal hit): ${chOnly.length}`), chOnly.length ? details(c) : "none",
+    b(`✋ Interruptible (i10+ gap): ${gaps.length}`), gaps.length ? g.join("\n") : "none",
+    b(`⚡ Natural only on CH (duck/interrupt on normal hit): ${chOnly.length}`), chOnly.length ? c : "none",
     "<i>Details for one string: !gaps &lt;char&gt; &lt;string&gt;</i>",
   ].join("\n");
 }
