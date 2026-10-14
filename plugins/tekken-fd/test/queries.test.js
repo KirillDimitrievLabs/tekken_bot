@@ -49,12 +49,18 @@ test("digest shows frame changes, ignores notes-only edits", () => {
   assert.ok(!hasFrameChanges(diffFrames(before, new Map([["Kazuya", before.get("Kazuya").map((m) => ({ ...m, notes: "z" }))]]))));
 });
 
-test("motion inputs cost frames; Wavu's realistic bracket value wins", () => {
+test("input timing: buffering, WGF family, Jet Upper type", async () => {
+  const { inputTiming } = await import("../src/frames.js");
   for (const k of ["f,n,d,df+2", "f,n,d,df:2", "qcf+1", "b,f+2", "d,df+1", "hcb,f+1+2"]) assert.ok(isMotionInput(k), k);
   for (const k of ["1,2", "df+1", "d+1,2", "ws2", "1+2"]) assert.ok(!isMotionInput(k), k);
-  assert.equal(effectiveStartup("f,n,d,df+2", "i11~12"), 13); // Kazuya EWGF → punishes −13, not −11
-  assert.equal(effectiveStartup("f,n,d,df+2", "i11~12 (i14+)"), 14); // Armor King: Wavu's own note
-  assert.equal(effectiveStartup("f,n,d,df:2", "i11~12 (~i13)"), 13); // Reina
-  assert.equal(effectiveStartup("df+1", "i13"), 13);
-  assert.equal(effectiveStartup("qcf+2", null), null);
+  assert.equal(inputTiming("f,n,d,df+2", { startup: "i11~12" }).eff, 13);           // WGF via f,d,df shortcut
+  assert.match(inputTiming("f,n,d,df+2", { startup: "i11~12" }).note, /i15 full motion/);
+  assert.match(inputTiming("f,n,d,df:2", { startup: "i11~12" }).note, /i14 full motion/); // EWGF
+  assert.equal(inputTiming("f,n,b+2", { startup: "i14" }).eff, 14);                 // Lars / Bryan jet upper
+  assert.equal(inputTiming("f,b+2", { startup: "i14" }).eff, 14);                   // Shaheen
+  assert.equal(inputTiming("qcf+2", { startup: "i14~15", notes: "* Can be buffered" }).eff, 14);
+  assert.equal(inputTiming("qcf+2", { startup: "i16", notes: "* Cannot be buffered" }).eff, 18);
+  assert.equal(inputTiming("b,f+2", { startup: "i15~16" }).eff, 16);                // unknown → ≈ +1
+  assert.match(inputTiming("b,f+2", { startup: "i15~16" }).note, /≈/);
+  assert.equal(inputTiming("df+1", { startup: "i13" }).eff, 13);
 });

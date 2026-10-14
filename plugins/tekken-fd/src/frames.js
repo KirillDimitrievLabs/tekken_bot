@@ -21,19 +21,56 @@ export function isMotionInput(key) {
   return false;
 }
 
-export const MOTION_INPUT_FRAMES = 2;
+const BUFFERABLE = /\b(?:can be buffered|input bufferable|bufferable|completely bufferable)\b/i;
+const NOT_BUFFERABLE = /cannot be buffered/i;
+
+/** Directions entered before the final one: "qcf" → 2, "b,f+2" → 1, "f,n,b+2" → 2. */
+function priorDirections(key) {
+  const k = String(key ?? "").trim();
+  const circle = k.match(/^(qc[fb]|hc[fb])/i);
+  if (circle) return circle[1].toLowerCase().startsWith("qc") ? 2 : 4;
+  let n = 0;
+  for (const t of k.split(",")) {
+    const tok = t.trim();
+    if (/\d/.test(tok)) break;
+    if (DIRECTION.test(tok)) n++;
+  }
+  return n;
+}
 
 /**
- * Startup you can actually punish with. Wavu sometimes notes a realistic value in brackets
- * ("i11~12 (i14+)", "i11~12 (~i13)") — use it; otherwise motion inputs cost +2 frames
- * (EWGF i11 → i13: "f, df:2" takes two inputs before the button).
+ * Startup you can actually punish with, and how it was derived (for the !punish line).
+ * Sources: Wavu "Input buffer" — bufferable motions only need the final input inside the
+ * 8-frame buffer, so earlier directions are free during blockstun; owner-confirmed timings
+ * for the wind god fist family and f,b / f,n,b launchers.
+ *   f,n,d,df+X / f,n,d,df:X (WGF/EWGF): shortcut f,n,df / f,d,df = +2, full motion +4 / +3
+ *   f,b+X · f,n,b+X (Jet Upper type): bufferable, +0
+ *   Wavu note "Can be buffered"/"Bufferable": +0
+ *   Wavu realistic bracket ("i11~12 (i14+)"): that value
+ *   other motions (no buffering info): +1 per direction before the final one, marked ≈
+ * @returns {{eff: number|null, note: string}}
  */
-export function effectiveStartup(key, startup) {
-  const base = startupOf(startup);
-  if (base === null) return null;
-  const real = cleanInline(startup).match(/\(\s*~?\s*i\s*(\d+)\s*\+?\s*\)/i);
-  if (real) return Math.max(base, Number(real[1]));
-  return isMotionInput(key) ? base + MOTION_INPUT_FRAMES : base;
+export function inputTiming(key, move = {}) {
+  const base = startupOf(move.startup);
+  if (base === null) return { eff: null, note: "" };
+  const k = String(key ?? "");
+  const info = [move.notes, move.alias, move.alt].filter(Boolean).join(" ");
+  if (/^f,n,d,df[+:]/i.test(k)) {
+    const full = base + (k.includes(":") ? 3 : 4);
+    return { eff: base + 2, note: `(i${base}: i${base + 2} as f,n,df / f,d,df · i${full} full motion)` };
+  }
+  if (/^f,(?:n,)?b[+:]/i.test(k)) return { eff: base, note: "" };
+  if (!isMotionInput(k)) return { eff: base, note: "" };
+  if (BUFFERABLE.test(info) && !NOT_BUFFERABLE.test(info)) return { eff: base, note: "(bufferable)" };
+  const real = cleanInline(move.startup).match(/\(\s*~?\s*i\s*(\d+)\s*\+?\s*\)/i);
+  if (real) return { eff: Math.max(base, Number(real[1])), note: `(i${base}, realistic per Wavu)` };
+  const extra = priorDirections(k);
+  return { eff: base + extra, note: `(≈ i${base} + ${extra} for the motion)` };
+}
+
+/** @deprecated kept for callers that only need the number */
+export function effectiveStartup(key, startup, move = {}) {
+  return inputTiming(key, { ...move, startup }).eff;
 }
 
 /**
