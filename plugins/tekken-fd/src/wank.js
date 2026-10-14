@@ -86,7 +86,9 @@ const expected = (ra, rb) => 1 / (1 + 10 ** ((rb - ra) / 400));
 
 /** Streaming aggregate: counts per unordered character pair and band, mirror matches excluded. */
 export class MatchupAggregator {
-  constructor() {
+  /** @param {Set<string>|null} tracked only these polaris ids are counted for character-id mapping (memory) */
+  constructor(tracked = null) {
+    this.tracked = tracked;
     this.pairs = new Map(); // "a|b" (a<b numerically) → { band: [games, winsOfA, adjSum, adjGames] }
     this.chars = new Map(); // id → { band: [games, wins] }
     this.seen = new Map();  // polaris id → Map(chara_id → games), kept in memory only for id mapping
@@ -101,7 +103,7 @@ export class MatchupAggregator {
     this.from = Math.min(this.from, r.battle_at);
     this.to = Math.max(this.to, r.battle_at);
     for (const [pid, cid] of [[r.p1_polaris_id, a], [r.p2_polaris_id, b]]) {
-      if (!pid) continue;
+      if (!pid || (this.tracked && !this.tracked.has(pid))) continue;
       const m = this.seen.get(pid) ?? new Map();
       m.set(cid, (m.get(cid) ?? 0) + 1);
       this.seen.set(pid, m);
@@ -154,25 +156,8 @@ export class MatchupAggregator {
  * through the leaderboards. ~123 requests per day at one per second (the pace Wank's API page suggests).
  */
 export async function fetchMatchupStats(characters, { days = 7, fetchImpl, pauseMs = 1000, onProgress, now = () => Date.now() } = {}) {
-  const agg = new MatchupAggregator();
-  const windows = Math.ceil((days * 86400) / WINDOW_S);
-  let before = null;
-  let version = null;
-  let stoppedAtPatch = false;
-  for (let i = 0; i < windows; i++) {
-    const body = await wankGet(`/api/replays${before == null ? "" : `?before=${before}`}`, { fetchImpl });
-    if (!Array.isArray(body) || !body.length) break;
-    const newest = Math.max(...body.map((r) => r.battle_at));
-    if (before == null) before = newest;
-    version ??= Math.max(...body.map((r) => r.game_version ?? 0));
-    const current = body.filter((r) => r.game_version === version);
-    for (const r of current) agg.add(r);
-    onProgress?.({ phase: "replays", done: i + 1, total: windows, replays: agg.replays, gameVersion: version });
-    if (current.length < body.length * 0.5) { stoppedAtPatch = true; break; } // previous patch reached
-    before -= WINDOW_S;
-    if (pauseMs) await sleep(pauseMs);
-  }
-  // character id → name through per-character leaderboards (two regions for coverage)
+  // 1) leaderboards first: only their players are tracked for the id mapping, so memory stays small
+  //    (a few thousand ids instead of every player in a week of replays).
   const boards = new Map();
   const navs = [];
   for (const region of ["eu", "am"]) {
@@ -187,6 +172,24 @@ export async function fetchMatchupStats(characters, { days = 7, fetchImpl, pause
     if (!ours) continue;
     const ids = parseLeaderboardPlayers(await wankGet(`/leaderboard/${region}/${slug}`, { fetchImpl }));
     boards.set(ours, [...(boards.get(ours) ?? []), ...ids]);
+    if (pauseMs) await sleep(pauseMs);
+  }
+  // 2) replays of the current game version, newest first
+  const agg = new MatchupAggregator(new Set([...boards.values()].flat()));
+  const windows = Math.ceil((days * 86400) / WINDOW_S);
+  let before = null;
+  let version = null;
+  let stoppedAtPatch = false;
+  for (let i = 0; i < windows; i++) {
+    const body = await wankGet(`/api/replays${before == null ? "" : `?before=${before}`}`, { fetchImpl });
+    if (!Array.isArray(body) || !body.length) break;
+    if (before == null) before = Math.max(...body.map((r) => r.battle_at));
+    version ??= Math.max(...body.map((r) => r.game_version ?? 0));
+    const current = body.filter((r) => r.game_version === version);
+    for (const r of current) agg.add(r);
+    onProgress?.({ phase: "replays", done: i + 1, total: windows, replays: agg.replays, gameVersion: version });
+    if (current.length < body.length * 0.5) { stoppedAtPatch = true; break; } // previous patch reached
+    before -= WINDOW_S;
     if (pauseMs) await sleep(pauseMs);
   }
   const idToName = voteCharacterIds(agg.seen, boards);

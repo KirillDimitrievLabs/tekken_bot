@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import { fetchMatchupStats } from "./wank.js";
 
 const run = promisify(execFile);
-export const META_STEPS = [["replays", "Ranked replays"], ["map", "Character ids"], ["save", "Save & commit"], ["push", "GitHub push"]];
+export const META_STEPS = [["map", "Character leaderboards"], ["replays", "Ranked replays"], ["save", "Save & commit"], ["push", "GitHub push"]];
 export const statsPath = (repoDir) => path.join(repoDir, "data", "wank", "t8-matchups.json");
 
 export function readStats(repoDir) {
@@ -19,15 +19,15 @@ export function readStats(repoDir) {
  */
 export async function buildMeta(repoDir, characters, { days = 7, progress, fetchImpl, pauseMs } = {}) {
   const step = (id, state, detail) => progress?.update(id, state, detail);
-  step("replays", "run", "starting");
+  step("map", "run", "starting");
   let stats;
   try {
     stats = await fetchMatchupStats(characters, { days, fetchImpl, pauseMs, onProgress: (e) => {
-      if (e.phase === "replays") step("replays", "run", `${e.done}/${e.total} windows · ${e.replays.toLocaleString("en")} games · v${e.gameVersion}`);
-      else { step("replays", "done", null); step("map", "run", `${e.done}/${e.total} · ${e.character}`); }
+      if (e.phase === "leaderboards") step("map", "run", `${e.done}/${e.total} · ${e.character}`);
+      else { if (progress?.step("map")?.state === "run") step("map", "done", "leaderboards loaded"); step("replays", "run", `${e.done}/${e.total} windows · ${e.replays.toLocaleString("en")} games · v${e.gameVersion}`); }
     } });
   } catch (err) {
-    step(progress?.step("map")?.state === "run" ? "map" : "replays", "fail", err.message);
+    step(progress?.step("replays")?.state === "run" ? "replays" : "map", "fail", err.message);
     throw err;
   }
   const covered = Object.keys(stats.characters).length;

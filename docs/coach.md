@@ -99,7 +99,7 @@ are shown under "⚠️ General knowledge (unverified)". For rich characters the
 
 `/meta_build [days]` (owner, default 7, max 30) scans Wavu Wank's ranked replay API for the current
 game version, one request per second (about 123 requests per day of data), maps character ids through
-the per-character leaderboards, and commits aggregated counts only to `data/wank/t8-matchups.json`
+the per-character leaderboards (fetched first; only those players are tracked, to keep memory small), and commits aggregated counts only to `data/wank/t8-matchups.json`
 (no player ids or names). It shares the `/fd_sync` lock and pushes like a sync. CLI: `bin/fd.mjs meta 7`.
 
 Bands use replay rank ids 0–36: all ranks, Tekken King+ (both players ≥ 26) and God of Destruction
