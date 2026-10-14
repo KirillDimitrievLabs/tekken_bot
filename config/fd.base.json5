@@ -16,7 +16,7 @@
         model: "openai/gpt-6-luna",
         models: { "openai/gpt-6-luna": { agentRuntime: { id: "openclaw" } } },
         skills: [],
-        thinkingDefault: "low",
+        thinkingDefault: "minimal", // fastest in a 4-way benchmark (6.2s avg per lookup), 2026-10-14
         // Code Mode would hide these tools behind a JS `exec` (Node vm, not a sandbox) — keep it off
         // for an agent that untrusted group members can prompt.
         tools: { allow: ["tekken_frame_data", "tekken_pick_move"], codeMode: { enabled: false } },
