@@ -13,6 +13,9 @@ install -d -o tekkenpush -g tekkenpush -m 700 "$HOME_DIR"
 install -o tekkenpush -g tekkenpush -m 600 "$KEY" "$HOME_DIR/deploy_key"
 ssh-keygen -F github.com -f /root/.ssh/known_hosts | grep -v '^#' > "$HOME_DIR/known_hosts"
 chown tekkenpush:tekkenpush "$HOME_DIR/known_hosts"; chmod 644 "$HOME_DIR/known_hosts"
+# the bot repo is owned by uid 1000; let this user read it (the local fetch ignores -c options)
+printf '[safe]\n\tdirectory = /opt/clan-bots\n\tdirectory = /opt/clan-bots/.git\n' > "$HOME_DIR/.gitconfig"
+chown root:root "$HOME_DIR/.gitconfig"; chmod 644 "$HOME_DIR/.gitconfig"
 # status dir: written by the service, read by the bot (uid 1000 in the container)
 install -d -o tekkenpush -g tekkenpush -m 755 /opt/clan-bots/.push
 install -d -m 755 /usr/local/libexec
