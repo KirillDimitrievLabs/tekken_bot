@@ -11,6 +11,7 @@ import { createRequire } from "node:module";
 import { MoveIndex } from "./src/db.js";
 import { formatCard, formatSuggestions } from "./src/format.js";
 import { resolveCharacter, resolveMove } from "./src/resolve.js";
+import { readMeta } from "./src/snapshot.js";
 import { lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
 
@@ -61,6 +62,11 @@ export default {
     const p = paths(repoDir, stateDir);
     const index = new MoveIndex(p.dbPath);
     let busy = null; // serialises sync/rebuild
+    // The watcher reports edits made after the data we have: anchor it to the last sync.
+    if (!readState(p.statePath).lastWatchCheck) {
+      const syncedAt = readMeta(p.dataDir)?.syncedAt;
+      if (syncedAt) writeState(p.statePath, { lastWatchCheck: syncedAt, pendingCharacters: [] });
+    }
 
     const ensureIndex = () => {
       if (!fs.existsSync(p.dbPath) && fs.existsSync(p.dataDir)) rebuild(p);
@@ -195,7 +201,8 @@ export default {
         const result = await sync(p, { dryRun: args.includes("dry"), force: args.includes("force") });
         if (!args.includes("dry")) {
           if (!fs.existsSync(p.dbPath)) rebuild(p);
-          writeState(p.statePath, { pendingCharacters: [], lastSyncAt: new Date().toISOString() });
+          const now = new Date().toISOString();
+          writeState(p.statePath, { pendingCharacters: [], lastSyncAt: now, lastWatchCheck: now });
         }
         return { text: `${result.changed ? "✅" : "ℹ️"} ${result.message}` };
       })),

@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { paths, rebuild, sync } from "../src/sync.js";
 import { readSnapshots } from "../src/snapshot.js";
-import { checkOnce } from "../src/watcher.js";
+import { checkOnce, writeState } from "../src/watcher.js";
 
 const [cmd = "help", ...flags] = process.argv.slice(2);
 const repoDir = process.env.FD_REPO_DIR ?? "/opt/clan-bots";
@@ -18,7 +18,11 @@ const p = paths(repoDir, stateDir);
 try {
   if (cmd === "sync") {
     const r = await sync(p, { dryRun: flags.includes("--dry"), force: flags.includes("--force") });
-    if (!flags.includes("--dry") && !fs.existsSync(p.dbPath)) rebuild(p);
+    if (!flags.includes("--dry")) {
+      if (!fs.existsSync(p.dbPath)) rebuild(p);
+      const now = new Date().toISOString();
+      writeState(p.statePath, { pendingCharacters: [], lastSyncAt: now, lastWatchCheck: now });
+    }
     console.log(r.message);
   } else if (cmd === "rebuild") {
     const r = rebuild(p);

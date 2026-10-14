@@ -5,6 +5,8 @@
     entries: { "tekken-fd": { enabled: true, config: { repoDir: "/opt/clan-bots" } } },
   },
   agents: {
+    // Global: don't seed onboarding files (BOOTSTRAP.md, SOUL.md, …) into new workspaces.
+    defaults: { skipBootstrap: true },
     entries: {
       fd: {
         name: "Frame Data",
@@ -14,7 +16,10 @@
         model: "openai/gpt-6-luna",
         models: { "openai/gpt-6-luna": { agentRuntime: { id: "openclaw" } } },
         skills: [],
-        tools: { allow: ["tekken_frame_data", "tekken_pick_move"] },
+        thinkingDefault: "low",
+        // Code Mode would hide these tools behind a JS `exec` (Node vm, not a sandbox) — keep it off
+        // for an agent that untrusted group members can prompt.
+        tools: { allow: ["tekken_frame_data", "tekken_pick_move"], codeMode: { enabled: false } },
         groupChat: { mentionPatterns: ["^\\s*!fd\\b"], historyLimit: 10 },
       },
     },
