@@ -107,3 +107,13 @@ test("step and duck tags from Wavu notes", async () => {
   assert.ok(t.includes("ssr") && t.includes("duckable") && !t.includes("ssl"));
   assert.ok(tagsFor({ notes: "* Whiffs vs SS, SW from 2nd block", target: ",m" }, "2,3,4").includes("swl"));
 });
+
+test("readable move names: stance and notation prefixes are spelled out", async () => {
+  const { prettyKey, setStances, parseStances } = await import("../src/stances.js");
+  const parsed = parseStances("* WGS ''(Wind God Step)'' &ndash; f,n,d,df\n* SSH ''(Senshin)'' &ndash; f+1+2\n* ws4 ''(crouching)'' &ndash; }}\n** RFF (Right Foot Forward) &ndash; 3+4");
+  assert.deepEqual(Object.keys(parsed), ["WGS", "SSH", "RFF"]);
+  setStances({ Reina: parsed });
+  const cases = { "SSH.3": "Senshin 3", "OTG.d+4": "d+4 (grounded opponent)", "H.2+3": "Heat 2+3", "d+2,H.1+2": "d+2, Heat 1+2", "R.df+1+2": "Rage df+1+2", "SS.4": "Sidestep 4", "ws4": "While standing 4", "FC.df+3": "Full crouch df+3", "df+1": "df+1", "XYZ.1": "XYZ.1" };
+  for (const [key, want] of Object.entries(cases)) assert.equal(prettyKey("Reina", key), want, key);
+  setStances({});
+});

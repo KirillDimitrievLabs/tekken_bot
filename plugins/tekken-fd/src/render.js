@@ -1,10 +1,13 @@
 // Telegram HTML rendering (parse_mode: "HTML"). Everything user-visible is escaped here.
 import { blockText, cleanInline, listText, noteItems } from "./format.js";
+import { prettyKey, stanceTable } from "./stances.js";
 
 export const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 export const b = (s) => `<b>${esc(s)}</b>`;
 export const i = (s) => `<i>${esc(s)}</i>`;
 export const code = (s) => `<code>${esc(s)}</code>`;
+/** Move key in readable form: stance/prefix abbreviations spelled out ("SSH.3" → "Senshin 3"). */
+export const mk = (character, key) => code(prettyKey(character, key));
 /** Collapsed quote: Telegram shows ~3 lines with a tap-to-expand affordance. */
 export const details = (html) => (html ? `<blockquote expandable>${html}</blockquote>` : "");
 export const quote = (html) => (html ? `<blockquote>${html}</blockquote>` : "");
@@ -44,11 +47,16 @@ export function cardHtml({ character, key, chain, combo = null }) {
   const startup = chain.map((m) => cleanInline(m.startup)).filter(Boolean).join(", ") || "—";
   const name = move.name ? ` — ${esc(listText(move.name, " / "))}` : "";
   const lines = [
-    `🤹🏻 ${b(character)} · ${code(key)}${name}`,
+    `🤹🏻 ${b(character)} · ${mk(character, key)}${name}`,
     `⏱ startup ${b(startup)} · 🟦 block ${b(blockText(move.block) || "—")} · 🟥 hit ${esc(dash(move.hit))} · ⚡ CH ${esc(dash(move.ch))}`,
     `🎯 level ${esc(levels)} · 💥 dmg ${esc(damage)}`,
   ];
   const more = [];
+  // how to get into the stance(s) this move starts from: "Senshin: f+1+2"
+  const stances = stanceTable(character);
+  for (const abbr of [...new Set([...String(key).matchAll(/(?:^|[,.])([A-Z]{2,5})\./g)].map((m) => m[1]))]) {
+    if (stances[abbr]?.input) more.push(`🧭 ${esc(stances[abbr].name)}: ${code(stances[abbr].input)}`);
+  }
   if (combo?.total) more.push(`🚀 combo ${combo.total}${combo.totalHeat && combo.totalHeat > combo.total ? ` · with Heat ${combo.totalHeat}` : ""}${combo.hard ? " · ⚠️ hard route" : ""}`);
   const crush = listText(move.crush, ", ");
   if (crush) more.push(`🛡 crush ${esc(crush)}`);

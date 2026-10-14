@@ -63,6 +63,11 @@ export async function memberName(chatId, userId, opts) {
   return u.username ? `@${u.username}` : [u.first_name, u.last_name].filter(Boolean).join(" ") || String(userId);
 }
 
+/** Replace only the inline keyboard of a message (e.g. to mark a pressed button). */
+export function editMessageReplyMarkup(chatId, messageId, replyMarkup, opts) {
+  return call("editMessageReplyMarkup", { chat_id: chatId, message_id: Number(messageId), reply_markup: replyMarkup ?? { inline_keyboard: [] } }, opts);
+}
+
 /** First/last name only — never the @username or the numeric id (safe to publish). */
 export async function memberDisplayName(chatId, userId, opts) {
   const r = await call("getChatMember", { chat_id: chatId, user_id: Number(userId) }, opts);

@@ -88,6 +88,7 @@ Restart the gateway after plugin code changes: `docker compose -f /opt/openclaw/
 | `data/wavu/t8-punishers.json` | Wavu "`<Character> punishers`" pages | community-picked punishers (⭐), combo/mini damage, hard flags |
 | `data/wavu/t8-combos.json` | Wavu "`<Character> combos`" pages | combo damage per launcher (route without Heat/Rage, Heat route separately) |
 | `data/tekkendocs/t8-tags.json` | [TekkenDocs](https://tekkendocs.com) API | second source for homing / step (SSL/SSR/SWL/SWR) / duckable / tornado tags |
+| `data/wavu/t8-stances.json` | Wavu character pages (stance lists) | readable move names: "SSH.3" → "Senshin 3", stance entry inputs on cards |
 | `data/wavu/t8-guides.json` | Wavu counterplay / strategy / tech pages | grounded coach prose and matchup-specific community knowledge |
 | `data/tips/t8-tips.json` | Admin-approved clan submissions | credited clan advice (display names only) |
 

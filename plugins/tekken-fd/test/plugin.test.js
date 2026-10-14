@@ -237,5 +237,5 @@ test("coach/tip buttons are asker-only like card buttons", async () => {
     actions: [{ type: "tipStart", target: { as: null, opponent: "Kazuya" } }] });
   await interactive.handler({ senderId: OWNER, callback: { payload: actionData(own, 0).slice("tekken-fd:".length) },
     respond: { deleteMessage: async () => {}, clearButtons: async () => {} } });
-  assert.match(plain(lastSend()), /!tip vs Kazuya: your advice/);
+  assert.ok(calls.some((c) => c.method === "editMessageText"), "the asker's press is handled (edits the guide message)");
 });

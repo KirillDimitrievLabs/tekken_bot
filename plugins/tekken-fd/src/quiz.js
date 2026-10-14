@@ -2,7 +2,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import { cleanInline, listText } from "./format.js";
-import { b, code, esc } from "./render.js";
+import { b, code, mk, esc } from "./render.js";
 
 export const REVEAL_AFTER_MS = 60_000;
 export const REVEAL_AFTER_ANSWERS = 8;
@@ -78,7 +78,7 @@ export function makeQuestion(index, { character = null, type = null, rand = Math
 }
 
 export const questionHtml = (q) =>
-  `🎯 ${b("Quiz")}: ${b(q.character)} ${code(q.key)}${q.name ? ` — ${esc(q.name)}` : ""}\n${b(q.prompt)}\n<i>Everyone can answer once · reveal in 60s</i>`;
+  `🎯 ${b("Quiz")}: ${b(q.character)} ${mk(q.character, q.key)}${q.name ? ` — ${esc(q.name)}` : ""}\n${b(q.prompt)}\n<i>Everyone can answer once · reveal in 60s</i>`;
 
 export class Quiz {
   constructor(file, { now = () => Date.now() } = {}) {
@@ -149,7 +149,7 @@ export class Quiz {
     const right = Object.values(q.answers).filter((a) => a.correct).map((a) => esc(a.name));
     const wrong = Object.values(q.answers).filter((a) => !a.correct).map((a) => `${esc(a.name)} (${esc(q.options[a.choice])})`);
     return [
-      `🎯 ${b("Quiz")}: ${b(q.character)} ${code(q.key)}${q.name ? ` — ${esc(q.name)}` : ""} — ${esc(q.prompt)}`,
+      `🎯 ${b("Quiz")}: ${b(q.character)} ${mk(q.character, q.key)}${q.name ? ` — ${esc(q.name)}` : ""} — ${esc(q.prompt)}`,
       `✅ ${b(q.options[q.correct])}${q.detail && q.detail !== q.options[q.correct] ? ` <i>(${esc(q.detail)})</i>` : ""}`,
       right.length ? `🏆 ${right.join(", ")}` : "🏆 nobody got it",
       wrong.length ? `❌ ${wrong.join(", ")}` : "",

@@ -7,10 +7,10 @@ import { CoachCache, cacheKey } from "../src/coach/cache.js";
 import { Coach } from "../src/coach/index.js";
 
 const validGuide = () => ({
-  summary: "Punish committed threats at the spacing you tested.", key_threats: [], defense: [], punish: [], lows: [],
+  summary: "Punish committed threats at the spacing you tested.", gameplan: "They want to stay at close range and keep their turn with fast checks, then switch to a committal low or mid when you start to press back. Their main loop is a safe poke, a plus move, and a mixup that forces you to guess. You win by blocking the committal moves, punishing them every time, and taking your turn back after their pressure ends instead of pressing into it.", stances: [], key_threats: [], defense: [], punish: [], lows: [],
   their_turn: "Respect pressure where the dossier has no escape evidence.", neutral: "Test the spacing before committing.",
-  heat_and_wall: "Heat and wall evidence is missing.", common_mistakes: ["Committing without checking spacing."],
-  lab_drill: ["Record the cited threats and practice the supported answers."], confidence: "medium", gaps: ["Reach requires practice verification."],
+  heat_and_wall: "Heat and wall evidence is missing.", common_mistakes: ["Pressing buttons after a plus move.", "Guessing on the low instead of blocking it.", "Forgetting the punish after a blocked launcher."],
+  lab_drill: [0, 1, 2].map((i) => ({ title: `Drill ${["one", "two", "three"][i]}`, setup: "Dummy: the opponent. Record their main pressure sequence and playback random.", steps: ["Block the first hit.", "React to the follow-up with the supported answer.", "Punish when they stop early."], goal: "You answer the recording correctly most of the time." })), confidence: "medium", gaps: ["Reach requires practice verification."],
   used_tips: [], used_guides: [], general_knowledge: [],
 });
 
@@ -147,7 +147,7 @@ test("language variants serialize for one pair while a different pair occupies a
   const variantStarted = new Promise((resolve) => { thirdStarted = resolve; });
   let peak = 0;
   const { coach, target } = subject(t, async (input) => {
-    const opponent = input.messages[0].content.match(/counter-guide for fighting (\S+) /)?.[1];
+    const opponent = input.messages[0].content.match(/how to play against (\S+) with any character/)?.[1];
     const language = input.systemPrompt.includes("Пиши по-русски") ? "ru" : "en";
     const label = `${opponent}:${language}`;
     if (running.has(opponent)) overlappingPairs.push(label);

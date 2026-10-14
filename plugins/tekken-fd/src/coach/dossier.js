@@ -6,8 +6,10 @@ import { gapFacts } from "../gaps.js";
 import { bestPunishFor } from "../queries.js";
 import { strictKey } from "../notation.js";
 import { guideCoverage, selectGuides } from "../guides.js";
+import { prettyKey, stanceTable } from "../stances.js";
 
-export const DOSSIER_VERSION = "coach-dossier-v1";
+export const DOSSIER_VERSION = "coach-dossier-v2";
+const REQUIRED_UNSAFE = 8;
 export const DOSSIER_LIMITS = Object.freeze({ rows: 12, characterChars: 42000, counterChars: 160000, matchupChars: 280000, guideChars: 80000 });
 const hashOf = (value) => createHash("sha256").update(typeof value === "string" ? value : JSON.stringify(value)).digest("hex");
 const plain = (v) => cleanInline(v).replace(/[<>]/g, "").slice(0, 260);
@@ -153,6 +155,12 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
     const identity = [`${character} · indexed moves ${own.length} · stance key prefixes ${stanceNames.join(", ") || "none indexed"}`,
       ...ranked(own.filter((m) => /(?:stance|transition|parry|armor|install)/i.test(noteItems(m.notes).join(" ")))).slice(0, 11).map(show)];
     appendBlock(`${prefix}identity`, "Identity and indexed mechanics", identity);
+    // Stances with names, entry inputs and their most important moves (readable names in brackets).
+    const stanceRows = Object.entries(stanceTable(character)).map(([abbr, st]) => {
+      const moves = ranked(own.filter((m) => new RegExp(`(?:^|[,.])${abbr}\\.`).test(m.key))).slice(0, 6);
+      return moves.length ? `${st.name} (${abbr})${st.input ? ` · entry ${plain(st.input)}` : ""} · ${moves.length} key moves: ${moves.map((m) => `${ref(m)} ${plain(prettyKey(character, m.key))}`).join(", ")}` : null;
+    }).filter(Boolean);
+    appendBlock(`${prefix}stances`, "Stances", stanceRows, 4000);
     const fastPicks = [fast[0], fast.find((m) => levelOf(m) === "mid"), fast.find((m) => levelOf(m) === "low"), ...fast.filter((m) => m.startup_eff <= 12)].filter(Boolean);
     appendBlock(`${prefix}fast`, "Fast standing buttons / mids / lows", [...new Map(fastPicks.map((m) => [m.id, m])).values()].map(show));
     appendBlock(`${prefix}plus`, "Plus frames / pressure", ranked(r.filter((m) => m.block_n >= 1)).map(show));
@@ -173,7 +181,7 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   }
 
   const bUnsafe = unsafe(opponent).slice(0, DOSSIER_LIMITS.rows);
-  const requiredUnsafe = bUnsafe.slice(0, 5).map((m) => as ? punish(index, as, m, all) : {
+  const requiredUnsafe = bUnsafe.slice(0, REQUIRED_UNSAFE).map((m) => as ? punish(index, as, m, all) : {
     move: m.id, answer: null, stance: blockLevelOf(m) === "low" ? "crouching" : "standing", window: Math.abs(m.block_n), curated: false, range: "unverified", universal: true });
   const escapeAnswers = [];
   // Lows with an unknown block value have no established answer beyond "block low"; skip them as required escapes.
@@ -319,6 +327,7 @@ export function buildDossier(index, { as = null, opponent, language = "ru", leve
   const selectionOmissions = characters.flatMap((character) => guideSelection[character].report.omittedSections.map((s) => ({ character, ...s })));
   const globalOmissions = selected.filter((s) => !guideIds.includes(s.id)).map((s) => ({ id: s.id, page: s.page, kind: s.kind, reason: "aggregate-budget", characters: s.text.length }));
   return { version: DOSSIER_VERSION, mode, as, opponent, language, level, text, moves, characterNames: [...known].sort(),
+    stances: Object.entries(stanceTable(opponent)).filter(([abbr]) => allMap.size && [...allMap.values()].some((m) => m.character === opponent && new RegExp(`(?:^|[,.])${abbr}\\.`).test(m.key))).map(([abbr, st]) => ({ abbr, name: st.name, input: st.input })),
     generalKnowledge: { allowed: thin.length > 0, max: thin.length ? 2 : 0, thinCharacters: thin }, allowedIds: referencedIds, tips: approved.filter((t) => tipIds.includes(t.id)),
     facts: new Map([...moves.keys()].map((id) => [id, facts.get(id)])), hash, tipsHash, coverage, dataVersion,
     requiredUnsafe, escapeAnswers, interactions, sections, guideIds, tipIds, sources, omittedSources: selectionOmissions.length + globalOmissions.length,

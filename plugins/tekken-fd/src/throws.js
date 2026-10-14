@@ -1,7 +1,7 @@
 // B5: !throws <char> — every throw with its break.
 import { stanceOf } from "./frames.js";
 import { cleanInline, listText } from "./format.js";
-import { b, code, details, esc } from "./render.js";
+import { b, code, mk, details, esc } from "./render.js";
 
 const BREAK = { "1": "1", "2": "2", "1+2": "1+2", "1 or 2": "1 or 2", none: "unbreakable" };
 
@@ -15,7 +15,7 @@ export function formatThrows(index, character) {
   const row = (m) => {
     const brk = m.throw_break ? BREAK[m.throw_break] ?? m.throw_break : "?";
     const name = m.name ? ` — ${esc(listText(m.name, " / "))}` : "";
-    return `${code(m.key)}${name} · break ${b(brk)} · ${esc(cleanInline(m.damage) || "?")} dmg${m.startup ? ` · ${esc(cleanInline(m.startup))}` : ""}`;
+    return `${mk(m.character, m.key)}${name} · break ${b(brk)} · ${esc(cleanInline(m.damage) || "?")} dmg${m.startup ? ` · ${esc(cleanInline(m.startup))}` : ""}`;
   };
   const standard = moves.filter((m) => stanceOf(m.key) === "standing");
   const situational = moves.filter((m) => stanceOf(m.key) !== "standing");

@@ -8,10 +8,11 @@ import { formatMatchup } from "./matchup.js";
 import { fixLayout } from "./nicknames.js";
 import { filterHelp, formatHeat, formatList, formatPunish, formatUnsafe, formatWall, minus, resolveFilter } from "./queries.js";
 import { questionHtml, makeQuestion } from "./quiz.js";
-import { b, cardHtml, code, esc, LEGEND_HTML } from "./render.js";
+import { b, cardHtml, code, mk, esc, LEGEND_HTML } from "./render.js";
 import { resolveCharacter, resolveMove } from "./resolve.js";
 import { formatThrows } from "./throws.js";
 import { formatWhiff } from "./whiff.js";
+import { prettyKey } from "./stances.js";
 import { parseCoachTarget, parseTip } from "./coach/commands.js";
 
 export const COMMANDS = ["fd", "punish", "unsafe", "list", "help", "legend", "main", "mains", "mu", "gaps", "ss", "beat", "whiff", "throws", "quiz", "top", "heat", "wall", "vs", "coach", "coachlang", "coachlevel", "tip", "tips", "mytips"];
@@ -106,7 +107,7 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
     const row = [];
     if (move.parent) {
       const parent = index.move(move.parent);
-      if (parent) row.push({ text: `◀ ${parent.key}`.slice(0, 28), action: { type: "card", moveId: parent.id } });
+      if (parent) row.push({ text: `◀ ${prettyKey(parent.character, parent.key)}`.slice(0, 28), action: { type: "card", moveId: parent.id } });
     }
     const kids = index.children(move.id);
     if (kids.length === 1) row.push({ text: `${kids[0].key} ▶`.slice(0, 28), action: { type: "card", moveId: kids[0].id } });
@@ -301,7 +302,7 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
           const m = index.move(a.moveId);
           if (!m) return {};
           const card = cardReply(m);
-          const kids = index.children(m.id).slice(0, 9).map((k) => ({ text: k.key.slice(0, 24), action: { type: "card", moveId: k.id } }));
+          const kids = index.children(m.id).slice(0, 9).map((k) => ({ text: prettyKey(k.character, k.key).slice(0, 24), action: { type: "card", moveId: k.id } }));
           const rows = [];
           for (let i = 0; i < kids.length; i += 3) rows.push(kids.slice(i, i + 3));
           return { edit: { ...card, buttons: [...rows, ...(card.buttons ?? []).map((row) => row.filter((x) => x.action.type !== "strings"))].filter((r) => r.length) } };
@@ -314,9 +315,10 @@ export function createBot({ index, aliases, moveAliases, mains, ruNames = new Se
           if (!as) {
             const picks = (a.popular ?? ["Kazuya", "Jin", "Lars", "King", "Bryan", "Reina"]).slice(0, 6)
               .map((c) => ({ text: c, action: { type: "punishAs", moveId: m.id, character: c } }));
-            return { reply: reply(`Which character punishes ${b(m.character)} ${code(m.key)} (${esc(cleanInline(m.block))})? Set ${code("!main <character>")} to skip this.`, { buttons: [picks.slice(0, 3), picks.slice(3)], askerOnly: true }) };
+            // the card turns into the character picker; "Back" restores the card
+            return { edit: reply(`Which character punishes ${b(m.character)} ${mk(m.character, m.key)} (${esc(cleanInline(m.block))})? Set ${code("!main <character>")} to skip this.`, { buttons: [picks.slice(0, 3), picks.slice(3), [{ text: "◀ Back to card", action: { type: "card", moveId: m.id } }]], askerOnly: true }) };
           }
-          return { reply: reply(formatPunish(index, as, Math.abs(m.block_n)).replace(/^🥊 <b>/, `🥊 <b>vs ${esc(m.character)} ${esc(m.key)} · `), { stat: ["punish", { character: as }] }) };
+          return { edit: reply(formatPunish(index, as, Math.abs(m.block_n)).replace(/^🥊 <b>/, `🥊 <b>vs ${esc(m.character)} ${esc(prettyKey(m.character, m.key))} · `), { stat: ["punish", { character: as }], buttons: [[{ text: "◀ Back to card", action: { type: "card", moveId: m.id } }]] }) };
         }
         default:
           return {};

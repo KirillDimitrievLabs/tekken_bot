@@ -1,0 +1,494 @@
+{
+  "Alisa": {
+    "SBT": {
+      "name": "Boot",
+      "input": "f+3+4"
+    },
+    "DBT": {
+      "name": "Dual Boot",
+      "input": "DES.f+3"
+    },
+    "DES": {
+      "name": "Destructive Form",
+      "input": "d+1+2"
+    },
+    "BKP": {
+      "name": "Backup",
+      "input": "db+1"
+    }
+  },
+  "Anna": {
+    "HAM": {
+      "name": "Hammer Chance",
+      "input": "f+3"
+    },
+    "CJM": {
+      "name": "Chaos Judgement",
+      "input": "b+3"
+    },
+    "TOM": {
+      "name": "Pleasure Time",
+      "input": "db+2"
+    }
+  },
+  "Armor King": {
+    "BAD": {
+      "name": "Bad Jaguar",
+      "input": "f+3+4"
+    },
+    "BT": {
+      "name": "Back Turned",
+      "input": "3+4"
+    }
+  },
+  "Azucena": {
+    "LIB": {
+      "name": "Libertador",
+      "input": "f+3+4"
+    },
+    "BT": {
+      "name": "Backturn",
+      "input": "b+3+4"
+    }
+  },
+  "Bob": {
+    "CD": {
+      "name": "Crouch Dash",
+      "input": "f,n,d,df"
+    }
+  },
+  "Bryan": {
+    "SLS": {
+      "name": "Slither Step",
+      "input": "qcf"
+    },
+    "SWA": {
+      "name": "Sway",
+      "input": "– qcb"
+    },
+    "SNE": {
+      "name": "Snake Eyes",
+      "input": "1+3+4"
+    }
+  },
+  "Clive": {
+    "PHX": {
+      "name": "Phoenix Shift",
+      "input": "f+4"
+    },
+    "WOL": {
+      "name": "Wings of Light",
+      "input": "3+4"
+    },
+    "GAR": {
+      "name": "Updraft",
+      "input": "uf"
+    }
+  },
+  "Devil Jin": {
+    "CD": {
+      "name": "Crouch Dash",
+      "input": "f,n,d,df"
+    },
+    "MCR": {
+      "name": "Mourning Crow",
+      "input": "f+3"
+    }
+  },
+  "Dragunov": {
+    "SNK": {
+      "name": "Sneak",
+      "input": "qcf"
+    }
+  },
+  "Eddy": {
+    "HSP": {
+      "name": "Bananeira",
+      "input": "f+1+2"
+    },
+    "RLX": {
+      "name": "Negativa",
+      "input": "d+3+4"
+    }
+  },
+  "Fahkumram": {
+    "RAM": {
+      "name": "Rama Stance",
+      "input": null
+    }
+  },
+  "Feng": {
+    "KNP": {
+      "name": "Kenpo",
+      "input": "b+3+4"
+    },
+    "STC": {
+      "name": "Shifting clouds",
+      "input": "f+3+4"
+    }
+  },
+  "Heihachi": {
+    "CD": {
+      "name": "Wind God Step",
+      "input": "f,n,d,df"
+    },
+    "RAI": {
+      "name": "Raijin",
+      "input": "f+3+4"
+    },
+    "FUJ": {
+      "name": "Fujin",
+      "input": "d+1+2"
+    },
+    "WAR": {
+      "name": "Warrior Instinct",
+      "input": "1+4"
+    }
+  },
+  "Hwoarang": {
+    "LFF": {
+      "name": "Left Foot Forward",
+      "input": null
+    },
+    "LFS": {
+      "name": "Left Flamingo Stance",
+      "input": "f+3"
+    },
+    "RFS": {
+      "name": "Right Flamingo Stance",
+      "input": "f,n,4"
+    },
+    "BT": {
+      "name": "Backturn Stance",
+      "input": "1+2"
+    },
+    "CD": {
+      "name": "Shark Step",
+      "input": "f,n,d,df"
+    },
+    "JFSR": {
+      "name": "Standing",
+      "input": null
+    }
+  },
+  "Jack-8": {
+    "GMH": {
+      "name": "Gamma Howl",
+      "input": "3+4"
+    },
+    "GMC": {
+      "name": "Gamma Charge",
+      "input": null
+    }
+  },
+  "Jin": {
+    "ZEN": {
+      "name": "Zenshin",
+      "input": "f+3+4 or b3+4"
+    },
+    "CD": {
+      "name": "Crouch Dash",
+      "input": "f,n,d,df or ZEN.df"
+    }
+  },
+  "Jun": {
+    "IZU": {
+      "name": "Izumo",
+      "input": "u+2"
+    },
+    "GEN": {
+      "name": "Genjitsu",
+      "input": "f+3+4"
+    },
+    "MIA": {
+      "name": "Miare",
+      "input": "b+1+2"
+    }
+  },
+  "Kazuya": {
+    "CD": {
+      "name": "Crouch Dash",
+      "input": "f,n,d,df"
+    },
+    "DVK": {
+      "name": "Devil Kazuya",
+      "input": "While in Heat"
+    }
+  },
+  "King": {
+    "CD": {
+      "name": "Crouch Dash",
+      "input": "f,n,d,DF"
+    },
+    "JGS": {
+      "name": "Jaguar Step",
+      "input": "3+4"
+    },
+    "JGR": {
+      "name": "Jaguar Sprint",
+      "input": "f+3+4"
+    }
+  },
+  "Kuma": {
+    "HBS": {
+      "name": "Hunting",
+      "input": "3+4"
+    },
+    "ROLL": {
+      "name": "Bear Roll",
+      "input": "FC.1+2"
+    },
+    "SIT": {
+      "name": "Bear Sit",
+      "input": "d+3+4"
+    }
+  },
+  "Kunimitsu": {
+    "BT": {
+      "name": "Backturn",
+      "input": "b+3+4"
+    },
+    "KAT": {
+      "name": "Katon",
+      "input": "1+2"
+    },
+    "SET": {
+      "name": "Setsunagake",
+      "input": "f+3"
+    }
+  },
+  "Lars": {
+    "DEN": {
+      "name": "Dynamic Entry",
+      "input": null
+    },
+    "SEN": {
+      "name": "Silent Entry",
+      "input": null
+    },
+    "LEN": {
+      "name": "Limited Entry",
+      "input": null
+    }
+  },
+  "Lee": {
+    "HMS": {
+      "name": "Hitman Stance",
+      "input": "3+4"
+    },
+    "MS": {
+      "name": "Mist Step",
+      "input": "f~n"
+    }
+  },
+  "Leo": {
+    "KNK": {
+      "name": "Jin Ji Du Li",
+      "input": "f+4"
+    },
+    "BOK": {
+      "name": "Fo Bu",
+      "input": "d+1+2"
+    },
+    "CD": {
+      "name": "Jin Bu",
+      "input": "qcf"
+    }
+  },
+  "Leroy": {
+    "HRM": {
+      "name": "Low",
+      "input": null
+    }
+  },
+  "Lidia": {
+    "HRS": {
+      "name": "Horse",
+      "input": "f+3+4"
+    },
+    "CAT": {
+      "name": "Cat",
+      "input": "b+3+4"
+    },
+    "WLF": {
+      "name": "Stalking Wolf",
+      "input": "HRS.F, CAT.F"
+    },
+    "HAE": {
+      "name": "Heaven and Earth",
+      "input": "H.HRS.U, H.CAT.U, H.WLF.U"
+    }
+  },
+  "Lili": {
+    "BT": {
+      "name": "Back Turn",
+      "input": "b+3+4"
+    },
+    "DEW": {
+      "name": "Dew Glide",
+      "input": "qcf"
+    },
+    "RAB": {
+      "name": "Feisty Rabbit",
+      "input": "b+3 or b+4"
+    }
+  },
+  "Miary Zo": {
+    "BAO": {
+      "name": "Baobab Mihira",
+      "input": "3+4"
+    },
+    "MOR": {
+      "name": "Morengy Miroso",
+      "input": "f+3"
+    },
+    "WAL": {
+      "name": "Tromba",
+      "input": "b+3+4 (on wall contact)"
+    }
+  },
+  "Panda": {
+    "HBS": {
+      "name": "Hunting",
+      "input": "3+4"
+    },
+    "ROLL": {
+      "name": "Bear Roll",
+      "input": "FC.1+2"
+    },
+    "SIT": {
+      "name": "Bear Sit",
+      "input": "d+3+4"
+    }
+  },
+  "Raven": {
+    "SZN": {
+      "name": "Soulzone",
+      "input": "3+4"
+    },
+    "CD": {
+      "name": "Crouch dash",
+      "input": "QCF"
+    }
+  },
+  "Reina": {
+    "WGS": {
+      "name": "Wind God Step",
+      "input": "f,n,d,df"
+    },
+    "SEN": {
+      "name": "Sentai",
+      "input": "f+3"
+    },
+    "SSH": {
+      "name": "Senshin",
+      "input": "f+1+2"
+    },
+    "UNS": {
+      "name": "Unsoku",
+      "input": "d+3"
+    },
+    "WRA": {
+      "name": "Heaven's Wrath",
+      "input": "d+1+2"
+    },
+    "WDS": {
+      "name": "Wind Step",
+      "input": "f,n"
+    }
+  },
+  "Shaheen": {
+    "SNK": {
+      "name": "Stealth Step",
+      "input": "df+3+4"
+    }
+  },
+  "Steve": {
+    "LWV": {
+      "name": "Ducking Left",
+      "input": "3"
+    },
+    "RWV": {
+      "name": "Ducking Right",
+      "input": "4"
+    },
+    "ALB": {
+      "name": "Quick Spin",
+      "input": "3+4"
+    },
+    "DCK": {
+      "name": "Ducking",
+      "input": "f+3_4"
+    },
+    "EXD": {
+      "name": "Ducking",
+      "input": "DCK.F+3_4 or H.df+3+4"
+    },
+    "PAB": {
+      "name": "Peekaboo",
+      "input": "f+3+4"
+    },
+    "SWY": {
+      "name": "Sway",
+      "input": "b+3_4"
+    },
+    "FLK": {
+      "name": "Flicker Stance",
+      "input": "b+3+4"
+    },
+    "LNH": {
+      "name": "Lionheart",
+      "input": "ub+3"
+    }
+  },
+  "Xiaoyu": {
+    "AOP": {
+      "name": "Phoenix",
+      "input": "d+1+2"
+    },
+    "HYP": {
+      "name": "Hypnotist",
+      "input": "ub+1+2 (or db+1+2)"
+    }
+  },
+  "Yoshimitsu": {
+    "DGF": {
+      "name": "Manji Dragonfly",
+      "input": "1SS.u+1+2"
+    },
+    "FLE": {
+      "name": "Flea",
+      "input": "1SS.d+1+2"
+    },
+    "IND": {
+      "name": "Indian Stance",
+      "input": "d+3+4"
+    },
+    "KIN": {
+      "name": "Kincho",
+      "input": "1+2"
+    },
+    "MED": {
+      "name": "Meditation",
+      "input": "3+4"
+    },
+    "NSS": {
+      "name": "Mutou no Kiwami/No Sword Stance",
+      "input": "b+1+2"
+    }
+  },
+  "Zafina": {
+    "SCR": {
+      "name": "Scarecrow",
+      "input": "3+4"
+    },
+    "MNT": {
+      "name": "Mantis",
+      "input": "d+3+4"
+    },
+    "TRT": {
+      "name": "Tarantula",
+      "input": "d+1+2"
+    }
+  }
+}

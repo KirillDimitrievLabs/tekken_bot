@@ -2,7 +2,7 @@
 import { hitLevelsOf, levelClass } from "./frames.js";
 import { cleanInline } from "./format.js";
 import { bestPunishFor, minus, PUNISH_LEGEND } from "./queries.js";
-import { b, code, details, esc } from "./render.js";
+import { b, code, mk, details, esc } from "./render.js";
 
 /** Best single punish for a move at its block value (low → A is crouching); curated ⭐ first. */
 export function bestPunish(index, a, move) {
@@ -18,9 +18,9 @@ export function formatMatchup(index, a, bChar, threshold = -10) {
   const none = [];
   for (const m of moves) {
     const p = bestPunish(index, a, m);
-    const left = `${code(m.key)} ${esc(cleanInline(m.block))}${p?.stance === "crouching" ? " <i>(low)</i>" : ""}`;
+    const left = `${mk(m.character, m.key)} ${esc(cleanInline(m.block))}${p?.stance === "crouching" ? " <i>(low)</i>" : ""}`;
     if (!p) none.push(left);
-    else (p.launcher ? launch : damage).push(`${left} → ${code(p.key)}${p.startup ? ` i${p.startup}` : ""} · ${p.damage}${p.combo ? " combo" : ""}${p.launcher ? " 🚀" : ""}${p.curated ? " ⭐" : ""}`);
+    else (p.launcher ? launch : damage).push(`${left} → ${mk(a, p.key)}${p.startup ? ` i${p.startup}` : ""} · ${p.damage}${p.combo ? " combo" : ""}${p.launcher ? " 🚀" : ""}${p.curated ? " ⭐" : ""}`);
   }
   const block = (title, rows) => (rows.length ? [b(title), rows.length > 10 ? details(rows.join("\n")) : rows.join("\n")] : []);
   return [

@@ -9,6 +9,7 @@ the plugin stores no provider credentials.
 
 * `!vs reina` / `!coach reina`: universal counter-guide, with a button to use your `!main`.
 * `!coach kazuya vs reina`: matchup guide with both forward and reverse punish evidence.
+* Guides open on an Overview (summary + how the character plays). Buttons switch the same message to Stances, Threats, Defense, Punish, Neutral & pressure, Heat/wall, Mistakes, Drills and Notes (long views are paged); feedback marks the pressed button.
 * `!coachlang en` / `!coachlang ru`: save language. English is used before a choice.
 * `!coachlevel mid` / `!coachlevel high`: save level. Mid is used before a choice.
 * Per-request overrides: `!coach kazuya vs reina --lang ru --level high`.

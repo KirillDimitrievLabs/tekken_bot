@@ -1,6 +1,7 @@
 // B2: !gaps — string interrupts, jails and natural combos, parsed from Wavu notes.
 import { cleanInline, noteItems } from "./format.js";
-import { b, code, details, esc } from "./render.js";
+import { b, code, mk, details, esc } from "./render.js";
+import { prettyKey } from "./stances.js";
 
 const ORD = { "1st": 1, first: 1, "2nd": 2, second: 2, "3rd": 3, third: 3, "4th": 4, fourth: 4, "5th": 5, "6th": 6 };
 
@@ -34,13 +35,13 @@ function hitLine(m, f) {
   if (f.interrupt) bits.push(`✋ interrupt i${f.interrupt.frames} from ${ordTxt(f.interrupt.from)} ${f.interrupt.on}`);
   if (f.delay) bits.push(`⏳ delayable ${esc(f.delay)}`);
   if (!bits.length) bits.push("<i>no gap data</i>");
-  return `${code(m.key)} ${esc(cleanInline(m.target).replace(/^,/, ""))} · ${bits.join(" · ")}`;
+  return `${mk(m.character, m.key)} ${esc(cleanInline(m.target).replace(/^,/, ""))} · ${bits.join(" · ")}`;
 }
 
 /** One string, hit by hit (chain root → move). */
 export function formatString(index, character, move) {
   const chain = index.chain(move.id);
-  const lines = [`🧩 ${b(`${character} ${move.key} — gaps`)}`, `${code(chain[0].key)} ${esc(cleanInline(chain[0].target))} · starter ${esc(cleanInline(chain[0].startup))}`];
+  const lines = [`🧩 ${b(`${character} ${prettyKey(character, move.key)} — gaps`)}`, `${mk(chain[0].character, chain[0].key)} ${esc(cleanInline(chain[0].target))} · starter ${esc(cleanInline(chain[0].startup))}`];
   for (const m of chain.slice(1)) lines.push(hitLine(m, gapFacts(m)));
   // also show the continuations from here, if any
   const kids = index.children(move.id);
@@ -59,8 +60,8 @@ export function formatCharacterGaps(index, character, cap = 40) {
     else if (f.comboCh && !f.comboHit && !f.jail) chOnly.push({ m, f });
   }
   gaps.sort((x, y) => y.f.interrupt.frames - x.f.interrupt.frames);
-  const g = gaps.slice(0, cap).map(({ m, f }) => `${code(m.key)} ✋ i${f.interrupt.frames} from ${ordTxt(f.interrupt.from)} ${f.interrupt.on}`);
-  const c = chOnly.slice(0, cap).map(({ m }) => code(m.key)).join(" · ");
+  const g = gaps.slice(0, cap).map(({ m, f }) => `${mk(m.character, m.key)} ✋ i${f.interrupt.frames} from ${ordTxt(f.interrupt.from)} ${f.interrupt.on}`);
+  const c = chOnly.slice(0, cap).map(({ m }) => mk(m.character, m.key)).join(" · ");
   return [
     `🧩 ${b(`${character} — string gaps`)}`,
     b(`✋ Interruptible (i10+ gap): ${gaps.length}`), gaps.length ? (g.length > 10 ? details(g.join("\n")) : g.join("\n")) : "none",

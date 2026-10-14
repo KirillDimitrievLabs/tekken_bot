@@ -41,7 +41,7 @@ test("counter dossier contains every fact block and honest unknowns, without pri
   const d = buildDossier(index, { opponent: "B", tips });
   for (const block of ["Identity", "Fast standing", "Plus frames", "Launchers", "Unsafe moves", "Lows", "Strings", "Evasion", "Heat", "Wall", "Throws", "Punish reward"]) assert.ok(d.text.includes(block), block);
   assert.equal(d.mode, "counter");
-  assert.equal(d.requiredUnsafe.length, 5);
+  assert.equal(d.requiredUnsafe.length, Math.min(8, index.unsafeMoves("B", -10).length));
   assert.ok(d.escapeAnswers.length >= 3);
   assert.equal(d.coverage.level, "sparse");
   assert.match(d.text, /range\/pushback|range unknown/);

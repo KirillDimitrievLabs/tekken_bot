@@ -5,6 +5,7 @@ export const SYNC_STEPS = [
   ["punishers", "Wavu punishers"],
   ["combos", "Wavu combos"],
   ["tags", "TekkenDocs tags"],
+  ["stances", "Wavu stance names"],
   ["guides", "Wavu guides"],
   ["save", "Check, index & commit"],
   ["push", "GitHub push"],

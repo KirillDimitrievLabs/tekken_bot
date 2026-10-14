@@ -1,7 +1,7 @@
 // !punish / !unsafe / !list / !heat / !wall — deterministic answers (Telegram HTML).
 import { damageOf, hitLevelOf, isLauncher, levelClass } from "./frames.js";
 import { cleanInline, listText, noteItems } from "./format.js";
-import { b, code, details, esc } from "./render.js";
+import { b, code, mk, details, esc } from "./render.js";
 import { COMBO_FROM_FIRST, FILTER_LABELS, FILTERS, resolveFilter } from "./tags.js";
 
 export const minus = (n) => (n < 0 ? `−${Math.abs(n)}` : n > 0 ? `+${n}` : "0");
@@ -21,10 +21,10 @@ export function punishOptions(index, character, stance, frames) {
       const combo = launch ? index.comboFor(id) : null;
       return combo?.total ? { damage: combo.total, combo: true } : { damage: raw, combo: false };
     };
-    options.push({ key: r.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(r.hit), ...withCombo(r.id, damageOf(r.damage), isLauncher(r.hit)) });
+    options.push({ character, key: r.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(r.hit), ...withCombo(r.id, damageOf(r.damage), isLauncher(r.hit)) });
     for (const c of index.children(r.id)) {
       if (!noteItems(c.notes).some((n) => COMBO_FROM_FIRST.test(n))) continue;
-      options.push({ key: c.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(c.hit), ...withCombo(c.id, damageOf(r.damage) + damageOf(c.damage), isLauncher(c.hit)) });
+      options.push({ character, key: c.key, startup: r.startup_eff, note: r.timing_note, launcher: isLauncher(c.hit), ...withCombo(c.id, damageOf(r.damage) + damageOf(c.damage), isLauncher(c.hit)) });
     }
   }
   return options.sort((a, b2) => Number(b2.launcher) - Number(a.launcher) || b2.damage - a.damage || a.startup - b2.startup);
@@ -43,7 +43,7 @@ export function pickOptions(options, limit = 6) {
 }
 
 const showNote = (o) => (o.note && o.note !== "(bufferable)" ? ` <i>${esc(o.note)}</i>` : "");
-export const optionLine = (o) => `i${o.startup} ${code(o.key)} — ${o.damage}${o.combo ? " combo" : " dmg"}${o.launcher ? " 🚀" : ""}${showNote(o)}`;
+export const optionLine = (o) => `i${o.startup} ${mk(o.character, o.key)} — ${o.damage}${o.combo ? " combo" : " dmg"}${o.launcher ? " 🚀" : ""}${showNote(o)}`;
 
 // ---- curated punishers (Wavu "<Character> punishers"): optimal choice per window
 
@@ -100,7 +100,7 @@ export function curatedOptions(index, character, stance, frames) {
 const EXEC = { hard: " ⚠️ hard", precise: " 🟡 precise", jf: " 🟡 just-frame", resource: " 🔥 needs Heat/Rage" };
 function curatedLine(r, best) {
   const val = r.value != null ? ` · ${r.value}${r.kind === "combo" ? " combo" : r.kind === "mini" ? " mini" : ""}` : "";
-  return `${minus(r.enemy)} ${code(r.key)}${val}${r.launch ? " 🚀" : ""}${EXEC[r.exec] ?? ""}${best && r === best ? " ⭐" : ""}`;
+  return `${minus(r.enemy)} ${mk(r.character, r.key)}${val}${r.launch ? " 🚀" : ""}${EXEC[r.exec] ?? ""}${best && r === best ? " ⭐" : ""}`;
 }
 
 function stanceBlock(index, character, stance, frames, title) {
@@ -111,7 +111,7 @@ function stanceBlock(index, character, stance, frames, title) {
     const extra = punishOptions(index, character, stance, frames)
       .filter((o) => o.launcher && !picked.has(o.key) && !cur.rows.some((r) => r.launch && -r.enemy <= o.startup))
       .slice(0, 3);
-    const also = extra.length ? [`➕ <i>also launches (frame data, not a community pick):</i> ${extra.map((o) => `${code(o.key)} i${o.startup}`).join(" · ")}`] : [];
+    const also = extra.length ? [`➕ <i>also launches (frame data, not a community pick):</i> ${extra.map((o) => `${mk(o.character, o.key)} i${o.startup}`).join(" · ")}`] : [];
     return { lines: [title, ...cur.rows.map((r) => curatedLine(r, cur.best)), ...also], best: cur.best, max: cur.max, curated: true };
   }
   const opts = pickOptions(punishOptions(index, character, stance, frames));
@@ -121,8 +121,8 @@ function stanceBlock(index, character, stance, frames, title) {
 export function formatPunish(index, character, frames) {
   const st = stanceBlock(index, character, "standing", frames, `🧍 ${b("standing")}`);
   const cr = stanceBlock(index, character, "crouching", frames, `🧎 ${b("crouching")} <i>(after a blocked low)</i>`);
-  const pick = (blk, label) => (blk.best ? `⭐ ${label}: ${code(blk.best.key)} → ${blk.best.value}${blk.best.kind === "combo" ? " combo" : ""}` : null);
-  const maxLine = (blk, label) => (blk.max ? `💪 ${label} max: ${code(blk.max.key)} → ${blk.max.value}${blk.max.kind === "combo" ? " combo" : ""}${EXEC[blk.max.exec] ?? ""}` : null);
+  const pick = (blk, label) => (blk.best ? `⭐ ${label}: ${mk(character, blk.best.key)} → ${blk.best.value}${blk.best.kind === "combo" ? " combo" : ""}` : null);
+  const maxLine = (blk, label) => (blk.max ? `💪 ${label} max: ${mk(character, blk.max.key)} → ${blk.max.value}${blk.max.kind === "combo" ? " combo" : ""}${EXEC[blk.max.exec] ?? ""}` : null);
   return [
     `🥊 ${b(`${character} — punish ${minus(-frames)}`)}`,
     pick(st, "standing"), pick(cr, "crouching"), maxLine(st, "standing"), maxLine(cr, "crouching"),
@@ -134,7 +134,7 @@ export function formatPunish(index, character, frames) {
 /** Single best punish for a move at `block` frames from a stance (curated ⭐ first, then computed). */
 export function bestPunishFor(index, character, stance, frames) {
   const cur = curatedOptions(index, character, stance, frames);
-  if (cur?.best) return { key: cur.best.key, startup: null, damage: cur.best.value, combo: cur.best.kind === "combo", launcher: cur.best.launch, exec: null, curated: true, enemy: cur.best.enemy };
+  if (cur?.best) return { character, key: cur.best.key, startup: null, damage: cur.best.value, combo: cur.best.kind === "combo", launcher: cur.best.launch, exec: null, curated: true, enemy: cur.best.enemy };
   const opts = punishOptions(index, character, stance, frames);
   return opts[0] ? { ...opts[0], combo: false, curated: false } : null;
 }
@@ -167,7 +167,7 @@ export function formatUnsafe(index, character, threshold = -10, cap = 60) {
     if (!group.length) continue;
     const part = group.slice(0, Math.max(0, cap - shown));
     shown += part.length;
-    const body = part.map((m) => `${code(m.key)} ${esc(cleanInline(m.block))}`).join(" · ")
+    const body = part.map((m) => `${mk(m.character, m.key)} ${esc(cleanInline(m.block))}`).join(" · ")
       + (group.length > part.length ? ` · +${group.length - part.length} more` : "");
     lines.push(b(label), part.length > 12 ? details(body) : body);
   }
@@ -177,7 +177,7 @@ export function formatUnsafe(index, character, threshold = -10, cap = 60) {
 export const moveLine = (m) => {
   const name = m.name ? ` — ${esc(listText(m.name, " / "))}` : "";
   const block = m.block ? ` <i>${esc(cleanInline(m.block))}</i>` : "";
-  return `${code(m.key)}${name}${block}`;
+  return `${mk(m.character, m.key)}${name}${block}`;
 };
 
 export function formatList(index, character, tag, cap = 40) {

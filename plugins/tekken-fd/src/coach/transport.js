@@ -4,20 +4,20 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { Coach } from "./index.js";
 import { Tips } from "../tips.js";
-import { b, code, esc } from "../render.js";
+import { b, code, mk, esc } from "../render.js";
 import { formatMatchup } from "../matchup.js";
 import { ProgressBoard } from "../progress.js";
-import { chatIdFrom, editMessageText, isChatMember, memberDisplayName, sendMessage } from "../telegram.js";
+import { chatIdFrom, deleteMessage, editMessageReplyMarkup, editMessageText, isChatMember, memberDisplayName, sendMessage } from "../telegram.js";
+import { updateToken } from "../buttons.js";
 import { guideCoverage } from "../guides.js";
 import { parseCoachTarget } from "./commands.js";
 import { readState, writeState } from "../watcher.js";
-import { renderGuide } from "./render.js";
+import { availableViews, renderView, VIEWS } from "./render.js";
 
 const run = promisify(execFile);
 const title = (t) => t.as ? `${t.as} vs ${t.opponent}` : `vs ${t.opponent}`;
-const sections = [["🛡 Defense", "defense"], ["💥 Punish", "punish"], ["⚔️ Neutral", "neutral"], ["🧱 Wall/Heat", "heat_and_wall"], ["🧪 Drill", "lab_drill"], ["📚 Full guide", "all"]];
 
-export function createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done, ownerOnly, exclusive }) {
+export function createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done, markupFor, ownerOnly, exclusive }) {
   let coach;
   let warming = false;
   let commitChain = Promise.resolve();
@@ -47,14 +47,34 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     return false;
   };
   const preferences = (userId, target = {}) => ({ ...coach.cache.preference(userId), ...target });
-  const coachButtons = (key, target, userId) => {
-    const actions = sections.map(([text, section]) => ({ text, action: { type: "coachSection", key, target, section } }));
-    const rows = [actions.slice(0, 3), actions.slice(3)];
-    rows.push([...[1, -1, 0].map((vote, i) => ({ text: ["👍", "👎", "⚠️ Something is wrong"][i], action: { type: "coachFeedback", key, vote, target } })),
-      { text: "➕ Add tip", action: { type: "tipStart", target } }]);
-    if (admins().has(String(userId))) rows.push([{ text: "🔄 Regenerate", action: { type: "coachGenerate", target, force: true } }]);
+  /**
+   * Keyboard for one guide view: other views, pager, feedback, tip, admin regenerate.
+   * Rebuilt on every view change; the token's action list is replaced to match.
+   */
+  const guideRows = ({ key, target, userId, guide, view = "overview", page = 0, pages = 1, voted = null }) => {
+    const lang = target.language === "ru" ? "ru" : "en";
+    const nav = availableViews(guide).filter((v) => v !== view && !(v === "plan" && !target.as))
+      .map((v) => ({ text: VIEWS[v][lang], action: { type: "coachSection", key, target, section: v, page: 0 } }));
+    const rows = [];
+    for (let i = 0; i < nav.length; i += 3) rows.push(nav.slice(i, i + 3));
+    if (pages > 1) {
+      const pager = [];
+      if (page > 0) pager.push({ text: `◀ ${page}/${pages}`, action: { type: "coachSection", key, target, section: view, page: page - 1 } });
+      if (page < pages - 1) pager.push({ text: `${page + 2}/${pages} ▶`, action: { type: "coachSection", key, target, section: view, page: page + 1 } });
+      rows.unshift(pager);
+    }
+    rows.push([1, -1, 0].map((vote, i) => ({ text: `${["👍", "👎", "⚠️ Wrong"][i]}${voted === vote ? " ✓" : ""}`, action: { type: "coachFeedback", key, vote, target, view, page } })));
+    const extra = [{ text: lang === "ru" ? "➕ Совет" : "➕ Add tip", action: { type: "tipStart", target, key, view, page } }];
+    if (!target.as && mains.get(userId)) extra.push({ text: `🎓 As ${mains.get(userId)}`, action: { type: "coachGenerate", target: { ...target, as: mains.get(userId) } } });
+    if (admins().has(String(userId))) extra.push({ text: "🔄 Regenerate", action: { type: "coachGenerate", target, force: true } });
+    rows.push(extra);
     return rows;
   };
+  /** Edit a guide message in place and point its token at the new keyboard. */
+  async function editGuide(t, html, rows, state) {
+    updateToken(p.statePath, t.token, { actions: rows.flat().map((x) => x.action), ...state });
+    await editMessageText(t.chatId, t.messageId, html, undefined, { parseMode: "HTML", replyMarkup: markupFor(t.token, rows) });
+  }
   async function postGuide(target, userId, chatId, replyTo, { force = false } = {}) {
     if (!await allowed(userId, chatId)) {
       const parts = coach.fallback(coach.dossier(target), "Coach is available to clan members (admin preview until launch).").parts;
@@ -72,10 +92,18 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
     });
     const result = await coach.generate(target, { userId, admin: isAdmin, force, progress: (id, state, text) => { progressUsed = true; return board.update(id, state, text); } });
     board.skipRest();
-    if (progressUsed) await board.finish(result.fallback ? "⚠️ Indexed fallback" : "✅ Guide ready");
-    const buttons = result.key ? coachButtons(result.key, target, userId) : [];
-    if (!target.as && mains.get(userId)) buttons.push([{ text: `🎓 As ${mains.get(userId)}`, action: { type: "coachGenerate", target: { ...target, as: mains.get(userId) } } }]);
-    for (let i = 0; i < result.parts.length; i++) await sendHtml(chatId, replyTo, result.parts[i], { buttons: i === 0 ? buttons : [], askerId: String(userId), askerOnly: true });
+    // the guide replaces the "thinking" message: one message per guide
+    if (progressUsed) {
+      await board.flush(true);
+      if (messageId) await deleteMessage(chatId, messageId).catch(() => {});
+    }
+    if (result.fallback || !result.key) {
+      for (const html of result.parts) await sendHtml(chatId, replyTo, html);
+      return;
+    }
+    const view = renderView(index, result.guide, result.dossier, { view: "overview", model: result.model, createdAt: result.createdAt ?? result.created_at });
+    const rows = guideRows({ key: result.key, target, userId, guide: result.guide, view: "overview", page: view.page, pages: view.pages });
+    await sendHtml(chatId, replyTo, view.html, { buttons: rows, askerId: String(userId), askerOnly: true, meta: { view: "overview", page: view.page } });
   }
   const tipHtml = (tip) => `${b(`${tip.id} · ${title(tip)} · ${tip.category}`)}\n${esc(tip.text)}\n<i>${esc(tip.author)} · ${esc(tip.status)}${tip.needsReview ? " · may be outdated" : ""}${tip.votes !== undefined ? ` · votes ${tip.votes}` : ""}</i>`;
   const queueButtons = (id) => [[{ text: "✅ Approve", action: { type: "tipApprove", id } }, { text: "✏️ Edit", action: { type: "tipEdit", id } },
@@ -124,7 +152,7 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       let tip;
       try { tip = tips.draft({ ...r.tip, userId, author: name || "Clan member", dataVersion: index.meta().syncedAt }); }
       catch (e) { return done(await answer(event, ctx, `❌ ${esc(e.message)}`)); }
-      const detected = tip.detected?.map((m) => `${esc(m.input)} → ${esc(m.character)} ${code(m.key)}${m.startup ? ` (${esc(m.startup)}, ${esc(m.block ?? "?")})` : ""}`).join("\n");
+      const detected = tip.detected?.map((m) => `${esc(m.input)} → ${esc(m.character)} ${mk(m.character, m.key)}${m.startup ? ` (${esc(m.startup)}, ${esc(m.block ?? "?")})` : ""}`).join("\n");
       return done(await answer(event, ctx, `${tipHtml(tip)}${detected ? `\n\nI understood:\n${detected}` : "\nNo unambiguous move references detected; the admin will review the text."}`, { buttons: [[
         { text: "✅ Submit for review", action: { type: "tipConfirm", id: tip.id } }, { text: "Cancel", action: { type: "tipCancel", id: tip.id } }]] }));
     }
@@ -152,20 +180,34 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
       }
       if (!await allowed(userId, t.chatId, { submissions: a.type === "tipConfirm", verifyMembership: true })) return true;
       if (a.type === "coachGenerate") await postGuide(preferences(userId, a.target), userId, t.chatId, t.messageId, { force: a.force });
-      else if (a.type === "coachSection") {
-        const hit = coach.cache.get(a.key, { count: false });
-        if (!hit) { await sendHtml(t.chatId, t.messageId, "Guide changed; request it again."); return true; }
-        const current = coach.dossier(a.target);
-        if (coach.keyFor(a.target, current) !== a.key) { await sendHtml(t.chatId, t.messageId, "Data or coach settings changed; request the guide again."); return true; }
-        const parts = renderGuide(index, hit.guide, current, { model: hit.model, createdAt: hit.created_at, section: a.section });
-        // Reply sections so another reader's current view isn't overwritten.
-        for (const html of parts) await sendHtml(t.chatId, t.messageId, html);
-      } else if (a.type === "coachFeedback") {
-        if (coach.cache.feedback(a.key, userId, a.vote)) {
-          await sendHtml(t.chatId, t.messageId, "Feedback saved.");
+      else if (a.type === "coachSection" || a.type === "coachFeedback" || a.type === "tipStart") {
+        // all guide buttons edit the guide message itself
+        const hit = a.key ? coach.cache.get(a.key, { count: false }) : null;
+        const current = hit ? coach.dossier(a.target) : null;
+        if (!hit || coach.keyFor(a.target, current) !== a.key) {
+          await editMessageText(t.chatId, t.messageId, a.target?.language === "ru" ? "Данные или настройки изменились — запросите гайд заново." : "The data or guide settings changed — request the guide again.").catch(() => {});
+          return true;
+        }
+        const view = a.type === "coachSection" ? a.section : (t.view ?? a.view ?? "overview");
+        const page = a.type === "coachSection" ? (a.page ?? 0) : (t.page ?? a.page ?? 0);
+        const r = renderView(index, hit.guide, current, { view, page, model: hit.model, createdAt: hit.created_at });
+        let voted = t.voted ?? null;
+        if (a.type === "coachFeedback" && coach.cache.feedback(a.key, userId, a.vote)) {
+          voted = a.vote;
           if (a.vote <= 0) for (const adminId of admins()) await sendHtml(adminId, null, `Coach feedback: ${a.vote === 0 ? "reported problem" : "👎"} · ${esc(title(a.target))}`, { askerOnly: false, buttons: [[{ text: "🔄 Regenerate", action: { type: "coachGenerate", target: a.target, force: true } }]] }).catch(() => {});
         }
-      } else if (a.type === "tipStart") await sendHtml(t.chatId, t.messageId, `Submit with ${code(`!tip ${title(a.target)}: your advice`)}. Admin approval is required.`);
+        const rows = guideRows({ key: a.key, target: a.target, userId, guide: hit.guide, view: r.view, page: r.page, pages: r.pages, voted });
+        if (a.type === "coachFeedback") {
+          // feedback only marks the pressed button; the text stays as it is
+          updateToken(p.statePath, t.token, { actions: rows.flat().map((x) => x.action), voted });
+          await editMessageReplyMarkup(t.chatId, t.messageId, markupFor(t.token, rows));
+        } else {
+          const html = a.type === "tipStart"
+            ? `${r.html}\n\n💡 ${a.target?.language === "ru" ? "Отправьте совет командой" : "Send your tip with"} ${code(`!tip ${title(a.target)}: …`)} ${a.target?.language === "ru" ? "— его проверит админ." : "— an admin reviews it."}`
+            : r.html;
+          await editGuide(t, html, rows, { view: r.view, page: r.page, voted });
+        }
+      }
       else if (a.type === "tipConfirm") { const tip = tips.confirm(a.id, userId); await notifyQueue(tip); await sendHtml(t.chatId, t.messageId, "✅ Submitted to the admin queue."); }
       else if (a.type === "tipCancel") { tips.cancel(a.id, userId); await sendHtml(t.chatId, t.messageId, "Tip cancelled."); }
       else if (a.type === "tipVote") { const r = await tips.vote(a.id, userId, a.vote); if (r?.needsReview || r?.status === "needs-review") await notifyQueue(tips.get(a.id)); }
@@ -231,8 +273,10 @@ export function createCoachTransport({ api, index, repoDir, stateDir, p, admins,
             catch (err) { await sendMessage(owner, `❌ ${title(target)}: ${err.message}`); continue; }
             const note = result.fallback ? `⚠️ Fallback: ${result.reason}` : `✅ ${result.cached ? "cached" : `generated in ${Math.round((result.latencyMs ?? 0) / 1000)}s`}`;
             await sendMessage(owner, `${title(target)}: ${note}`);
-            const buttons = result.key ? coachButtons(result.key, target, owner) : [];
-            for (let j = 0; j < result.parts.length; j++) await sendHtml(owner, null, result.parts[j], { buttons: j === 0 ? buttons : [], askerId: String(owner), askerOnly: true });
+            if (result.fallback || !result.key) { for (const html of result.parts) await sendHtml(owner, null, html); continue; }
+            const view = renderView(index, result.guide, result.dossier, { view: "overview", model: result.model, createdAt: result.createdAt ?? result.created_at });
+            await sendHtml(owner, null, view.html, { buttons: guideRows({ key: result.key, target, userId: owner, guide: result.guide, page: view.page, pages: view.pages }),
+              askerId: String(owner), askerOnly: true, meta: { view: "overview", page: view.page } });
           }
           await sendMessage(owner, `🧪 Coach test finished: ${targets.length} guide(s).`);
         } catch (err) {

@@ -24,6 +24,7 @@ import { Stats } from "./src/stats.js";
 import { readMeta } from "./src/snapshot.js";
 import { chatIdFrom, deleteMessage, editMessageText, memberName, sendMessage, sendReply, setMyCommands } from "./src/telegram.js";
 import { headCommit, lastDataCommit, paths, rebuild, sync } from "./src/sync.js";
+import { loadStances, prettyKey } from "./src/stances.js";
 import { ProgressBoard, SYNC_STEPS } from "./src/progress.js";
 import { pushAndWait, pushStatusLine } from "./src/push.js";
 import { checkOnce, readState, startWatcher, writeState } from "./src/watcher.js";
@@ -78,6 +79,7 @@ export default {
       ?? path.join(process.env.OPENCLAW_STATE_DIR ?? path.join(process.env.HOME ?? "/home/node", ".openclaw"), "tekken-fd");
     fs.mkdirSync(stateDir, { recursive: true });
     const p = paths(repoDir, stateDir);
+    loadStances(p.stancesPath); // readable stance names for every reply
     const index = new MoveIndex(p.dbPath);
     let busy = null; // serialises sync/rebuild
     // The watcher reports edits made after the data we have: anchor it to the last sync.
@@ -159,7 +161,7 @@ export default {
     }
     const done = (r) => (r.text ? { handled: true, text: r.text } : { handled: true });
     // Created once; model calls remain command-triggered and access-checked.
-    const coachTransport = createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done,
+    const coachTransport = createCoachTransport({ api, index, repoDir, stateDir, p, admins, clanGroups, mains, sendHtml, answer, done, markupFor,
       ownerOnly: (handler) => ownerOnly(handler), exclusive: (label, fn) => exclusive(label, fn) });
 
     // ---- "did you mean" (buttons, asker only) — removed when the asker gets a card (#6)
@@ -176,8 +178,8 @@ export default {
       if (!choices.length) return done(await answer(event, ctx, head));
       if (chatId) await cleanupSuggestions(chatId, askerId);
       const buttons = [];
-      for (let i = 0; i < choices.length; i += 3) buttons.push(choices.slice(i, i + 3).map((m) => ({ text: m.key.slice(0, 24), action: { type: "pick", moveId: m.id } })));
-      const html = `${head}\nDid you mean: ${choices.map((m) => code(m.key)).join(" · ")}\n<i>tap the right one${admins().size ? " · admin: reply with the input to teach this name" : ""}</i>`;
+      for (let i = 0; i < choices.length; i += 3) buttons.push(choices.slice(i, i + 3).map((m) => ({ text: prettyKey(m.character, m.key).slice(0, 24), action: { type: "pick", moveId: m.id } })));
+      const html = `${head}\nDid you mean: ${choices.map((m) => code(prettyKey(m.character, m.key))).join(" · ")}\n<i>tap the right one${admins().size ? " · admin: reply with the input to teach this name" : ""}</i>`;
       return done(await answer(event, ctx, html, { buttons, meta: { suggest: { character: a.character, query: a.move } } }));
     }
     async function sendCardReply(event, ctx, r) {
@@ -400,7 +402,7 @@ export default {
           // (quiz, tip votes, admin queue) are created with askerOnly: false.
           if (t.askerOnly && presser !== t.askerId) return { handled: true };
           // Coach and tip buttons also check membership/admin rights themselves.
-          if (await coachTransport.action(action, t, presser)) return { handled: true };
+          if (await coachTransport.action(action, { ...t, token, messageId: ictx?.callbackMessage?.messageId ?? t.messageId }, presser)) return { handled: true };
           if (action.type === "quiz") {
             const name = ictx.senderUsername ? `@${ictx.senderUsername}` : await memberName(t.chatId, presser).catch(() => presser);
             const res = quiz.answer(action.qid, presser, name, action.i);
@@ -569,6 +571,7 @@ export default {
           await board.finish(`❌ Sync failed: ${err.message}`);
           throw err;
         }
+        if (!dry) loadStances(p.stancesPath);
         // The data is committed at this point: coach/tip follow-ups must not turn it into a failed sync.
         let tipWarning = "";
         if (!dry && result.changed) {

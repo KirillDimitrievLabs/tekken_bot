@@ -38,7 +38,7 @@ export class Coach {
     const tips = this.tips?.approved(target.as, target.opponent) ?? [];
     const stamp = (file) => { try { return fs.statSync(file).mtimeMs; } catch { return 0; } };
     const key = JSON.stringify([target.as ?? null, target.opponent, target.language ?? null, target.level ?? null,
-      this.index.meta?.()?.syncedAt ?? "", stamp(this.guidesFile()), tips]);
+      this.index.meta?.()?.syncedAt ?? "", stamp(this.guidesFile()), stamp(path.join(this.repoDir, "data/wavu/t8-stances.json")), tips]);
     const hit = this.dossiers.get(key);
     if (hit) {
       this.dossiers.delete(key); // LRU: move to the end
@@ -131,7 +131,7 @@ export class Coach {
       for (let attempt = 0; attempt < 2; attempt++) {
         const messages = [{ role: "user", content: `${prompt.messages[0].content}${attempt ? `\n\nPrevious output failed validation. Generate a complete corrected object. Fix these problems:\n${problems.join("\n")}` : ""}` }];
         const response = await this.complete({ systemPrompt: prompt.systemPrompt, messages, model, reasoning: "high", temperature: 0.3,
-          purpose: "tekken-fd.coach", maxTokens: 6000, execution: { mode: "isolated-agent-runtime", timeoutMs: 180000 } });
+          purpose: "tekken-fd.coach", maxTokens: 16000, execution: { mode: "isolated-agent-runtime", timeoutMs: 180000 } });
         progress("check", "run", attempt ? "corrective retry" : "validate facts and move references");
         validation = validateGuide(response?.text ?? response?.content ?? response, dossier);
         if (validation.strippedNumbers?.length) this.logger.warn?.(`coach numeric rejection: ${JSON.stringify(validation.strippedNumbers)}`);

@@ -1,6 +1,7 @@
 // Patch digest: frame-number changes between two snapshot maps (notes-only edits are ignored).
 import { cleanInline, listText } from "./format.js";
 import { moveKeyFromId } from "./notation.js";
+import { prettyKey } from "./stances.js";
 
 const FIELDS = [
   ["startup", "startup"], ["block", "block"], ["hit", "hit"], ["ch", "CH"],
@@ -42,7 +43,7 @@ export function hasFrameChanges(d) {
 /** Telegram-ready digest text, capped at `cap` lines. */
 export function formatDigest(d, { date = new Date().toISOString().slice(0, 10), cap = 40 } = {}) {
   const lines = [];
-  for (const c of d.changes) lines.push(`${c.character} ${c.key}: ${c.field} ${c.from} → ${c.to}`);
+  for (const c of d.changes) lines.push(`${c.character} ${prettyKey(c.character, c.key)}: ${c.field} ${c.from} → ${c.to}`);
   for (const [ch, keys] of Object.entries(d.added)) lines.push(`🆕 ${ch}: ${keys.length} new move(s): ${keys.slice(0, 6).join(" · ")}${keys.length > 6 ? " …" : ""}`);
   for (const [ch, keys] of Object.entries(d.removed)) lines.push(`🗑 ${ch}: ${keys.length} removed: ${keys.slice(0, 6).join(" · ")}${keys.length > 6 ? " …" : ""}`);
   const shown = lines.slice(0, cap);

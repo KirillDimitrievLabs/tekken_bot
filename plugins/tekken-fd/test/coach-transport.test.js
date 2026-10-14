@@ -23,11 +23,12 @@ function cannedGuide(input) {
   const russian = input.systemPrompt.includes("Пиши по-русски");
   return {
     summary: russian ? "Блокируйте отмеченную угрозу и проверяйте наказание в тренировке." : "Block the unsafe threat and verify the standing punish in practice.",
-    key_threats: [{ move: "[[Kazuya-b+4]]", why: "Threatens a grounded hit.", answer: "Standing block, then punish.", reward: "Regain a turn." }],
-    defense: [], punish: [{ move: "[[Kazuya-b+4]]", answer: "Block punish with a verified standing response.", priority: "high" }],
+    gameplan: "They want to stay at close range and keep their turn with fast checks, then switch to a committal low or mid when you start to press back. Their main loop is a safe poke, a plus move, and a mixup that forces you to guess. You win by blocking the committal moves, punishing them every time, and taking your turn back after their pressure ends instead of pressing into it.", stances: [],
+    key_threats: ["b+4", "1", "df+1"].map((k) => ({ move: `[[Kazuya-${k}]]`, why: "Threatens a grounded hit.", answer: "Standing block, then punish.", reward: "Regain a turn." })),
+    defense: [], punish: [{ move: "[[Kazuya-b+4]]", answer: "Block punish with your fastest standing response.", priority: "high" }],
     lows: [], their_turn: "Respect [[Kazuya-1]] on block and check the followup in practice.", neutral: "Bait [[Kazuya-b+4]] outside its tested range.",
-    heat_and_wall: "Heat and wall-specific options are missing from this snapshot.", common_mistakes: [],
-    lab_drill: ["Record [[Kazuya-b+4]] and practice a standing block punish; vary the recording."], confidence: "low",
+    heat_and_wall: "Heat and wall-specific options are missing from this snapshot.", common_mistakes: ["Pressing buttons after a plus move.", "Guessing on the low instead of blocking it.", "Forgetting the punish after a blocked launcher."],
+    lab_drill: [0, 1, 2].map((i) => ({ title: `Drill ${["one", "two", "three"][i]}`, setup: "Dummy: the opponent. Record their main pressure sequence and playback random.", steps: ["Block the first hit.", "React to the follow-up with the supported answer.", "Punish when they stop early."], goal: "You answer the recording correctly most of the time." })), confidence: "low",
     gaps: ["Community guides, exact reach and detailed strings are not indexed."], used_tips: [], used_guides: [], general_knowledge: [],
   };
 }
@@ -198,21 +199,25 @@ test("section and feedback callbacks check current access, including an old clan
   const h = harness(t);
   await h.send("!vs kazuya");
   assert.equal(h.completions.length, 1);
-  const guideCard = h.lastSend(GROUP), defense = h.button(guideCard, "🛡 Defense"), feedback = h.button(guideCard, "👎");
-  assert(defense); assert(feedback);
-  const sentBefore = h.sent().length;
-  await h.press(defense, STRANGER); await h.press(feedback, STRANGER);
-  assert.equal(h.sent().length, sentBefore, "stranger cannot use a stored clan-group token");
+  const guideCard = h.lastSend(GROUP), section = h.button(guideCard, "💥 Punish"), feedback = h.button(guideCard, "👎");
+  assert(section); assert(feedback);
+  const visible = () => h.calls.filter((c) => c.method !== "getChatMember").length; // membership lookups are not output
+  const callsBefore = visible();
+  await h.press(section, STRANGER); await h.press(feedback, STRANGER);
+  assert.equal(visible(), callsBefore, "stranger cannot use a stored clan-group token");
   assert.equal(h.query("SELECT user_id FROM coach_feedback").length, 0);
-  await h.press(defense, MEMBER);
-  assert.match(plain(h.lastSend(GROUP)), /🎓/);
+  await h.press(section, MEMBER);
+  const edit = h.calls.filter((c) => c.method !== "getChatMember").at(-1);
+  assert.equal(edit.method, "editMessageText", "a section press edits the guide message instead of posting");
+  assert.match(edit.body.text, /🎓[\s\S]*Punish/);
   await h.press(feedback, MEMBER);
   assert.deepEqual(h.query("SELECT user_id,vote FROM coach_feedback").map((row) => ({ ...row })), [{ user_id: MEMBER, vote: -1 }]);
+  assert.ok(h.calls.some((c) => c.method === "editMessageReplyMarkup" && JSON.stringify(c.body.reply_markup).includes("👎 ✓")), "feedback marks the pressed button");
   assert.match(plain(h.lastSend(OWNER)), /Coach feedback/);
   h.members.set(MEMBER, "left");
-  const afterFeedback = h.sent().length;
-  await h.press(defense, MEMBER); await h.press(h.button(guideCard, "👍"), MEMBER);
-  assert.equal(h.sent().length, afterFeedback, "removed member cannot use an old guide token");
+  const afterFeedback = visible();
+  await h.press(section, MEMBER); await h.press(h.button(guideCard, "👍"), MEMBER);
+  assert.equal(visible(), afterFeedback, "removed member cannot use an old guide token");
   assert.equal(h.query("SELECT vote FROM coach_feedback")[0].vote, -1);
   assert.equal(h.completions.length, 1, "sections and feedback never invoke a completion");
 });
@@ -243,12 +248,11 @@ test("delayed Telegram progress finishes before the final guide and never leaves
   await request;
   assert.equal(prematureGuide, false, "final guide waits for the progress post and its ready edit");
   assert.equal(finishedBeforeRelease, false);
-  const readyIndex = h.calls.findIndex((call) => call.method === "editMessageText" && /Guide ready/.test(call.body.text));
+  const deleteIndex = h.calls.findIndex((call) => call.method === "deleteMessage");
   const guideIndex = h.calls.findIndex((call) => call.method === "sendMessage" && plain(call).startsWith("🎓"));
-  assert(readyIndex >= 0 && guideIndex > readyIndex, "ready progress is edited before the final guide is sent");
-  assert.equal(h.calls[readyIndex].completed, true);
-  assert.match(h.calls.filter((call) => call.method === "editMessageText").at(-1).body.text, /Guide ready/);
+  assert(deleteIndex >= 0 && guideIndex > deleteIndex, "the thinking message is removed before the guide is posted");
   assert.equal(h.calls.slice(guideIndex + 1).filter((call) => call.method === "editMessageText").length, 0);
+  assert.equal(h.sent(GROUP).filter((call) => plain(call).startsWith("🎓")).length, 1, "one message per guide");
 });
 
 test("section callback refuses its old key when guide source data changed outside the cache", async (t) => {
@@ -259,8 +263,9 @@ test("section callback refuses its old key when guide source data changed outsid
   fs.writeFileSync(path.join(h.repoDir, "data/wavu/t8-guides.json"), JSON.stringify(source));
   const count = h.sent().length;
   await h.press(section);
-  assert.equal(h.sent().length, count + 1);
-  assert.match(plain(h.lastSend(GROUP)), /changed; request the guide again/);
+  assert.equal(h.sent().length, count, "no new message");
+  assert.equal(h.calls.at(-1).method, "editMessageText");
+  assert.match(h.calls.at(-1).body.text, /changed — request the guide again/);
   assert.equal(h.query("SELECT key FROM coach_cache")[0].key, oldKey, "stale cache row remains to prove the callback checks provenance");
   assert.equal(h.completions.length, 1, "stale section does not regenerate automatically");
   await h.send("!vs kazuya");

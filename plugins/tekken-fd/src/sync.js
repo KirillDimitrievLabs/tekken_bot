@@ -9,6 +9,7 @@ import { counter, reportText } from "./progress.js";
 import { assertPlausible, diffSnapshots, readMeta, readSnapshots, writeSnapshots } from "./snapshot.js";
 import { fetchAllMoves, fetchCombos, fetchPunishers, fetchTekkenDocsTags } from "./wavu.js";
 import { fetchGuides, mergeGuideSnapshots } from "./guides.js";
+import { fetchStances } from "./stances.js";
 import fs from "node:fs";
 
 const run = promisify(execFile);
@@ -21,6 +22,7 @@ export function paths(repoDir, stateDir) {
     combosPath: path.join(repoDir, "data", "wavu", "t8-combos.json"),
     tdTagsPath: path.join(repoDir, "data", "tekkendocs", "t8-tags.json"),
     guidesPath: path.join(repoDir, "data", "wavu", "t8-guides.json"),
+    stancesPath: path.join(repoDir, "data", "wavu", "t8-stances.json"),
     dbPath: path.join(stateDir, "t8.sqlite"),
     statePath: path.join(stateDir, "state.json"),
   };
@@ -79,6 +81,7 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl, progre
     { id: "punishers", name: "punishers (Wavu)", file: p.punishersPath, fetch: fetchPunishers, opts: { fetchImpl } },
     { id: "combos", name: "combos (Wavu)", file: p.combosPath, fetch: fetchCombos, opts: { fetchImpl } },
     { id: "tags", name: "tags (TekkenDocs)", file: p.tdTagsPath, fetch: fetchTekkenDocsTags, opts: { fetchImpl: fetchImpl ?? fetch } },
+    { id: "stances", name: "stances (Wavu)", file: p.stancesPath ?? path.join(p.repoDir, "data", "wavu", "t8-stances.json"), fetch: fetchStances, opts: { fetchImpl } },
     { id: "guides", name: "guides (Wavu)", file: p.guidesPath ?? path.join(p.repoDir, "data", "wavu", "t8-guides.json"), fetch: fetchGuides, opts: { fetchImpl } },
   ];
   const extras = [];
@@ -94,6 +97,12 @@ export async function sync(p, { dryRun = false, force = false, fetchImpl, progre
       let previous = {};
       try { previous = JSON.parse(old || "{}"); } catch { /* damaged optional snapshot */ }
       next = mergeGuideSnapshots(previous, data, report);
+    }
+    if (src.id === "stances" && enough) {
+      // a page that failed to load keeps its previous stance names
+      let previous = {};
+      try { previous = JSON.parse(old || "{}"); } catch { /* damaged optional snapshot */ }
+      next = { ...data, ...Object.fromEntries(report.errors.filter((c) => previous[c]).map((c) => [c, previous[c]])) };
     }
     const fresh = enough ? `${JSON.stringify(sorted(next), null, 2)}\n` : old;
     const changed = fresh !== old;

@@ -1,4 +1,4 @@
-import { guideSchema } from "./prompt.js";
+import { GUIDE_LIMITS, guideCounts, guideSchema } from "./prompt.js";
 
 const REF = /\[\[([^\[\]\r\n]+)\]\]/g;
 const EXACT_REF = /^\[\[([^\[\]\r\n]+)\]\]$/;
@@ -12,6 +12,8 @@ const WORD_NUMBER = new RegExp([
   String.raw`(?<!\p{L})(?:${RU_CARDINAL})\s+(?:кадр|урон|удар|хит|секунд|процент)\p{L}*`,
   String.raw`(?<!\p{L})(?:перв|втор|трет)\p{L}*\s+(?:кадр|урон|секунд|процент)\p{L}*`,
 ].join("|"), "giu");
+const PROSE_MAX = { summary: 600, gameplan: 2000, your_plan: 1800, their_turn: 1500, neutral: 1500, heat_and_wall: 1500 };
+const CAVEAT = /\bverif\w*|(?<!hit[- ])\bconfirm\w*|\btest (?:its |the |your )?(?:reach|timing|spacing)\b|проверь\p{L}*|провер\p{L}* дальност/giu;
 const FILLER = /\bbe patient\b|\bplay smart\b|\bjust block\b|будь(?:те)? терпелив|игра(?:й|йте) умн|просто блокиру/iu;
 export const ACTIONS = {
   crouch_block: /crouch(?:ing)?[- _]block|block (?:the )?low|блок\p{L}* сидя|блок\p{L}* (?:лоу|низ)|блок\p{L}* (?:в )?присед/iu,
@@ -65,7 +67,7 @@ export function validateGuide(raw, dossier) {
   let guide;
   try {
     const json = typeof raw === "string" ? raw : JSON.stringify(raw);
-    if (json?.length > 40000) throw new Error("JSON exceeds size limit");
+    if (json?.length > 90000) throw new Error("JSON exceeds size limit");
     guide = JSON.parse(json);
   } catch (e) {
     return { ok: false, guide: null, errors: [`Invalid JSON: ${e.message}`], strippedNumbers };
@@ -108,12 +110,13 @@ export function validateGuide(raw, dossier) {
   for (const [key, description] of Object.entries(schema)) {
     if (!own(guide, key)) { errors.push(`Missing field ${key}`); continue; }
     if (!Array.isArray(description)) {
-      guide[key] = checkText(guide[key], key, key === "summary" ? 600 : 900);
+      guide[key] = checkText(guide[key], key, PROSE_MAX[key] ?? 900);
       continue;
     }
     const values = guide[key];
     if (!Array.isArray(values)) { errors.push(`${key} must be an array`); continue; }
-    if (values.length > 7) errors.push(`${key} has more than seven items`);
+    const max = key === "lab_drill" ? GUIDE_LIMITS.drillsMax : GUIDE_LIMITS.listMax;
+    if (values.length > max) errors.push(`${key} has more than ${max} items`);
     const itemSchema = description[0];
     for (let i = 0; i < values.length; i++) {
       const path = `${key}[${i}]`;
@@ -125,7 +128,15 @@ export function validateGuide(raw, dossier) {
       for (const k of Object.keys(values[i])) if (!own(itemSchema, k)) errors.push(`${path}: unexpected field ${k}`);
       for (const k of Object.keys(itemSchema)) {
         if (!own(values[i], k)) { errors.push(`${path}: missing ${k}`); continue; }
-        values[i][k] = checkText(values[i][k], `${path}.${k}`, k === "move" ? 180 : 900);
+        if (Array.isArray(itemSchema[k])) {
+          // nested list (drill steps)
+          const list = values[i][k];
+          if (!Array.isArray(list)) { errors.push(`${path}.${k} must be an array`); continue; }
+          if (list.length < GUIDE_LIMITS.drillStepsMin || list.length > GUIDE_LIMITS.drillStepsMax) errors.push(`${path}.${k} needs ${GUIDE_LIMITS.drillStepsMin}–${GUIDE_LIMITS.drillStepsMax} steps`);
+          for (let j = 0; j < list.length; j++) list[j] = checkText(list[j], `${path}.${k}[${j}]`, 400);
+          continue;
+        }
+        values[i][k] = checkText(values[i][k], `${path}.${k}`, k === "move" ? 180 : k === "title" ? 120 : 900);
       }
       if (values[i].move !== undefined) {
         const id = tokenId(values[i].move);
@@ -144,6 +155,22 @@ export function validateGuide(raw, dossier) {
     if (Array.isArray(guide[field]) && new Set(guide[field]).size !== guide[field].length) errors.push(`${field}: duplicate source IDs`);
   }
   if (!Array.isArray(guide.lab_drill) || !guide.lab_drill.length) errors.push("lab_drill must contain a concrete practice instruction");
+  // Comprehensiveness: minimum counts scaled to what the data can support.
+  const counts = guideCounts(dossier);
+  const need = (field, min, label = field) => {
+    const n = Array.isArray(guide[field]) ? guide[field].length : 0;
+    if (n < min) errors.push(`${label} needs at least ${min} items (has ${n}); cover more different moves or situations`);
+  };
+  if (typeof guide.gameplan === "string" && guide.gameplan.trim().length < counts.gameplanMinCharacters) errors.push("gameplan is too short: explain how the character plays and wins in a full paragraph");
+  need("stances", counts.stancesMin);
+  need("key_threats", counts.keyThreatsMin);
+  need("defense", counts.defenseMin);
+  if (dossier.mode !== "matchup") need("lows", counts.lowsMin);
+  need("common_mistakes", counts.mistakesMin);
+  need("lab_drill", counts.drillsMin);
+  const allText = JSON.stringify(guide);
+  const caveats = (allText.match(CAVEAT) ?? []).length;
+  if (caveats > counts.caveatPhrasesMax) errors.push(`Too many repeated caveats (${caveats} uses of verify/confirm/test reach); state reach and timing caveats once in gaps`);
   const gk = dossier.generalKnowledge ?? { allowed: false, max: 0 };
   if (Array.isArray(guide.general_knowledge) && guide.general_knowledge.length > (gk.allowed ? gk.max : 0)) {
     errors.push(gk.allowed ? `general_knowledge allows at most ${gk.max} items` : "general_knowledge must be empty: the written guides are rich enough");

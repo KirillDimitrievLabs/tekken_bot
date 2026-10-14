@@ -2,7 +2,8 @@
 import { hitLevelOf, levelClass, stanceOf } from "./frames.js";
 import { cleanInline, listText } from "./format.js";
 import { punishOptions, pickOptions, optionLine } from "./queries.js";
-import { b, code, details, esc } from "./render.js";
+import { b, code, mk, details, esc } from "./render.js";
+import { prettyKey } from "./stances.js";
 
 const TRACKING_NOTE = "<i>Not every move is annotated — “no data” ≠ linear.</i>";
 
@@ -31,8 +32,8 @@ export function formatSidestep(index, character, cap = 40) {
     if (stanceOf(m.key) !== "standing") continue;
     const tags = index.tagsOf(m.id);
     const t = tracking(tags);
-    if (t) known.push(`${code(m.key)} ${esc(cleanInline(m.target))} · ${t}`);
-    else if (tags.some((x) => ["launcher", "low", "plus", "powercrush"].includes(x))) unknown.push(code(m.key));
+    if (t) known.push(`${mk(m.character, m.key)} ${esc(cleanInline(m.target))} · ${t}`);
+    else if (tags.some((x) => ["launcher", "low", "plus", "powercrush"].includes(x))) unknown.push(mk(m.character, m.key));
   }
   // strings: Wavu "Whiffs vs SSR from 1st block" sits on the follow-up — step after blocking the first hit
   const steppable = { ssl: [], ssr: [], both: [] };
@@ -40,9 +41,9 @@ export function formatSidestep(index, character, cap = 40) {
     const tags = index.tagsOf(m.id);
     const l = tags.includes("ssl");
     const r = tags.includes("ssr");
-    if (l && r) steppable.both.push(code(m.key));
-    else if (r) steppable.ssr.push(code(m.key));
-    else if (l) steppable.ssl.push(code(m.key));
+    if (l && r) steppable.both.push(mk(m.character, m.key));
+    else if (r) steppable.ssr.push(mk(m.character, m.key));
+    else if (l) steppable.ssl.push(mk(m.character, m.key));
   }
   const stepLine = (label, list) => (list.length ? [`${label} (${list.length})`, list.length > 12 ? details(list.join(" · ")) : list.join(" · ")] : []);
   return [
@@ -58,14 +59,14 @@ export function formatSidestep(index, character, cap = 40) {
 
 const crushLines = (index, a, tag, label) => {
   const moves = index.byTag(a, tag).filter((m) => m.root === 1).slice(0, 8);
-  return moves.length ? [b(label), moves.map((m) => `${code(m.key)} ${esc(listText(m.crush, ", "))} · ${esc(cleanInline(m.startup))}`).join("\n")] : [];
+  return moves.length ? [b(label), moves.map((m) => `${mk(m.character, m.key)} ${esc(listText(m.crush, ", "))} · ${esc(cleanInline(m.startup))}`).join("\n")] : [];
 };
 
 /** !beat <B> <move> [as A]: what A can do against B's move. */
 export function formatBeat(index, a, target) {
   const level = levelClass(hitLevelOf(target.target));
   const tags = index.tagsOf(target.id);
-  const lines = [`🛡 ${b(`${a} vs ${target.character} ${target.key}`)} — ${esc(cleanInline(target.target))} · ${esc(cleanInline(target.startup))} · block ${esc(cleanInline(target.block) || "—")}`];
+  const lines = [`🛡 ${b(`${a} vs ${target.character} ${prettyKey(target.character, target.key)}`)} — ${esc(cleanInline(target.target))} · ${esc(cleanInline(target.startup))} · block ${esc(cleanInline(target.block) || "—")}`];
   const t = tracking(tags);
   lines.push(t ?? "👣 sidestep: no tracking data");
   if (level === "high") lines.push("🦆 duck it", ...crushLines(index, a, "highcrush", "High crush (cs)"));
