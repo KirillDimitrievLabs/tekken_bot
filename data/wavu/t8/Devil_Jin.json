@@ -1184,8 +1184,8 @@
       "tracksRight": null,
       "startup": null,
       "recv": "r35 FLY",
-      "tot": "123",
-      "crush": null,
+      "tot": "88",
+      "crush": "fs1~9, js10~55, fs56~58",
       "block": null,
       "hit": null,
       "ch": null,
@@ -2151,13 +2151,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i15",
-      "recv": "r49",
-      "tot": null,
+      "recv": "r35",
+      "tot": "49",
       "crush": "pc4~14",
       "block": "-8",
       "hit": "+16a (+6)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* 50% damage reduction when absorbing attacks\n* Devil Jin automatically retaliates on successful power crush\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;, -8 on block and 12 chip damage on block after attack absorption\n* r34 on hit\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* 50% damage reduction when absorbing attacks\n* Attack only available on successful power crush\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;, -8 on block and 12 chip damage on block after attack absorption\n* t49 r34 on hit or block\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-b+2",
@@ -2927,7 +2927,7 @@
       "block": "-16~-8",
       "hit": "+5a~+13a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Weapon&lt;/div&gt;\n* Projectile (unparryable)\n* Balcony break on CH\n* Typically connects grounded on frames i25~26 of startup at -14~-13/+12a~+13a(+0a~+1a)\n* Can be done from [[Crouch#Half_crouch|Crouch Level 1]]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; on airborne hit\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Weapon&lt;/div&gt;\n* Projectile (unparryable)\n* Typically connects grounded on frames i25~26 of startup at -14~-13/+12a~+13a(+0a~+1a)\n* Can be done from [[Crouch#Half_crouch|Crouch Level 1]]&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-R.df+1+2",
@@ -2938,18 +2938,18 @@
       "alt": null,
       "parent": null,
       "target": "m,t",
-      "damage": "10-15,3-5,42-60",
+      "damage": "55+",
       "reach": null,
       "tracksLeft": "11",
       "tracksRight": "12",
       "startup": "i20",
-      "recv": "r39",
-      "tot": null,
-      "crush": "&lt;div class=&quot;plainlist&quot;&gt;\n* pc8~20\n* js8~17\n&lt;/div&gt;",
+      "recv": "r42",
+      "tot": "78",
+      "crush": "&lt;div class=&quot;plainlist&quot;&gt;\n* pc8~20\n* js8~17\n* fs18~20\n&lt;/div&gt;",
       "block": "-18",
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation and on hit\n* Restores recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage\n* Opponent recovers FDFA on hit\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82 (10-15,3-5,42-60)\n* 114f timestop (192 total frames)\n* Freezes match timer on activation by 73F if idle recovery not canceled (57F if canceled, 15F on hit)\n* Restores 13 recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage\n* Opponent recovers FDFA on hit\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-uf+3+4",

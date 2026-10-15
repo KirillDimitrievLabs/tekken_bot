@@ -1703,7 +1703,7 @@
       "intr": "17"
     },
     "Fahkumram-1,2,4,3~4*": {
-      "stp": "SWL",
+      "stp": "SS",
       "intr": "32"
     },
     "Fahkumram-1,2,4,3~4*~B": {
@@ -1729,12 +1729,21 @@
     "Fahkumram-3,1,d+4": {
       "intr": "2"
     },
+    "Fahkumram-3,4": {
+      "intr": "1"
+    },
+    "Fahkumram-3,4&amp;${justFrame}58;4": {
+      "hom": "",
+      "intr": "14"
+    },
     "Fahkumram-3,4~3": {
       "trn": "",
+      "stp": "SWR",
       "intr": "16"
     },
     "Fahkumram-3,4~3*": {
       "trn": "",
+      "stp": "SS",
       "intr": "34"
     },
     "Fahkumram-3,4~3*~B": {
@@ -1745,11 +1754,19 @@
       "hom": "",
       "intr": "11"
     },
+    "Fahkumram-4,3~4": {
+      "intr": "17"
+    },
     "Fahkumram-4,3~4*": {
-      "trn": ""
+      "stp": "SS",
+      "intr": "32"
     },
     "Fahkumram-4,3~4*~B": {
-      "hom": ""
+      "hom": "",
+      "intr": "34"
+    },
+    "Fahkumram-4,4": {
+      "intr": "6"
     },
     "Fahkumram-f+3,2,4~3": {
       "trn": ""
@@ -4899,6 +4916,9 @@
     "Steve-FLK.1,1": {
       "dck": ""
     },
+    "Steve-FLK.1,1,d+1": {
+      "dck": ""
+    },
     "Steve-FLK.1,1,1": {
       "dck": ""
     },
@@ -4909,9 +4929,6 @@
     "Steve-FLK.1,1,2": {
       "trn": "",
       "intr": "3"
-    },
-    "Steve-FLK.1,1,d+1": {
-      "dck": ""
     },
     "Steve-FLK.1,2": {
       "trn": ""

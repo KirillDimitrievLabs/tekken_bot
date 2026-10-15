@@ -2087,134 +2087,197 @@
           "id": "Kuma counterplay#Introduction",
           "page": "Kuma counterplay",
           "heading": [],
-          "text": "=Overview=\nThis is a summary of Scrubman's \"How To Beat Kuma In TEKKEN 8\"."
+          "text": "= Overview =\n\nThis guide summarizes Scrubman's \"How To Beat Kuma In TEKKEN 8\"."
         },
         {
-          "id": "Kuma counterplay#Movement",
+          "id": "Kuma counterplay#Quick Gameplan",
           "page": "Kuma counterplay",
           "heading": [
-            "Movement"
+            "Quick Gameplan"
           ],
-          "text": "Very poor sidestep. Use strong tracking moves that can still be stepped can be very powerful on him."
+          "text": "- Movement: Kuma has very poor sidestep. Use strong tracking moves, even those that can normally be stepped by other characters.\n- Hurtbox: Kuma has an unusual hurtbox, which can affect both neutral interactions and combo consistency.\n- Punishment: Learn his unsafe strings and avoid being baited into punishing incomplete strings.\n- Stances: Watch for transitions into Hunting Bear Stance (HBS)\n- Low threats: Be ready to low parry his powerful lows and react to his more telegraphed mix-ups."
         },
         {
-          "id": "Kuma counterplay#Hurtbox / Neutral",
+          "id": "Kuma counterplay#Character-Specific Properties / Neutral Hurtbox",
           "page": "Kuma counterplay",
           "heading": [
-            "Hurtbox",
-            "Neutral"
+            "Character-Specific Properties",
+            "Neutral Hurtbox"
           ],
-          "text": "The hurtbox of Kuma is pretty junky : Kuma's hurtbox is behind Kuma's head. And since he is leaning forward, the opponent can be surprised"
+          "text": "Kuma has an unusual hurtbox: his hurtbox can extend behind his head. Because he leans forward, some attacks may interact with him differently than expected."
         },
         {
-          "id": "Kuma counterplay#Hurtbox / In combo",
+          "id": "Kuma counterplay#Character-Specific Properties / Combo Hurtbox",
           "page": "Kuma counterplay",
           "heading": [
-            "Hurtbox",
-            "In combo"
+            "Character-Specific Properties",
+            "Combo Hurtbox"
           ],
-          "text": "He has short legs in the air, this can make combos drop. You have to lab combos on Kuma since he has different hitbox compared to other caracters.\n\n=Key Moves="
+          "text": "Kuma has short legs while airborne, which can cause combos to drop.\n- Tip: Lab your combos specifically on Kuma, as his hurtbox differs from those of other characters.\n\n= Key Moves ="
         },
         {
-          "id": "Kuma counterplay#Neutral / G-clef",
-          "page": "Kuma counterplay",
-          "heading": [
-            "Neutral",
-            "G-clef"
-          ],
-          "text": "- Kuma's G-clef that launch, but very unsafe (-16).\n\n- There is a mind game where Kuma does 1,1 fishing for you to punish, he can rip the whole thing off."
-        },
-        {
-          "id": "Kuma counterplay#Neutral / Powercrush",
+          "id": "Kuma counterplay#Neutral / G-Clef (1,1)",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Powercrush"
+            "G-Clef (1,1)"
           ],
-          "text": "- Kuma powercrush. Has long range, knockdown. But he can go into bear hunting stance (has low profile) : you have to do a mid punisher that hit him in bear hunting stance.\n\n- Super long range"
+          "text": "- Property: The full string can launch, but is very unsafe (-16).\n- Mind game: Kuma can stop after 1,1 to bait a punish, or commit to the full string.\n- Counterplay: Recognize whether he completes the string before committing to a punish."
         },
         {
-          "id": "Kuma counterplay#Neutral / WR moves",
+          "id": "Kuma counterplay#Neutral / Powercrush (b+1)",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "WR moves"
+            "Powercrush (b+1)"
           ],
-          "text": "- Launchable, but has pushback.\n\n- Goes into hunting bear stance\n\n- Counterplay : very steppable (SSR or SSL)"
+          "text": "- Property: Powercrush with long range and knockdown.\n- Stance transition: Can transition into Bear Hunting Stance, which has a low profile.\n- Counterplay: Use a mid punish that can hit him during Bear Hunting Stance.\n- Note: Extremely long range."
         },
         {
-          "id": "Kuma counterplay#Neutral / Low moves",
+          "id": "Kuma counterplay#Neutral / 2,1,3",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Low moves"
+            "2,1,3"
           ],
-          "text": "- Very powerful low. Can be low parried. Can be charged to be safe.\n\n- Can be flowcharted into Kuma b+1.\n\n- Counterplay : orbital or let him flowchart and punish afterwards.\n\n- Kuma's hellsweep\n\n- Need to be close to hit us. CH launch."
+          "text": "- Usage: Can be used to finish off opponents at low health.\n- Counterplay: Take the first two hits, then low parry the final low."
         },
         {
-          "id": "Kuma counterplay#Neutral / Hopkick mix",
+          "id": "Kuma counterplay#Neutral / df+2,1",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Hopkick mix"
+            "df+2,1"
           ],
-          "text": "- Kuma hop kick\n\n- However, he can add :\n\nin order to punish you. He can also add :\n\n- Same thing with the b+1 (-13 punisher)"
+          "text": "- Property: Long-range punish."
         },
         {
-          "id": "Kuma counterplay#Neutral / Step moves",
+          "id": "Kuma counterplay#Neutral / df+1,2,1+2",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Step moves"
+            "df+1,2,1+2"
           ],
-          "text": "Guarantees :\n\nIf on block, they will charge HBS.1,2\n\nCounterplay : SSL after the SS.1+2 OR you can side walk the charged 2"
+          "text": "- Property: Forces crouch.\n- Counterplay: Wait for the final hit and punish."
         },
         {
-          "id": "Kuma counterplay#Neutral / Mix up 1",
+          "id": "Kuma counterplay#Neutral / b+2,1",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Mix up 1"
+            "b+2,1"
           ],
-          "text": "Can be mixed with :\n\n- Reactable\n\n- M,L. Launch punishable\n\nCounterplay : It's not really a mix up since the low is reactable. When he raises his right hand, it's a low, else stand guard and take your -10 punish."
+          "text": "- Stance transition: Can transition into Hunting Bear Stance (HBS).\n- Alternative extension:"
         },
         {
-          "id": "Kuma counterplay#Neutral / Other",
+          "id": "Kuma counterplay#Neutral / b,f+2",
           "page": "Kuma counterplay",
           "heading": [
             "Neutral",
-            "Other"
+            "b,f+2"
           ],
-          "text": "- Has very powerful range, counter hit launch, wallsplat. Tracks a ton.\n\n- Counterplay : duck it if you can.\n\n- Very far punish.\n\n- Goes into HBS\n\n- Counterplay : Very slow - floatable, SSL or SSR\n\n- Used to KO on low HP\n- Counterplay : take 2,1 and then low parry\n\n- Can go into HBS or do :\n\n- Forces crouch\n\n- Counterplay : Wait for the final hit and punish."
+          "text": "- Property: Long-range counter-hit launcher with wallsplat potential.\n- Tracking: Tracks very well.\n- Counterplay: Duck it when possible."
         },
         {
-          "id": "Kuma counterplay#Heat / Heat smash",
+          "id": "Kuma counterplay#While Running (WR) Moves / f,F+1+2",
+          "page": "Kuma counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+1+2"
+          ],
+          "text": "- Property: Transitions into Hunting Bear Stance (HBS).\n- Counterplay: Very slow and floatable. Try SSL or SSR."
+        },
+        {
+          "id": "Kuma counterplay#While Running (WR) Moves / f,F+2",
+          "page": "Kuma counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+2"
+          ],
+          "text": "- Property: Launch punishable, but has pushback."
+        },
+        {
+          "id": "Kuma counterplay#While Running (WR) Moves / f,f,F+1+2",
+          "page": "Kuma counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,f,F+1+2"
+          ],
+          "text": "- Property: Transitions into Hunting Bear Stance (HBS).\n- Counterplay: Very steppable; try SSR or SSL."
+        },
+        {
+          "id": "Kuma counterplay#Low Moves / db+2+3",
+          "page": "Kuma counterplay",
+          "heading": [
+            "Low Moves",
+            "db+2+3"
+          ],
+          "text": "- Property: Powerful low that can be low parried.\n- Charge mechanic: Can be charged to become safe.\n- Flowchart: Can be followed by Kuma's b+1.\n- Counterplay: Use an orbital to interrupt the flowchart, or let him commit and punish afterward."
+        },
+        {
+          "id": "Kuma counterplay#Low Moves / db+4",
+          "page": "Kuma counterplay",
+          "heading": [
+            "Low Moves",
+            "db+4"
+          ],
+          "text": "- Property: Kuma's hellsweep; launches on counter hit.\n- Range: Needs to be used at close range to connect."
+        },
+        {
+          "id": "Kuma counterplay#Hopkick Mix-up / uf+3",
+          "page": "Kuma counterplay",
+          "heading": [
+            "Hopkick Mix-up",
+            "uf+3"
+          ],
+          "text": "- Property: Kuma's hopkick.\n- Extensions:\n\n- Counterplay: Be aware of the extensions before committing to a punish.\n- Additional option: Similar considerations apply to the b+1 follow-up, which is -13 on block."
+        },
+        {
+          "id": "Kuma counterplay#Sidestep Moves / SS 1+2",
+          "page": "Kuma counterplay",
+          "heading": [
+            "Sidestep Moves",
+            "SS 1+2"
+          ],
+          "text": "- Guaranteed follow-up:\n\n- On block: Kuma may charge HBS.1,2.\n- Counterplay: SSL after SS 1+2, or sidewalk the charged second hit."
+        },
+        {
+          "id": "Kuma counterplay#Mix-up: qcf+2 Extensions / qcf+2,1",
+          "page": "Kuma counterplay",
+          "heading": [
+            "Mix-up: qcf+2 Extensions",
+            "qcf+2,1"
+          ],
+          "text": "Alternative extension:\n\n- Property: The low extension is reactable and launch punishable.\n- Counterplay: This is not a true mix-up if you can react consistently. When Kuma raises his right hand, prepare for the low; otherwise, stand guard and take the -10 punish."
+        },
+        {
+          "id": "Kuma counterplay#Heat / Heat Smash",
           "page": "Kuma counterplay",
           "heading": [
             "Heat",
-            "Heat smash"
+            "Heat Smash"
           ],
-          "text": "- Very fast, very evasive (low profile), hits grounded\n- Counterplay : SSL or SSR"
+          "text": "- Property: Very fast, evasive due to its low profile, and hits grounded opponents.\n- Counterplay: Try SSL or SSR."
         },
         {
-          "id": "Kuma counterplay#Hunting bear stance / Typical mix",
+          "id": "Kuma counterplay#Hunting Bear Stance (HBS) / Typical Mix-up",
           "page": "Kuma counterplay",
           "heading": [
-            "Hunting bear stance",
-            "Typical mix"
+            "Hunting Bear Stance (HBS)",
+            "Typical Mix-up"
           ],
-          "text": "- Untechable throw\n\nThis mix doesn't hurt much but if you guess right, he dies.\n\nCounterplay : you can challenge it with mid moves, since it's pretty slow. But he can also check with :\n\n- Counter hit launcher"
+          "text": "- Property: Untechable throw.\n\n- Property: Alternative stance attack.\n\nThis mix-up does not deal much damage, but guessing correctly can give you a significant advantage.\n\n- Counterplay: Challenge with mid attacks, as the options are relatively slow.\n- Warning: Kuma can check challenges with the following move:\n\n- Property: Counter-hit launcher."
         },
         {
-          "id": "Kuma counterplay#Wake up move",
+          "id": "Kuma counterplay#Wake-up Moves",
           "page": "Kuma counterplay",
           "heading": [
-            "Wake up move"
+            "Wake-up Moves"
           ],
-          "text": "He has unique wakeup moves that can launch :\n\nCounterplay : SSR beat wake up options. Then you launch."
+          "text": "Kuma has unique wake-up options that can launch opponents.\n\n- Counterplay: SSR to evade his wake-up options, then punish with a launcher when appropriate.\n\n= Punishable Moves ="
         }
       ],
-      "coverage": 2370
+      "coverage": 3707
     }
   },
   "Lars": {
@@ -2225,65 +2288,117 @@
       "license": "CC BY-SA 4.0",
       "sections": [
         {
-          "id": "Lars strategy#Very good resource",
+          "id": "Lars strategy#Very Good Resource",
           "page": "Lars strategy",
           "heading": [
-            "Very good resource"
+            "Very Good Resource"
           ],
-          "text": "- This is a good resource in the meantime: TEKKEN 8: Good Strings Lars Vol: 1"
+          "text": "- TEKKEN 8: Good Strings Lars Vol: 1 — a useful resource for learning Lars's strings."
         },
         {
-          "id": "Lars strategy#General Strategies",
+          "id": "Lars strategy#General Strategy",
           "page": "Lars strategy",
           "heading": [
-            "General Strategies"
+            "General Strategy"
           ],
-          "text": "Lars' general strategy to use his long range poke tools (df+1 or db+2,1) to control the neutral. Other than that, he relies a lot on his stances transitions (DEN, SEN, LEN) where he has access to much more powerful moves.\nIn stance, he can mix the opponent up with lows and mids. If it hits, Lars can continue his mix-up, putting the opponent into a blender.\n\nTo counter this, the opponent must be prepared when Lars make an unsafe transition on block, especially when he is trying to transition in neutral. Else, Lars will be able to continue his stance transitions and pressure, chipping away the opponent's health.\n\nLars has also access to fantastic whiff punish tool (f+1+2) and is one of the few to have a -14 frame punisher (f,n,b+2,1)."
+          "text": "Lars uses long-range pokes such as  and  to control the neutral. However, much of his strength comes from his stance transitions into Dynamic Entry (DEN), Silent Entry (SEN), and Limited Entry (LEN), which give him access to more powerful moves.\n\nFrom his stances, Lars can mix the opponent up with lows and mids. When his mix-ups connect, he can often maintain pressure and continue the sequence, keeping the opponent guessing.\n\nTo counter Lars, opponents must recognize when his stance transitions are unsafe on block, especially when he tries to enter a stance in neutral. Punishing these transitions prevents him from freely continuing his pressure and stance mix-ups.\n\nLars also has excellent whiff-punishment tools, particularly . He is also one of the few characters with a 14-frame punish option in , although it can be difficult to execute consistently."
         },
         {
-          "id": "Lars strategy#Key moves / General Pokes",
+          "id": "Lars strategy#Key Moves / General Pokes",
           "page": "Lars strategy",
           "heading": [
-            "Key moves",
+            "Key Moves",
             "General Pokes"
           ],
-          "text": "One jab is a quick high poke in neutral, with the second hit being safe on block. Landing the first hit as a counterhit guarantees the full string, so this is a good option when trying to interrupt your opponents offense.\n\nLars's go to mid check. In exchange for not having any followups, this move is quite evasive to highs, and leaves minimal disadvantage on block.\n\nNice poke at mid range.\n\nHis main WR Move, usually used after a heat engager. Does chip damage but is very linear."
+          "text": "Lars's jab is a fast high poke for neutral situations. The second hit is safe on block. If the first hit connects as a counter hit, the full string is guaranteed, making it useful for interrupting the opponent's offense.\n\nLars's main mid check. It has no follow-ups, but it is evasive to some high attacks and leaves him at only a small disadvantage on block.\n\nA useful poke at mid range.\n\nLars's main while-running move. It is often used after a Heat Engager and deals chip damage, but it is very linear."
         },
         {
-          "id": "Lars strategy#Key moves / Punishers",
+          "id": "Lars strategy#Key Moves / Punishers",
           "page": "Lars strategy",
           "heading": [
-            "Key moves",
+            "Key Moves",
             "Punishers"
           ],
-          "text": "His main 10 frame punisher, going into LEN\n\nEasy to use 12 frame punisher that leads to a good knockdown.\n\nOne of the few characters to have a -14 punisher, quite difficult to execute it at first.\n\nHis main -15 frame punisher, quick and simple. Only -13 on block.\n\nNot really the best punisher, launch punishable on block. Better use f+1+2.\n\nAnother -15 frame punisher and can be used in neutral. Can be used if you dont know if the move is -15 or more, while staying safe.\n\nIf the opponent is backturned, you can b+4 and then immediatly use his -14 punisher (f,n,b+2,1) to start a combo. Same thing if you do a middle wake up kick while the opponent is backturned.\n\nWhile standing move :\n\n-11 frame punisher\n\n-13 frame punisher\n\nHis -15 frame punisher\n\nHis stagger punish move, especially against hellsweep. Gets Lars more damage than ws1 if hit."
+          "text": "Lars's main 10-frame punisher. It transitions into LEN.\n\nAn easy-to-use 12-frame punisher that gives Lars a good knockdown.\n\nA 14-frame punish option that is relatively difficult to execute at first.\n\nLars's main 15-frame punisher. It is quick and simple to use, and is only -13 on block.\n\nNot an ideal punisher, as it is launch-punishable on block. Prefer f+1+2 when possible.\n\nAnother 15-frame punish option that can also be used in neutral. The follow-up allows Lars to use the string when unsure whether the opponent's move is exactly -15, while retaining a safe option.\n\nIf the opponent is backturned, Lars can use b+4 and immediately follow up with his 14-frame punisher (f,n,b+2,1) to start a combo. The same setup works after a mid wake-up kick when the opponent is backturned."
         },
         {
-          "id": "Lars strategy#Key moves / Stance-entry moves",
+          "id": "Lars strategy#Key Moves / Punishers / While Standing Punishers",
           "page": "Lars strategy",
           "heading": [
-            "Key moves",
-            "Stance-entry moves"
+            "Key Moves",
+            "Punishers",
+            "While Standing Punishers"
           ],
-          "text": "Dynamic Entry :\n\nMid, high going into DEN.\n\nDEN.1,2 is guaranteed if hit\n\nHold D to go into DEN while going backwards, used to catch the opponent offguard.\n\nSilent Entry :\n\nMid, high going into SEN.\n\nUsed to transition into SEN. CH hit makes SEN.1 or SEN.3+4 guaranteed. It's interruptible and even launched if the opponent is ready for this move since it's an unsafe transition.\n\nSame as df+2 but more minus frame.\n\nWR safe transition into SEN but can be ducked and launched.\n\nGoes into SEN if you hold F. Unsafe transition on block.\n\nLimited Entry :\n\nHis -10 punisher, transition into LEN.\n\nHigh, low, goes into LEN, good for round ender.\n\nOne of his best low, transition into LEN if hit.\n\nHold D to transition into LEN."
+          "text": "An 11-frame punisher.\n\nA 13-frame punisher.\n\nLars's 15-frame while-standing punisher.\n\nLars's stagger-punishment option, particularly useful against hellsweeps. On hit, it deals more damage than ws1."
         },
         {
-          "id": "Lars strategy#Key moves / Stances breakdown",
+          "id": "Lars strategy#Key Moves / Stance-Entry Moves / Dynamic Entry (DEN)",
           "page": "Lars strategy",
           "heading": [
-            "Key moves",
-            "Stances breakdown"
+            "Key Moves",
+            "Stance-Entry Moves",
+            "Dynamic Entry (DEN)"
           ],
-          "text": "Dynamic Entry :\n\nA fast high, it's usually used as a frame trap into 1,1,1 since Lars is +1 in this situation, but you can also use it as a transition into SEN, but be careful because the opponent can interrupt you.\n\nA DEN move usually done in combos, but also can be used to catch mashers off guard since it CH launch the opponent.\n\nOne of his most broken move (+ on block, homing, chip damage...), the opponent is force to respect the stance transition into SEN.\n\nA low in his DEN stance, usually used in combos, you can hold down to transition into LEN to continue the pressure.\n\nNot really used much apart from catching the opponent offguard or in some combos.\n\nAnother low from Lars. You can transition to SEN even on block but the opponent will be able to interrupt it and even launch you if you are not careful.\n\nLimited Entry :\n\nA safe heat engager mid, usually mixed with SEN.2. Interchangeable with SEN.3+4.\n\nThe only low from his SEN stance, usually mixed with SEN.1 or SEN.3+4. Used in oki situation with manual transition F+3.\n\nUsually used in oki situation with SEN.2. Launch the opponent.\n\nA decent high, +4 on block.\n\nThe only powercrush apart from 1+2, usually done when the opponent is able to react to an unsafe transition (any transition except DEN.3). It's usually used with DEN.3+4, especially in heat.\n\nVery similar to SEN.1. Can be used to frame trap with 1,1,1 since it's 0 for both sides. Interchangeable with SEN.1.\n\nLimited Entry :\n\nUsually used after 2,1 for a low or in oki situation after f,F+2, F (transition into LEN).\n\nUsually used after 2,1 for a safe mid or in oki situation after F,F+2, F (transition into LEN)"
+          "text": "A mid-high string that transitions into DEN.\n\nDEN.1,2 is guaranteed on hit.\n\nHold down to transition into DEN while moving backwards. This can catch the opponent off guard."
         },
         {
-          "id": "Lars strategy#Key moves / Other Moves",
+          "id": "Lars strategy#Key Moves / Stance-Entry Moves / Silent Entry (SEN)",
           "page": "Lars strategy",
           "heading": [
-            "Key moves",
+            "Key Moves",
+            "Stance-Entry Moves",
+            "Silent Entry (SEN)"
+          ],
+          "text": "A mid-high string that transitions into SEN.\n\nThese moves can transition into SEN. On counter hit, SEN.1 or SEN.3+4 is guaranteed. However, the transition is interruptible and can even be launched by an opponent who anticipates it, as it is unsafe.\n\nSimilar to df+2, but leaves Lars at a greater disadvantage on block.\n\nA safe while-running transition into SEN. However, the move can be ducked and launch-punished.\n\nHold forward to transition into SEN. This transition is unsafe on block."
+        },
+        {
+          "id": "Lars strategy#Key Moves / Stance-Entry Moves / Limited Entry (LEN)",
+          "page": "Lars strategy",
+          "heading": [
+            "Key Moves",
+            "Stance-Entry Moves",
+            "Limited Entry (LEN)"
+          ],
+          "text": "Lars's 10-frame punisher, which transitions into LEN.\n\nA high-low string that transitions into LEN. It can be useful to finish a round.\n\nOne of Lars's strongest low options. It transitions into LEN on hit.\n\nHold down to transition into LEN."
+        },
+        {
+          "id": "Lars strategy#Key Moves / Stance Breakdown / Dynamic Entry (DEN)",
+          "page": "Lars strategy",
+          "heading": [
+            "Key Moves",
+            "Stance Breakdown",
+            "Dynamic Entry (DEN)"
+          ],
+          "text": "A fast high. It is commonly used as a frame trap into 1,1,1, since Lars is +1 in this situation. It can also transition into SEN, but be careful: the opponent can interrupt the transition.\n\nUsually used in combos, but it can also catch opponents who try to mash, as it launches on counter hit.\n\nOne of Lars's strongest stance moves: it is plus on block, homing, and deals chip damage. The opponent must respect the transition into SEN that follows.\n\nA low from DEN. Hold down to transition into LEN and continue the pressure.\n\nNot used very often, but it can catch the opponent off guard and has some combo applications.\n\nAnother low from Lars. It can transition into SEN even on block, but the opponent can interrupt the transition and may launch Lars if he is careless."
+        },
+        {
+          "id": "Lars strategy#Key Moves / Stance Breakdown / Silent Entry (SEN)",
+          "page": "Lars strategy",
+          "heading": [
+            "Key Moves",
+            "Stance Breakdown",
+            "Silent Entry (SEN)"
+          ],
+          "text": "A safe mid and a Heat Engager. It is commonly mixed up with SEN.2 and can be used interchangeably with SEN.3+4.\n\nThe only low from SEN. It is usually mixed up with SEN.1 or SEN.3+4 and can be used in oki situations following a manual transition with F+3.\n\nA launcher commonly used in oki situations alongside SEN.2.\n\nA decent high that leaves Lars at +4 on block.\n\nLars's only other Power Crush besides 1+2. It can be useful when the opponent is ready to react to an unsafe stance transition. Most transitions are unsafe, with DEN.3 being an important exception. SEN.1+2 is often used after DEN.3+4, especially during Heat.\n\nVery similar to SEN.1. Since it leaves both characters at 0 on block, Lars can use it to frame-trap with 1,1,1. It can be used interchangeably with SEN.1."
+        },
+        {
+          "id": "Lars strategy#Key Moves / Stance Breakdown / Limited Entry (LEN)",
+          "page": "Lars strategy",
+          "heading": [
+            "Key Moves",
+            "Stance Breakdown",
+            "Limited Entry (LEN)"
+          ],
+          "text": "A low commonly used after 2,1 or in oki situations following f,F+2 into LEN by holding forward.\n\nA safe mid commonly used after 2,1 or in oki situations following f,F+2 into LEN by holding forward."
+        },
+        {
+          "id": "Lars strategy#Key Moves / Other Moves",
+          "page": "Lars strategy",
+          "heading": [
+            "Key Moves",
             "Other Moves"
           ],
-          "text": "Lars's Power crush. Slow, but it does its job. db+4 is guaranteed.\n\nGood -15 punisher, safe on block.\n\nLars' panic move, CH launch on hit, but launch punishable.\n\nUsed after db+4 if hit, to frame trap the opponent. CH launch on hit.\n\nLars' orbital, very good to start combos, terrible on whiff.\n\nMid-air grab that slams the opponent to the ground. Evades rage art if this move is used after 2,1 hit. 1+2 to throw break.\n\nUsually used in combos to switch side, but can be used to surprise the opponent. Terrible on whiff."
+          "text": "Lars's Power Crush. It is slow, but can serve its purpose as a defensive option. db+4 is guaranteed on hit.\n\nA useful 15-frame punish option that is safe on block.\n\nLars's panic move. It launches on counter hit but is launch-punishable on block.\n\nCan be used after db+4 hits to frame-trap the opponent. It launches on counter hit.\n\nLars's orbital, a strong combo starter but very punishable when it whiffs.\n\nAn aerial grab that slams the opponent into the ground. It can evade Rage Arts when used after 2,1 hits. The throw break is 1+2.\n\nUsually used in combos to switch sides, but can also surprise the opponent. It is very punishable on whiff."
         },
         {
           "id": "Lars strategy#Okizeme",
@@ -2291,7 +2406,34 @@
           "heading": [
             "Okizeme"
           ],
-          "text": "With Lars, an oki situation is created when ending a combo with (instead of SEN.1) :\n\n- DEN.2 or SEN.3  : less damage but keeps the opponent close for manual transition (F+3) 2 times to go into SEN\n\n- Pancake flipping the opponent with f,F+2 (after CH SEN.2 or H.LEN.2 for example) : hold forward to transition into SEN, and down if you want to transition into LEN\n\nBe careful, it's interruptible with some kind of wake up kick.\n\nIf you want to go low.\n\nIf you want to go mid.\n\nIf you want to go low, even better if you are in heat.\n\nIf you want to go mid, if it hits in heat, f,F+2 is guaranteed and it's possible to redo the mixup again.\n\nAt the wall, these oki situations are better when you are in heat :\n\nYou use it when you are in heat, since it's + on block and knock the opponent down if hit : f,F+2 is guaranteed if hit.\n\nIn heat as well, it's usually combined with SEN.1+2 since if it hits, it knocks the person down and SEN.1+2 is guaranteed."
+          "text": "Lars can create oki situations by ending a combo with the following moves instead of SEN.1.\n\n- **DEN.2 or SEN.3:** These options deal less damage but keep the opponent close. Lars can manually transition with F+3 twice to enter SEN.\n- **f,F+2:** This flips the opponent over and can be used after a counter-hit SEN.2 or H.LEN.2, for example. Hold forward to transition into SEN, or down to transition into LEN.\n\nBe careful, as these situations can be interrupted by certain wake-up kicks."
+        },
+        {
+          "id": "Lars strategy#Okizeme / SEN Mix-ups",
+          "page": "Lars strategy",
+          "heading": [
+            "Okizeme",
+            "SEN Mix-ups"
+          ],
+          "text": "Use this option for a low.\n\nUse this option for a mid."
+        },
+        {
+          "id": "Lars strategy#Okizeme / LEN Mix-ups",
+          "page": "Lars strategy",
+          "heading": [
+            "Okizeme",
+            "LEN Mix-ups"
+          ],
+          "text": "Use this option for a low. It is even stronger during Heat.\n\nUse this option for a mid. If it hits during Heat, f,F+2 is guaranteed, allowing Lars to potentially repeat the mix-up."
+        },
+        {
+          "id": "Lars strategy#Okizeme / Wall Oki During Heat",
+          "page": "Lars strategy",
+          "heading": [
+            "Okizeme",
+            "Wall Oki During Heat"
+          ],
+          "text": "These oki situations become particularly strong when Lars is in Heat.\n\nUse this move during Heat. It is plus on block and knocks the opponent down on hit, guaranteeing f,F+2.\n\nThe Heat-enhanced version of DEN.3+4. It knocks the opponent down on hit, guaranteeing SEN.1+2."
         },
         {
           "id": "Lars strategy#Neutral",
@@ -2299,34 +2441,34 @@
           "heading": [
             "Neutral"
           ],
-          "text": "Lars has some really good pokes, especially df+1. But usually, you really want to go into stance (manually with F+3 or through an safe (DEN.3 or f,f,F+1) or unsafe transition like db+2) when you have the chance in order to access DEN and SEN, moves that are way more powerful than Lars stanceless moves."
+          "text": "Lars has excellent pokes, especially df+1. However, he generally wants to enter a stance whenever possible, either manually with F+3 or through a stance transition.\n\nSafe transitions include DEN.3 and f,f,F+1, while db+2 is an example of a riskier transition. Stances give Lars access to stronger moves and mix-ups than his standard moves, so finding opportunities to enter DEN or SEN is an important part of his game plan."
         },
         {
-          "id": "Lars strategy#Neutral / Close range",
+          "id": "Lars strategy#Neutral / Close Range",
           "page": "Lars strategy",
           "heading": [
             "Neutral",
-            "Close range"
+            "Close Range"
           ],
-          "text": "Excellent df+1 move, can transition into DEN if df+1,1."
+          "text": "An excellent mid check. Using df+1,1 gives Lars access to DEN."
         },
         {
-          "id": "Lars strategy#Neutral / Mid range",
+          "id": "Lars strategy#Neutral / Mid Range",
           "page": "Lars strategy",
           "heading": [
             "Neutral",
-            "Mid range"
+            "Mid Range"
           ],
-          "text": "Mid, mid, nice poke.\n\nNice range and nice damage. Safe on block."
+          "text": "A useful mid-mid string for poking at mid range.\n\nA good option with solid range and damage that is safe on block."
         },
         {
-          "id": "Lars strategy#Neutral / Long range",
+          "id": "Lars strategy#Neutral / Long Range",
           "page": "Lars strategy",
           "heading": [
             "Neutral",
-            "Long range"
+            "Long Range"
           ],
-          "text": "Mid, safe on block, heat engager"
+          "text": "A mid that is safe on block and acts as a Heat Engager."
         },
         {
           "id": "Lars strategy#Using Heat",
@@ -2334,10 +2476,10 @@
           "heading": [
             "Using Heat"
           ],
-          "text": "Very good range, floor break. Start a combo if the first hit misses but the second hits. Be careful, the second hit can be stepped if the first misses.\n\nTransition automatically into DEN for pressuring, usually with DEN.3 or DEN.1, or DEN.2 (to catch mashers).\n\nBe careful since the opponent can Rage Art if you transition. That's why you can hold back to cancel the transition.\n\nVery good tool to engage the opponent into SEN directly.\n\n+ on block, knocks down if hit, f,F+2 is guaranteed.\n\nEnhanced version of the DEN.3+4. Knocks down if hit, SEN.1+2 is guaranteed.\n\nEnhanced low, can be done in oki situation or after 2,1\n\nMixed with LEN.1. If hit, f,F+2 is guaranteed."
+          "text": "A Heat Smash with excellent range that can break the floor. If the first hit misses but the second connects, Lars can still start a combo. However, the second hit can be stepped if the first hit misses.\n\nOn activation, Lars transitions into DEN and can apply pressure with moves such as DEN.3, DEN.1, or DEN.2 to catch opponents who try to mash.\n\nBe careful when transitioning into DEN, as the opponent can use a Rage Art. Hold back to cancel the transition when necessary.\n\nA strong tool for engaging the opponent and entering SEN directly.\n\nPlus on block and knocks the opponent down on hit, guaranteeing f,F+2.\n\nThe enhanced version of DEN.3+4. It knocks the opponent down on hit, guaranteeing SEN.1+2.\n\nAn enhanced low that can be used in oki situations or after 2,1.\n\nA mid option to mix up with LEN.1. If it hits, f,F+2 is guaranteed."
         }
       ],
-      "coverage": 7117
+      "coverage": 8215
     },
     "tech": {
       "page": "Lars tech",
@@ -2414,6 +2556,252 @@
     }
   },
   "Lee": {
+    "counterplay": {
+      "page": "Lee counterplay",
+      "kind": "counterplay",
+      "url": "https://wavu.wiki/t/Lee_counterplay",
+      "license": "CC BY-SA 4.0",
+      "sections": [
+        {
+          "id": "Lee counterplay#Introduction",
+          "page": "Lee counterplay",
+          "heading": [],
+          "text": "= Overview =\n\nThis guide summarizes Scrubman's \"How To Beat Lee In TEKKEN 8\"."
+        },
+        {
+          "id": "Lee counterplay#Quick Gameplan",
+          "page": "Lee counterplay",
+          "heading": [
+            "Quick Gameplan"
+          ],
+          "text": "- Neutral: Sidewalk left to avoid Lee's main approach options.\n- Hitman Stance (HMS): SSR against his stance pressure.\n- Counter-hit tools: Avoid pressing carelessly, especially at the wall.\n- Wall pressure: Respect Lee's strong oki and be careful when waking up.\n- Punishment: Learn the punishable moves listed at the bottom of this page."
+        },
+        {
+          "id": "Lee counterplay#Main Threats",
+          "page": "Lee counterplay",
+          "heading": [
+            "Main Threats"
+          ],
+          "text": "- 1,2,2,3: Duck the last hit.\n- f+3 extensions: Identify whether Lee stops the string or commits to the full extension.\n- d+3: Low that launches on counter hit; -15 on block.\n- HMS: Watch out for the mid launcher and low counter-hit launcher.\n- Wall situations: Be careful of combo resets, oki and Heat pressure.\n\n= Key Moves ="
+        },
+        {
+          "id": "Lee counterplay#Neutral / 1,2,2,3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "1,2,2,3"
+          ],
+          "text": "- Property: H, M, H\n- Counterplay: Duck the last hit."
+        },
+        {
+          "id": "Lee counterplay#Neutral / 1+2",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "1+2"
+          ],
+          "text": "- Property: Counter-hit launcher.\n- Strength: Very good spacing tool.\n- Counterplay: Don't press on block."
+        },
+        {
+          "id": "Lee counterplay#Neutral / 4,4:4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "4,4:4"
+          ],
+          "text": "- Property: -11; counter-hit launch potential."
+        },
+        {
+          "id": "Lee counterplay#Neutral / f+3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "f+3"
+          ],
+          "text": "If Lee stops the string:\n\n- Counterplay: Launch him.\n\nIf Lee commits to the full string:\n\n- Counterplay: Duck the last hit."
+        },
+        {
+          "id": "Lee counterplay#Neutral / b+3+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "b+3+4"
+          ],
+          "text": "- Property: Powercrush, safe on block and wallsplats."
+        },
+        {
+          "id": "Lee counterplay#Neutral / b+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Neutral",
+            "b+4"
+          ],
+          "text": "- Property: Counter-hit launcher.\n- Note: Recovers very quickly, making it extremely difficult to whiff punish."
+        },
+        {
+          "id": "Lee counterplay#While Running (WR) Moves / f,F+2",
+          "page": "Lee counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+2"
+          ],
+          "text": "- Property: Counter-hit launcher.\n- Note: Can build momentum with this move.\n- On normal hit: Guarantees the following move:"
+        },
+        {
+          "id": "Lee counterplay#While Running (WR) Moves / f,F+3",
+          "page": "Lee counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+3"
+          ],
+          "text": "- Counterplay: Sidewalk left (SWL)."
+        },
+        {
+          "id": "Lee counterplay#While Running (WR) Moves / f,F+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+4"
+          ],
+          "text": "- Property: Natural launcher.\n- Additional property: Evades high attacks."
+        },
+        {
+          "id": "Lee counterplay#While Running (WR) Moves / f,f,F+3,4",
+          "page": "Lee counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,f,F+3,4"
+          ],
+          "text": "- Property: Transitions into HMS and tracks considerably.\n- Counterplay: Sidewalk left (SWL)."
+        },
+        {
+          "id": "Lee counterplay#While Standing (WS) Moves / WS 2,3",
+          "page": "Lee counterplay",
+          "heading": [
+            "While Standing (WS) Moves",
+            "WS 2,3"
+          ],
+          "text": "- Property: Launcher.\n- Counterplay: -13 punish.\n\nAlternative follow-up:\n\n- Counterplay: Duck the last hit."
+        },
+        {
+          "id": "Lee counterplay#Low Moves / d+3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Low Moves",
+            "d+3"
+          ],
+          "text": "- Property: Low; launches on counter hit.\n- Counterplay: Launch punish at -15 on block."
+        },
+        {
+          "id": "Lee counterplay#Low Moves / d+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Low Moves",
+            "d+4"
+          ],
+          "text": "- Property: The full string can wall splat on counter hit."
+        },
+        {
+          "id": "Lee counterplay#Low Moves / db+3+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Low Moves",
+            "db+3+4"
+          ],
+          "text": "- Property: Low.\n- Counterplay: Sidewalk left (SWL)."
+        },
+        {
+          "id": "Lee counterplay#Low Moves / b+3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Low Moves",
+            "b+3"
+          ],
+          "text": "Common extension:\n\n- Property: Homing when used at close range.\n- Counterplay: The extension is L, H. Block the low, then launch punish the second hit if the string is committed to."
+        },
+        {
+          "id": "Lee counterplay#Low Moves / FC df,d,df+3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Low Moves",
+            "FC df,d,df+3"
+          ],
+          "text": "- Property: Safe at long range (-9), but launch punishable (-15) at close range."
+        },
+        {
+          "id": "Lee counterplay#Hitman Stance (HMS) / HMS 4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Hitman Stance (HMS)",
+            "HMS 4"
+          ],
+          "text": "- Property: Low counter-hit launcher."
+        },
+        {
+          "id": "Lee counterplay#Heat / Heat Smash",
+          "page": "Lee counterplay",
+          "heading": [
+            "Heat",
+            "Heat Smash"
+          ],
+          "text": "- Counterplay: Sidewalk left (SWL)."
+        },
+        {
+          "id": "Lee counterplay#Heat / Heat df+3+4",
+          "page": "Lee counterplay",
+          "heading": [
+            "Heat",
+            "Heat df+3+4"
+          ],
+          "text": "- Usage: Commonly used at the wall.\n- Property: Shuts down stepping."
+        },
+        {
+          "id": "Lee counterplay#Heat / Heat d+1+2",
+          "page": "Lee counterplay",
+          "heading": [
+            "Heat",
+            "Heat d+1+2"
+          ],
+          "text": "- Usage: Commonly used at the wall.\n- Counterplay: Sidewalk left (SWL).\n\n= Main 50/50 ="
+        },
+        {
+          "id": "Lee counterplay#Heat / b+3,3",
+          "page": "Lee counterplay",
+          "heading": [
+            "Heat",
+            "b+3,3"
+          ],
+          "text": "- Type: Low.\n\n= Common Flowcharts ="
+        },
+        {
+          "id": "Lee counterplay#Flowchart 1: Lee's 1+2",
+          "page": "Lee counterplay",
+          "heading": [
+            "Flowchart 1: Lee's 1+2"
+          ],
+          "text": "Lee can follow 1+2 with different options. Identify the follow-up before committing to a defensive response."
+        },
+        {
+          "id": "Lee counterplay#Flowchart 1: Lee's 1+2 / Option A: Hitman Stance (HMS)",
+          "page": "Lee counterplay",
+          "heading": [
+            "Flowchart 1: Lee's 1+2",
+            "Option A: Hitman Stance (HMS)"
+          ],
+          "text": "Possible follow-ups:\n-\n-\n-\n\n- Counterplay: SSR and duck according to the follow-up."
+        },
+        {
+          "id": "Lee counterplay#Flowchart 1: Lee's 1+2 / Option B: f+2,1 Extension",
+          "page": "Lee counterplay",
+          "heading": [
+            "Flowchart 1: Lee's 1+2",
+            "Option B: f+2,1 Extension"
+          ],
+          "text": "- Counterplay: Guard. Duck the second hit if Lee commits to the string.\n\nGeneral tip: Since the addition of f+2,1, blocking after 1+2 is the safer option if you want to avoid committing to a defensive read.\n\n= Punishable Moves ="
+        }
+      ],
+      "coverage": 2806
+    },
     "tech": {
       "page": "Lee tech",
       "kind": "tech",
@@ -4734,10 +5122,367 @@
           "id": "Zafina counterplay#Introduction",
           "page": "Zafina counterplay",
           "heading": [],
-          "text": "Dealing with SCR stance\n\nZafina relies on scarecrow stance for her best mixups, however her mixups aren't always guaranteed. the only time her scarecrow mix is  guaranteed is when she enters SCR at +9. Her 1,3 10 frame punish leaves her at +7 in stance. at +7 there is still counterplay for the defender. In general when she isn't at +9 powercrushes beat most of her options. Sidestepping right is also very strong against scarecrow when she delays her mixups or is staying in stance for longer. Zafina can cancel all her scarecrow stance transitions by holding back leaving her with worse frames, but is very useful to bait out opponents who challenge her scarecrow mixups.\n\n! Defence !! jab !! down jab !! powercrush !! Rage art !!  sidestep right\n|  SCR.1,4 || yes || yes || yes  || yes  || yes\n| SCR.2,1|| yes || yes || yes  || yes || yes\n| SCR.3,3 || yes || yes || yes || yes || yes\n| SCR.1+2 || yes || yes|| yes || yes || no\n| SCR.4 || yes, absorbs attack leaves defender at +8 with pushback || no ||yes, except powercrushes that are faster than 18 frames such as heat burst || yes || yes\n| SCR.df4 || no || yes || yes, except high powercrushes and mid powercrushes that are slower than 21 frames || yes || no\n| SCR heat smash|| yes || yes || no || yes || no\n\n! Defence !! jab !! down jab !! powercrush !! Rage art !!  sidestep right\n|  SCR.1,4 || trades, leaves defender at -5 || yes || yes  || yes  || yes\n| SCR.2,1|| yes || yes || yes  || yes || yes\n| SCR.3,3 || yes || yes || yes || yes || yes\n| SCR.1+2 || yes || yes|| yes || yes || no\n| SCR.4 || yes, absorbs attack leaves defender at +8 with pushback || no ||yes || yes || yes\n| SCR.df4 || no || yes || yes, except high powercrushes and mid powercrushes that are slower than 19 frames || yes || no\n| SCR heat smash|| yes || yes || no || yes || no\n\n! Defence !! jab !! down jab !! powercrush !! Rage art !!  sidestep right\n|  SCR.1,4 || no || yes || no  || no  || yes\n| SCR.2,1|| trades, leaves Zafina at +10 || Trades, leaves Zafina at +5 || yes  || yes || yes\n| SCR.3,3 || no || no || yes || yes || yes\n| SCR.1+2 || yes || yes|| yes || yes || no\n| SCR.4 || no || no ||yes || yes || yes\n| SCR.df4 || no || yes || no, CH launch || yes || no\n| SCR heat smash|| no || yes || no || yes || no\n\n! Defence !! jab !! down jab !! powercrush !! Rage art !!  sidestep right\n|  SCR.1,4 || no || yes || no  || no  || no\n| SCR.2,1|| no || no || yes  || no || no\n| SCR.3,3 || no || no || no || no || no\n| SCR.1+2 || no || trades || yes || yes || no\n| SCR.4 || no || no ||yes || yes || no\n| SCR.df4 || no || no, evades || no, CH launch || yes || no\n| SCR heat smash|| no || yes || no || no || no\n\n! Defence !! jab !! down jab !! powercrush !! Rage art !!  sidestep right\n|  SCR.1,4 || no || yes || no  || no  || no\n| SCR.2,1|| no || no || no  || no || no\n| SCR.3,3 || no || no || no || no || no\n| SCR.1+2 || no || no || yes || yes || no\n| SCR.4 || no || no ||no || no || no\n| SCR.df4 || no || trades ||no || yes || no\n| SCR heat smash|| no || yes || no || no || no"
+          "text": "= Overview =\n\nThis guide summarizes Scrubman's \"How To Beat Zafina In TEKKEN 8\""
+        },
+        {
+          "id": "Zafina counterplay#Quick Gameplan",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Quick Gameplan"
+          ],
+          "text": "- Movement: SSR is your main defensive option. Avoid sidewalking Zafina in most situations.\n- Close range: Some moves become steppable at close range but are much harder or impossible to step from far away.\n- Pressure: Challenge Zafina when possible to avoid being trapped in her mix-ups, especially from Scarecrow (SCR).\n- Stances: Learn the differences between Scarecrow (SCR), Mantis (MNT), and Tarantula (TRT).\n- Character knowledge: Zafina has a low pick rate and deceptive animations, making matchup knowledge particularly important."
+        },
+        {
+          "id": "Zafina counterplay#Special Properties",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Special Properties"
+          ],
+          "text": "- Low pick rate: You may encounter Zafina less frequently than other characters.\n- Unusual animations: Her animations can make her attacks and mix-ups difficult to recognize.\n- Defensive tip: SSR followed by ducking can evade certain attacks and create whiff-punish opportunities."
+        },
+        {
+          "id": "Zafina counterplay#Movement and Stepping",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Movement and Stepping"
+          ],
+          "text": "- General rule: Prefer SSR over sidewalking.\n- Some attacks can be stepped at close range but become difficult or impossible to step from far away.\n- SSR followed by ducking is particularly effective against certain attacks, which may pass through your character and leave Zafina vulnerable to a whiff punish."
+        },
+        {
+          "id": "Zafina counterplay#General Strategy",
+          "page": "Zafina counterplay",
+          "heading": [
+            "General Strategy"
+          ],
+          "text": "Challenge Zafina when possible to avoid having to defend against her stance mix-ups, especially her Scarecrow (SCR) pressure.\n\nHowever, do not challenge blindly: some stance options are designed to beat defensive challenges.\n\n= Key Moves ="
+        },
+        {
+          "id": "Zafina counterplay#Neutral / 1,4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "1,4"
+          ],
+          "text": "- Property: Transitions into Tarantula (TRT) for a mix-up.\n- Counterplay:\n- If you are hit, block the follow-up.\n- If you block the string, use a mid to interrupt TRT when Zafina attempts an attack.\n- Do not challenge if she does not commit to an attack."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / 1+2,4,4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "1+2,4,4"
+          ],
+          "text": "- Property: 1+2 launches on counter hit.\n- Counterplay: After blocking the first 4, use a fast -10 punish before the final hit can connect."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / df+1,2,1",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "df+1,2,1"
+          ],
+          "text": "- Counterplay: Use a -12 punish, or launch her if she transitions into SCR and the situation allows it."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / df+1,2,1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "df+1,2,1+2"
+          ],
+          "text": "- Property: Tracks to both sides.\n- Counterplay:\n- Use a powercrush, or attempt to interrupt the final 1+2.\n- A 14-frame move may trade, while a 13-frame move can interrupt.\n- A -12 mid punish is generally preferable, as Zafina can stop at df+1,2."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / df+1,4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "df+1,4"
+          ],
+          "text": "- Property: Mid, high (M, H).\n- Counterplay: Duck the second hit."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / df+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "df+2"
+          ],
+          "text": "- Property: Standard launcher.\n- Counterplay: SSR."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / df+4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "df+4"
+          ],
+          "text": "- Property: Quick check.\n- Possible extensions:\n\n- Counterplay:\n- If she repeatedly uses df+4,1, punish the string at -10.\n- Alternatively, use a powercrush after df+4 to cover multiple options."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / db+4,2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "db+4,2"
+          ],
+          "text": "- Property: The second hit launches on counter hit.\n- Counterplay: Block the low-mid string (L, M), then punish at -12."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / b+1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "b+1+2"
+          ],
+          "text": "- Property: Full-screen wallsplat; safe on block but consumes Zafina's own health.\n- Additional option: If she has her orb, she can extend with 1+2.\n- Counterplay:\n- SSR at close range.\n- Do not rely on stepping it from far away."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / b+1+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "b+1+3"
+          ],
+          "text": "- Property: Zafina's parry. Frequently used and very powerful.\n- Parries almost everything except lows.\n- Guaranteed follow-up: 56 damage.\n- Counterplay: Bait the parry and punish it during recovery."
+        },
+        {
+          "id": "Zafina counterplay#Neutral / b+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Neutral",
+            "b+3"
+          ],
+          "text": "- Property: Powercrush with wallsplat potential.\n- Counterplay: -14 punish."
+        },
+        {
+          "id": "Zafina counterplay#While Running (WR) Moves / f,F+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+3"
+          ],
+          "text": "- On counter hit: SCR.2,1 is guaranteed.\n- Counterplay: SSR, although the timing is difficult.\n- On block: Be prepared to defend against the resulting mix-up."
+        },
+        {
+          "id": "Zafina counterplay#While Running (WR) Moves / f,F+3+4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,F+3+4"
+          ],
+          "text": "- Property: Transitions into Mantis (MNT), which has a low profile.\n- Counterplay:\n- SSR at close range.\n- At long range, the move can behave like a pseudo-homing attack."
+        },
+        {
+          "id": "Zafina counterplay#While Running (WR) Moves / f,f,F+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "While Running (WR) Moves",
+            "f,f,F+3"
+          ],
+          "text": "- Property: Transitions into Scarecrow (SCR).\n- Counterplay: SSR."
+        },
+        {
+          "id": "Zafina counterplay#Low Moves / d+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Low Moves",
+            "d+3"
+          ],
+          "text": "- Property: Highly evasive low with long range.\n- On counter hit: Guarantees MNT.df+1.\n- Counterplay: SSR and duck."
+        },
+        {
+          "id": "Zafina counterplay#Low Moves / db+1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Low Moves",
+            "db+1+2"
+          ],
+          "text": "- Property: Zafina's Snake Edge, with an unusual animation.\n- Counterplay: SSR and duck."
+        },
+        {
+          "id": "Zafina counterplay#Low Moves / d+3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Low Moves",
+            "d+3"
+          ],
+          "text": "- Property: Transitions into SCR.\n- Counterplay: Double SSR.\n\n= Stances =\n\nZafina has three main stances: Scarecrow (SCR), Mantis (MNT), and Tarantula (TRT). Understanding their individual options is essential to defending against her pressure.\n\n- Property: Cannot block in this stance.\n\n- Property: Cannot block in this stance."
+        },
+        {
+          "id": "Zafina counterplay#Scarecrow (SCR) / df+1",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Scarecrow (SCR)",
+            "df+1"
+          ],
+          "text": "- Property: Launcher that is safe on block.\n- Tracking: Steppable at close range, but behaves like a pseudo-homing move at long range.\n- Counterplay: SSR at close range."
+        },
+        {
+          "id": "Zafina counterplay#Scarecrow (SCR) / ORB df+3+4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Scarecrow (SCR)",
+            "ORB df+3+4"
+          ],
+          "text": "- Property: Low available with her install.\n- Counterplay: SSR and duck. The attack may pass through you, allowing a whiff punish."
+        },
+        {
+          "id": "Zafina counterplay#Scarecrow (SCR) / b+1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Scarecrow (SCR)",
+            "b+1+2"
+          ],
+          "text": "- Property: Low from SCR; launch punishable at -18 on block.\n- Counterplay: SSR and duck, then launch punish on block."
+        },
+        {
+          "id": "Zafina counterplay#Mantis (MNT) / d+3,1",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Mantis (MNT)",
+            "d+3,1"
+          ],
+          "text": "- Property: Low-mid string (L, M); safe on block.\n- The mid can launch on counter hit.\n- Counterplay: Low parry the low."
+        },
+        {
+          "id": "Zafina counterplay#Tarantula (TRT) / 3",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Tarantula (TRT)",
+            "3"
+          ],
+          "text": "- Property: Mid check.\n- Counterplay: Use a mid to float her out of the stance."
+        },
+        {
+          "id": "Zafina counterplay#Tarantula (TRT) / df+1",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Tarantula (TRT)",
+            "df+1"
+          ],
+          "text": "- Property: Tracks very well.\n- Counterplay: Try to interrupt, as the move is slow.\n- Important distinction: Do not confuse SCR.df+1 with TRT.df+1. Their tracking properties differ, and the latter can be extremely difficult to step."
+        },
+        {
+          "id": "Zafina counterplay#Tarantula (TRT) / d+1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Tarantula (TRT)",
+            "d+1+2"
+          ],
+          "text": "- Property: Low from TRT.\n- Counterplay: Launch punish at -21 on block.\n\n= Common Flowcharts ="
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up"
+          ],
+          "text": "Zafina can transition into SCR and choose from several follow-ups. SSR is a key defensive option, but the correct response depends on her frame advantage and the option she selects."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up / Option 1: SCR.2,1 or SCR.df+1",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up",
+            "Option 1: SCR.2,1 or SCR.df+1"
+          ],
+          "text": "Possible follow-ups:\n\n- Counterplay: Double SSR after f,f+3."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up / Option 2: SCR.1+2",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up",
+            "Option 2: SCR.1+2"
+          ],
+          "text": "- Property: Tracks to both sides.\n- Counterplay: Powercrush."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up / Option 3: SCR.4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up",
+            "Option 3: SCR.4"
+          ],
+          "text": "- Property: Tracks to both sides and can lead to a full combo.\n- Counterplay: Wait and launch punish at -18 on block."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up / Option 4: SCR.df+4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up",
+            "Option 4: SCR.df+4"
+          ],
+          "text": "- Property: Counter-hit launcher that tracks to both sides.\n- Counterplay: SSR and duck."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 1: Scarecrow (SCR) Mix-up / Option 5: SCR.1,4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 1: Scarecrow (SCR) Mix-up",
+            "Option 5: SCR.1,4"
+          ],
+          "text": "- Property: Transitions into TRT."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 2: df+1,2,1 into SCR",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 2: df+1,2,1 into SCR"
+          ],
+          "text": "- Counterplay: Take the final 1 (df+1,2,1) to trigger the -7 situation instead of -12 on block, then SSR twice."
+        },
+        {
+          "id": "Zafina counterplay#Flowchart 3: f,f,F+3 into ORB SCR df+3+4",
+          "page": "Zafina counterplay",
+          "heading": [
+            "Flowchart 3: f,f,F+3 into ORB SCR df+3+4"
+          ],
+          "text": "- Counterplay: SSR and duck.\n\n= Dealing with Scarecrow (SCR) Stance =\n\nZafina relies on Scarecrow stance for her strongest mix-ups, but these options are not always guaranteed.\n\n- At +9: Her Scarecrow mix-up is guaranteed according to the source notes.\n- At +7: There is still defensive counterplay. Her 1,3 10-frame punish leaves her at +7 in stance.\n- At lower advantage: Powercrushes can beat many of her options.\n- Sidestep right: Particularly effective when she delays her mix-ups or remains in stance for longer.\n- Stance cancellation: Zafina can hold back to cancel Scarecrow transitions, leaving her at worse frames. This can bait opponents who challenge her stance pressure.\n\nThe tables below summarize the defensive options against SCR at different frame situations. These are matchup reference tables; use them alongside the move descriptions above."
+        },
+        {
+          "id": "Zafina counterplay#SCR at -2 (1,3 on block)",
+          "page": "Zafina counterplay",
+          "heading": [
+            "SCR at -2 (1,3 on block)"
+          ],
+          "text": "! Defence !! Jab !! Down jab !! Powercrush !! Rage Art !! Sidestep right\n| SCR.1,4 || Yes || Yes || Yes || Yes || Yes\n| SCR.2,1 || Yes || Yes || Yes || Yes || Yes\n| SCR.3,3 || Yes || Yes || Yes || Yes || Yes\n| SCR.1+2 || Yes || Yes || Yes || Yes || No\n| SCR.4 || Yes; absorbs attack, leaves defender at +8 with pushback || No || Yes, except powercrushes faster than 18 frames, such as Heat Burst || Yes || Yes\n| SCR.df+4 || No || Yes || Yes, except high powercrushes and mid powercrushes slower than 21 frames || Yes || No\n| SCR Heat Smash || Yes || Yes || No || Yes || No"
+        },
+        {
+          "id": "Zafina counterplay#SCR at 0 (3, WS3 on block)",
+          "page": "Zafina counterplay",
+          "heading": [
+            "SCR at 0 (3, WS3 on block)"
+          ],
+          "text": "! Defence !! Jab !! Down jab !! Powercrush !! Rage Art !! Sidestep right\n| SCR.1,4 || Trades; leaves defender at -5 || Yes || Yes || Yes || Yes\n| SCR.2,1 || Yes || Yes || Yes || Yes || Yes\n| SCR.3,3 || Yes || Yes || Yes || Yes || Yes\n| SCR.1+2 || Yes || Yes || Yes || Yes || No\n| SCR.4 || Yes; absorbs attack, leaves defender at +8 with pushback || No || Yes || Yes || Yes\n| SCR.df+4 || No || Yes || Yes, except high powercrushes and mid powercrushes slower than 19 frames || Yes || No\n| SCR Heat Smash || Yes || Yes || No || Yes || No"
+        },
+        {
+          "id": "Zafina counterplay#SCR at +4 (f,f+3 on block)",
+          "page": "Zafina counterplay",
+          "heading": [
+            "SCR at +4 (f,f+3 on block)"
+          ],
+          "text": "! Defence !! Jab !! Down jab !! Powercrush !! Rage Art !! Sidestep right\n| SCR.1,4 || No || Yes || No || No || Yes\n| SCR.2,1 || Trades; leaves Zafina at +10 || Trades; leaves Zafina at +5 || Yes || Yes || Yes\n| SCR.3,3 || No || No || Yes || Yes || Yes\n| SCR.1+2 || Yes || Yes || Yes || Yes || No\n| SCR.4 || No || No || Yes || Yes || Yes\n| SCR.df+4 || No || Yes || No; counter-hit launch || Yes || No\n| SCR Heat Smash || No || Yes || No || Yes || No"
+        },
+        {
+          "id": "Zafina counterplay#SCR at +7 (1,3 on hit, WR3 on block)",
+          "page": "Zafina counterplay",
+          "heading": [
+            "SCR at +7 (1,3 on hit, WR3 on block)"
+          ],
+          "text": "! Defence !! Jab !! Down jab !! Powercrush !! Rage Art !! Sidestep right\n| SCR.1,4 || No || Yes || No || No || No\n| SCR.2,1 || No || No || Yes || No || No\n| SCR.3,3 || No || No || No || No || No\n| SCR.1+2 || No || Trades || Yes || Yes || No\n| SCR.4 || No || No || Yes || Yes || No\n| SCR.df+4 || No || No; evades || No; counter-hit launch || Yes || No\n| SCR Heat Smash || No || Yes || No || No || No"
+        },
+        {
+          "id": "Zafina counterplay#SCR at +9 (3, WS3, f,f+3 on hit)",
+          "page": "Zafina counterplay",
+          "heading": [
+            "SCR at +9 (3, WS3, f,f+3 on hit)"
+          ],
+          "text": "! Defence !! Jab !! Down jab !! Powercrush !! Rage Art !! Sidestep right\n| SCR.1,4 || No || Yes || No || No || No\n| SCR.2,1 || No || No || No || No || No\n| SCR.3,3 || No || No || No || No || No\n| SCR.1+2 || No || No || Yes || Yes || No\n| SCR.4 || No || No || No || No || No\n| SCR.df+4 || No || Trades || No || Yes || No\n| SCR Heat Smash || No || Yes || No || No || No\n\n= Punishable Moves ="
         }
       ],
-      "coverage": 3011
+      "coverage": 8838
     },
     "strategy": {
       "page": "Zafina strategy",
