@@ -1255,7 +1255,7 @@
       "block": "-3",
       "hit": "+1d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt;\n* Throw Break 1 or 2\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt;\n* Throw break 1 or 2\n* Opponent recovers in FUFT on hit\n&lt;/div&gt;"
     },
     {
       "id": "Claudio-2+4",
@@ -1293,13 +1293,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": null,
-      "recv": "FC",
+      "recv": null,
       "tot": null,
       "crush": null,
       "block": "-3",
       "hit": "+1d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Throw break 2\n* Can side switch on hit\n* Opponent recovers in FUFT&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Throw break 2\n* Transition to FC on hit\n* Side switch on hit\n* Opponent recovers in FUFT&lt;/div&gt;"
     },
     {
       "id": "Claudio-Back throw",
@@ -1321,7 +1321,7 @@
       "block": null,
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unbreakable\n* Can side switch on hit\n* Opponent recovers in FDFT&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unbreakable\n* Side switch on hit\n* Opponent recovers in FDFT&lt;/div&gt;"
     },
     {
       "id": "Claudio-uf+1+2",
@@ -1343,7 +1343,7 @@
       "block": "-6",
       "hit": "+1d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Throw break 1+2\n* Side switch on hit\n* Can be buffered\n* Opponent recovers in FUFA&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Throw break 1+2\n* Side switch on hit\n* Opponent recovers in FUFA&lt;/div&gt;"
     },
     {
       "id": "Claudio-(back to wall).b,b,ub",
@@ -1492,12 +1492,12 @@
       "tracksRight": "11",
       "startup": "i16",
       "recv": "r30",
-      "tot": "92",
+      "tot": "46",
       "crush": "pc7~16",
       "block": "+1",
       "hit": "+2c",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Burst&lt;/div&gt;\n* Cancel to r45 with b,b on frame 42\n* 2 chip damage on block\n* 12 chip damage on hit\n* Only deals recoverable damage\n* Cannot cause a K.O.\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Burst&lt;/div&gt;\n* 46f timestop at frame 14 of activation (t92)\n* Cancel to r87 with b,b on frame 42 (frame 28 of timestop)\n** t41 r27 effective recovery\n* 20f timestop on block or hit\n* 2 chip damage on block\n* 12 chip damage on hit\n* Only deals recoverable damage\n* Cannot cause a K.O.\n&lt;/div&gt;"
     },
     {
       "id": "Claudio-3",
@@ -2052,13 +2052,13 @@
     {
       "id": "Claudio-Left Throw",
       "num": null,
-      "name": "Avalaunche Throw",
+      "name": "Avalanche Throw",
       "input": "Left throw",
       "alias": null,
       "alt": null,
       "parent": null,
       "target": "t",
-      "damage": "40",
+      "damage": "45",
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
@@ -2069,7 +2069,7 @@
       "block": "-3",
       "hit": "+1d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Break: 1\n* Opponent recovers in off-axis FUFT&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Throw break 1\n* Opponent recovers in FUFR&lt;/div&gt;"
     },
     {
       "id": "Claudio-R.df+1+2",
@@ -2085,13 +2085,13 @@
       "tracksLeft": "28",
       "tracksRight": "28",
       "startup": "i20",
-      "recv": "r39",
-      "tot": null,
-      "crush": "pc8~",
+      "recv": "r42",
+      "tot": "62",
+      "crush": "pc8~20",
       "block": "-18",
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation and on hit\n* Restores recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation equal to (total frame idle recovery - 5F) or 57F when canceled by any action\n* Freezes match timer on hit by 15F\n* 114F timestop on activation\n* 20F timestop on block\n* r24 opponent blockstun (r44 effective blockstun w/ timestop)\n* Restores 13 recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
     },
     {
       "id": "Claudio-ub+2",

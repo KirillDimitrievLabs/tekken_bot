@@ -1,4 +1,338 @@
 {
+  "Armor King": {
+    "counterplay": {
+      "page": "Armor King counterplay",
+      "kind": "counterplay",
+      "url": "https://wavu.wiki/t/Armor_King_counterplay",
+      "license": "CC BY-SA 4.0",
+      "sections": [
+        {
+          "id": "Armor King counterplay#Armor King Compared to King",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Armor King Compared to King"
+          ],
+          "text": "Like King, Armor King is a wrestler with deceptive throw animations that make it difficult to identify the correct throw break by appearance alone. However, Armor King combines wrestling with a more brawler-oriented playstyle, relying on strong strikes, counter hits, and powerful gimmicks such as Poison Mist."
+        },
+        {
+          "id": "Armor King counterplay#Strong Points",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Strong Points"
+          ],
+          "text": "- Excellent punishment: Armor King has strong punishers, excellent combo damage, and impressive wall carry.\n- Strong counter-hit game: He excels at catching opponents with individual counter-hit moves, even from a distance.\n- Excellent backdash: His backdash is among the strongest in the game, allowing him to create space and whiff-punish opponents."
+        },
+        {
+          "id": "Armor King counterplay#Understanding His Throws",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Understanding His Throws"
+          ],
+          "text": "Like King, Armor King's throw animations can be deceptive.\n\n- When a standing throw resembles a 1+2 break, you will often need to press 1 instead.\n- For running throws, such as Shining Wizard, you generally need a 1+2 break.\n- When his right arm is positioned in front, look for a 2 break.\n\nArmor King can also perform chain throws from his wavedash. In these situations, you must guess between holding 1 and holding 2.\n\nDuring Heat, his throws become homing, making sidestepping less reliable."
+        },
+        {
+          "id": "Armor King counterplay#Understanding His Throws / Counterplay",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Understanding His Throws",
+            "Counterplay"
+          ],
+          "text": "- Sidestep right (SSR) and duck : A useful option against several of his approaches.\n- Learn his throw animations: Pay particular attention to the position of his arms.\n- Do not rely exclusively on sidestepping: Some of his attacks track or become homing, especially during Heat.\n\n= Key Moves ="
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / Giant Swing",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "Giant Swing"
+          ],
+          "text": "- Throw break: 1.\n- A powerful throw with a fast startup.\n- Like King, Armor King can attempt Giant Swing after a blocked jab while at +1, making it difficult to interrupt with a standard jab."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / db,n,f+2+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "db,n,f+2+4"
+          ],
+          "text": "- Throw break: 2.\n- The right arm leads during the throw animation.\n- Can break the floor."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / 2+4,d+1+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "2+4,d+1+2"
+          ],
+          "text": "- Throw break: 1+2.\n- Can break the floor."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / f,f,F+2+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "f,f,F+2+4"
+          ],
+          "text": "- Throw break: 1+2.\n- A running throw."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / AIR.f,hcf+1",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "AIR.f,hcf+1"
+          ],
+          "text": "- Commonly used as a combo ender.\n- If the opponent tech-rolls, Armor King can check their recovery.\n- Counterplay: Stay grounded or roll on the ground to avoid the follow-up, depending on the situation."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / df+3+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "df+3+4"
+          ],
+          "text": "- Commonly used near the wall.\n- Counterplay: The throw can be ducked on reaction."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / 3+4 (Hold)",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "3+4 (Hold)"
+          ],
+          "text": "- Can become predictable when used repeatedly.\n- Counterplay: Duck the throw."
+        },
+        {
+          "id": "Armor King counterplay#Key Throws / OTG.db+2+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Key Throws",
+            "OTG.db+2+4"
+          ],
+          "text": "- Used at the end of certain wall combos to extend the sequence.\n- Counterplay: Press 2 as soon as his hands connect."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / df+1",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "df+1"
+          ],
+          "text": "- One of Armor King's key mid checks.\n- Counterplay: Sidestep right (SSR).\n- He can follow up with:\n\n- The second hit can be delayed.\n- If the second hit connects as a counter hit, a crouch throw is guaranteed.\n- Counterplay: If you have a strong read, duck the second hit."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / df+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "df+2"
+          ],
+          "text": "- A counter-hit launcher.\n- Has a follow-up:\n\n- The second hit has counter-hit properties and can grant a follow-up such as 2,1 or a Giant Swing attempt.\n- Counterplay: Sidestep right and duck the follow-up."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / f+3,2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "f+3,2"
+          ],
+          "text": "- Tracks slightly to his right but can still be sidestepped, depending on the range.\n- Can be extended with:\n\n- Armor King can also transition into crouch dash and threaten a throw.\n- Counterplay: Sidestep left after the second hit to avoid the throw or the third hit."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / f,n,d,df+1+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "f,n,d,df+1+2"
+          ],
+          "text": "- An unblockable attack that transitions into an unbreakable throw."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / f,n,d,df+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "f,n,d,df+2"
+          ],
+          "text": "- -10 on block.\n- Counterplay: Sidestep right and duck."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / f+1+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "f+1+2"
+          ],
+          "text": "- Armor King's Power Crush.\n- Can transition into BAD on hit."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / b+1,2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "b+1,2"
+          ],
+          "text": "- A powerful long-range punish option.\n- A -12 punish that transitions into BAD, creating a follow-up mix-up.\n- Counterplay: Be prepared for the stance mix-up after the transition."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / b+3+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "b+3+4"
+          ],
+          "text": "- A safe, homing mid that can wallsplat.\n- Useful against opponents who frequently sidestep right and duck."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / b+4",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "b+4"
+          ],
+          "text": "- Has a follow-up:\n\n- Counterplay: Sidestep right, although the timing can be difficult."
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / db+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "db+2"
+          ],
+          "text": "- Can be extended into the following string:\n\n- A common string to watch out for.\n- Counterplay: Use a 12-frame punish when applicable, or duck the second hit.\n- Armor King can mix it up with:"
+        },
+        {
+          "id": "Armor King counterplay#Neutral and Punishment / WR Moves / f,F+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Neutral and Punishment",
+            "WR Moves",
+            "f,F+2"
+          ],
+          "text": "- A mid counter-hit launcher with excellent range, similar to a Demon Paw.\n- Counterplay: Sidestep right. At close range, Armor King may end up backturned if the sidestep succeeds."
+        },
+        {
+          "id": "Armor King counterplay#Lows / f,f,n,2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Lows",
+            "f,f,n,2"
+          ],
+          "text": "- Armor King can transition into a stance to create a mix-up.\n- Counterplay: Sidestep right and duck."
+        },
+        {
+          "id": "Armor King counterplay#Lows / d+3",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Lows",
+            "d+3"
+          ],
+          "text": "- Can set up an interruptible Giant Swing or Tombstone attempt.\n- Tombstone command:"
+        },
+        {
+          "id": "Armor King counterplay#Lows / SS.2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Lows",
+            "SS.2"
+          ],
+          "text": "- A strong low that can also be accessed while backturned.\n- On hit, Armor King can frame-trap into ws2."
+        },
+        {
+          "id": "Armor King counterplay#Lows / db+3",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Lows",
+            "db+3"
+          ],
+          "text": "- Difficult to react to.\n- Launch-punishable on block.\n- Has very long range and launches on counter hit.\n\n= Heat ="
+        },
+        {
+          "id": "Armor King counterplay#Heat Options / db+2,1",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Heat Options",
+            "db+2,1"
+          ],
+          "text": "- A wall-splatting option that leaves Armor King at +3 on block.\n- Counterplay: The second hit can be punch-parried on reaction."
+        },
+        {
+          "id": "Armor King counterplay#Heat Options / db+2,3",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Heat Options",
+            "db+2,3"
+          ],
+          "text": "- An alternative to the db+2,1 string.\n- Counterplay: The second hit can be parried with a universal parry."
+        },
+        {
+          "id": "Armor King counterplay#Poison Mist",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Poison Mist"
+          ],
+          "text": "- A very fast Poison Mist option.\n- Counterplay: Sidestep right and duck."
+        },
+        {
+          "id": "Armor King counterplay#ub+1",
+          "page": "Armor King counterplay",
+          "heading": [
+            "ub+1"
+          ],
+          "text": "- A homing launcher.\n- Counterplay: Sidestep right and duck when the situation allows.\n\n= BAD Stance =\n\nWhen Armor King transitions into BAD with frame advantage, such as after b+2,1, you must deal with a stance mix-up. There is no universal option select that covers every possibility.\n\nBAD also gives Armor King access to a built-in punch parry that leads to a guaranteed throw."
+        },
+        {
+          "id": "Armor King counterplay#2: Mid Options",
+          "page": "Armor King counterplay",
+          "heading": [
+            "2: Mid Options"
+          ],
+          "text": "- A mid attack.\n- Can be extended into:\n\n- A stunner.\n\nAlternatively, Armor King can use:\n\n- Can wallsplat."
+        },
+        {
+          "id": "Armor King counterplay#1+3: Throw",
+          "page": "Armor King counterplay",
+          "heading": [
+            "1+3: Throw"
+          ],
+          "text": "- Throw break: 1, despite the 1+2-style throw animation."
+        },
+        {
+          "id": "Armor King counterplay#2+4: Throw",
+          "page": "Armor King counterplay",
+          "heading": [
+            "2+4: Throw"
+          ],
+          "text": "- Throw break: 2.\n- The right arm leads during the throw animation.\n\n= Okizeme ="
+        },
+        {
+          "id": "Armor King counterplay#At the Wall",
+          "page": "Armor King counterplay",
+          "heading": [
+            "At the Wall"
+          ],
+          "text": "After finishing a combo at the wall, Armor King will often use:\n\n- If the opponent tech-rolls, Armor King can follow up while maintaining frame advantage, reportedly +4.\n\nHe can also use:\n\n- Can spin the opponent and create another pressure situation.\n\nBe careful about remaining grounded, as Armor King has a ground throw that creates an additional mix-up. Choose your recovery option based on the situation rather than always staying down or always tech-rolling.\n\n= Flowcharts ="
+        },
+        {
+          "id": "Armor King counterplay#Flowchart 1: f,F+2 into df+2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Flowchart 1: f,F+2 into df+2"
+          ],
+          "text": "- f,F+2 creates a range where Armor King can threaten you while you may struggle to retaliate.\n- Avoid pressing buttons carelessly, as df+2 launches on counter hit.\n- Counterplay: Sidestep right to avoid df+2, or punish it on block (-12)."
+        },
+        {
+          "id": "Armor King counterplay#Flowchart 2: SS.2 into ws2",
+          "page": "Armor King counterplay",
+          "heading": [
+            "Flowchart 2: SS.2 into ws2"
+          ],
+          "text": "- ws2 launches on counter hit.\n- Counterplay: Sidestep left after SS.2 hits to avoid the follow-up.\n\n= Punishable Moves ="
+        }
+      ],
+      "coverage": 6142
+    }
+  },
   "Asuka": {
     "strategy": {
       "page": "Asuka strategy",
@@ -246,6 +580,26 @@
         }
       ],
       "coverage": 3904
+    }
+  },
+  "Bryan": {
+    "strategy": {
+      "page": "Bryan strategy",
+      "kind": "strategy",
+      "url": "https://wavu.wiki/t/Bryan_strategy",
+      "license": "CC BY-SA 4.0",
+      "sections": [
+        {
+          "id": "Bryan strategy#Key moves / Close range",
+          "page": "Bryan strategy",
+          "heading": [
+            "Key moves",
+            "Close range"
+          ],
+          "text": "1,2,4 Natural Counter Hit Combo, can be confirmed."
+        }
+      ],
+      "coverage": 50
     }
   },
   "Claudio": {
@@ -1838,15 +2192,174 @@
       "license": "CC BY-SA 4.0",
       "sections": [
         {
-          "id": "King counterplay#Multi-throws chart",
+          "id": "King counterplay#Understanding King's Throws",
           "page": "King counterplay",
           "heading": [
-            "Multi-throws chart"
+            "Understanding King's Throws"
           ],
-          "text": "File:King Full Chain Throw Ki Charge mash chart by bomko.png"
+          "text": "King is a grappler, and his throw animations can be deceptive. A throw that looks like a 1+2 break may actually require a 1 break. Learning to recognize his animations and throw breaks is essential when playing against him.\n\nAs a general rule:\n- Standing throws: usually look for a 1 break.\n- Running throws: usually require a 1+2 break, especially Shining Wizard (f,f,F+2+4).\n\nOn counter hit, King's throws become extremely difficult to break.\n\nAgainst most characters, ducking or sidestepping can be effective ways to avoid throws. Against King, however, sidestep right and duck (SSR + duck) is often a useful defensive approach. Be careful not to duck recklessly, as King has strong mids to punish predictable defense.\n\nDuring Heat, King's throws become homing, making his Jaguar Sprint mix-ups especially difficult to deal with."
+        },
+        {
+          "id": "King counterplay#Key Defensive Principles",
+          "page": "King counterplay",
+          "heading": [
+            "Key Defensive Principles"
+          ],
+          "text": "- Learn the throw breaks: King's animations can be misleading, so do not rely exclusively on how a throw looks at first glance.\n- Use SSR: Sidestep right is a useful option against several of King's approaches and throws.\n- Duck selectively: Look for predictable highs and lows in his strings, but avoid ducking without a read.\n- Respect Jaguar Sprint during Heat: Its enhanced options make King's stance pressure particularly dangerous.\n\n= Key Moves ="
+        },
+        {
+          "id": "King counterplay#Main Throws / Giant Swing",
+          "page": "King counterplay",
+          "heading": [
+            "Main Throws",
+            "Giant Swing"
+          ],
+          "text": "- Throw break: 1\n- One of King's most damaging throws, with a 10-frame startup.\n- Extremely difficult to break on counter hit.\n- After a jab is blocked, King is +1 and can attempt Giant Swing without being interrupted by a standard jab.\n- Deals significant damage near the wall."
+        },
+        {
+          "id": "King counterplay#Main Throws / Shining Wizard",
+          "page": "King counterplay",
+          "heading": [
+            "Main Throws",
+            "Shining Wizard"
+          ],
+          "text": "- Throw break: 1+2\n- A running throw.\n- Counterplay: Sidestep right (SSR)."
+        },
+        {
+          "id": "King counterplay#Main Throws / Executioner Drop",
+          "page": "King counterplay",
+          "heading": [
+            "Main Throws",
+            "Executioner Drop"
+          ],
+          "text": "- Throw break: 1+2\n- Can lead to a guaranteed combo when the opponent's back is to the wall."
+        },
+        {
+          "id": "King counterplay#Main Throws / Throw Away",
+          "page": "King counterplay",
+          "heading": [
+            "Main Throws",
+            "Throw Away"
+          ],
+          "text": "- Throw break: 1+2\n- A homing throw.\n- Can lead to a guaranteed combo when the opponent's back is to the wall.\n- Visual cue: King extends his arms noticeably outward."
+        },
+        {
+          "id": "King counterplay#Neutral / Muscle Armor",
+          "page": "King counterplay",
+          "heading": [
+            "Neutral",
+            "Muscle Armor"
+          ],
+          "text": "- King's Muscle Armor stance.\n- Counterplay: Use lows or throws to challenge it."
+        },
+        {
+          "id": "King counterplay#Neutral / df+1,2",
+          "page": "King counterplay",
+          "heading": [
+            "Neutral",
+            "df+1,2"
+          ],
+          "text": "- Counterplay: Punish with a 10-frame move when the situation allows."
+        },
+        {
+          "id": "King counterplay#Neutral / df+2",
+          "page": "King counterplay",
+          "heading": [
+            "Neutral",
+            "df+2"
+          ],
+          "text": "- King's mid poke.\n- Has a follow-up that can lead to a launcher:\n\n- Counterplay: Sidestep right and duck the follow-up, then punish heavily if you avoid it."
+        },
+        {
+          "id": "King counterplay#Neutral / f+4",
+          "page": "King counterplay",
+          "heading": [
+            "Neutral",
+            "f+4"
+          ],
+          "text": "- Used to discourage sidestepping."
+        },
+        {
+          "id": "King counterplay#Neutral / b+1,2",
+          "page": "King counterplay",
+          "heading": [
+            "Neutral",
+            "b+1,2"
+          ],
+          "text": "- Counterplay: Duck the second hit."
+        },
+        {
+          "id": "King counterplay#While Running (WR) / f,F+1",
+          "page": "King counterplay",
+          "heading": [
+            "While Running (WR)",
+            "f,F+1"
+          ],
+          "text": "- Used to discourage sidestepping."
+        },
+        {
+          "id": "King counterplay#While Running (WR) / f,f,F+3",
+          "page": "King counterplay",
+          "heading": [
+            "While Running (WR)",
+            "f,f,F+3"
+          ],
+          "text": "- Counterplay: Sidestep right (SSR)."
+        },
+        {
+          "id": "King counterplay#Lows",
+          "page": "King counterplay",
+          "heading": [
+            "Lows"
+          ],
+          "text": "- Counterplay: Sidestep right and duck, or sidewalk right.\n\n- Counterplay: Punish with a 14-frame move.\n\n- If King stops the string before completing the low sequence, look for an opportunity to launch-punish him.\n- If he completes the string, the next option is:\n\n- Look for an opportunity to launch-punish the completed string when its properties allow it."
+        },
+        {
+          "id": "King counterplay#Common Strings / 1,2,1,2+4",
+          "page": "King counterplay",
+          "heading": [
+            "Common Strings",
+            "1,2,1,2+4"
+          ],
+          "text": "- Throw break: 2\n\n= Jaguar Sprint (JGR) =\n\nKing can enter Jaguar Sprint manually with f+3+4 or transition into it after certain wall combos, such as 3,2,2. He often uses this stance during Heat to apply pressure and threaten powerful mix-ups."
+        },
+        {
+          "id": "King counterplay#Jaguar Sprint Options",
+          "page": "King counterplay",
+          "heading": [
+            "Jaguar Sprint Options"
+          ],
+          "text": "- A homing mid that is safe on block.\n- During Heat, it leaves King at +2 on block and allows him to continue his pressure, including threatening Giant Swing.\n\n- A low option.\n\n- Also known as the RKO, a homing throw that cannot be broken.\n- Visual cue: King spreads his arms outward.\n- It has a 23-frame startup, making it potentially reactable in an offline setting."
+        },
+        {
+          "id": "King counterplay#Counterplay Against Jaguar Sprint / In Neutral",
+          "page": "King counterplay",
+          "heading": [
+            "Counterplay Against Jaguar Sprint",
+            "In Neutral"
+          ],
+          "text": "If King runs toward you in neutral, a jab check can interrupt his approach before he uses a Jaguar Sprint option. However, during Heat, his sprint may be armored, so do not rely on a jab check as a guaranteed answer."
+        },
+        {
+          "id": "King counterplay#Counterplay Against Jaguar Sprint / After Heat Smash",
+          "page": "King counterplay",
+          "heading": [
+            "Counterplay Against Jaguar Sprint",
+            "After Heat Smash"
+          ],
+          "text": "King will often transition into Jaguar Sprint after his Heat Smash. This creates a difficult mix-up in which you need to watch for the RKO while remaining prepared for his other options."
+        },
+        {
+          "id": "King counterplay#Counterplay Against Jaguar Sprint / At the Wall",
+          "page": "King counterplay",
+          "heading": [
+            "Counterplay Against Jaguar Sprint",
+            "At the Wall"
+          ],
+          "text": "After King performs the following wall combo:\n\nhe may transition into Jaguar Sprint.\n\n- Do not stand up immediately. Staying grounded may avoid certain follow-ups.\n- Alternatively, use a quick recovery by holding forward when knocked down.\n- If King immediately uses:\n\nyou can try to tech roll toward the background by pressing 2 to avoid the low, depending on the situation.\n\n= Chain Throws Chart =\n\nFile:King Full Chain Throw Ki Charge mash chart by bomko.png\n\n= Punishable Moves =\n\n= External Links =\n\n- Anti King Guide"
         }
       ],
-      "coverage": 60
+      "coverage": 4231
     },
     "strategy": {
       "page": "King strategy",
@@ -3224,6 +3737,12 @@
       "license": "CC BY-SA 4.0",
       "sections": [
         {
+          "id": "Lidia counterplay#Introduction",
+          "page": "Lidia counterplay",
+          "heading": [],
+          "text": "=Overview=\nShe is a very oppressive character, transitioning into many stances. However, she is very linear : you want to SSR and duck. You have to step the character else you are gonna get thrown in a blender and lose your health on chip damage.\n\n=Key Moves="
+        },
+        {
           "id": "Lidia counterplay#Match-ups / Hwoarang",
           "page": "Lidia counterplay",
           "heading": [
@@ -3242,7 +3761,7 @@
           "text": "The punch parry window on manual Perfumer entry (f+3) covers both mid options out of HAE on immediate timing after HRS.2 on hit (+8), only being beaten by the high unblockable (HAE.1+2). This creates a mixup situation where Victor can threaten either a heat engage or heat dash launch off of a successful parry into PRF.3 (vs. HAE.1 and HAE.2) or a duck launch on HAE.1+2.\n\nVictor's u+1+2 and H.u+1+2 beat all HRS options out of f,F+2 on block except for HRS.4, which does 16 damage, and HRS into nothing, which will be able to launch u+1+2 on block (but not H.u+1+2). For the Victor, it's a good option to discourage Lidias who consistently press after f,F+2 on block."
         }
       ],
-      "coverage": 874
+      "coverage": 1133
     },
     "strategy": {
       "page": "Lidia strategy",
@@ -4825,12 +5344,10 @@
       "license": "CC BY-SA 4.0",
       "sections": [
         {
-          "id": "Xiaoyu counterplay#Overview",
+          "id": "Xiaoyu counterplay#Introduction",
           "page": "Xiaoyu counterplay",
-          "heading": [
-            "Overview"
-          ],
-          "text": "Xiaoyu is notoriously one of, if not the hardest matchup to learn in Tekken. She's an extremely tricky character that exploits your gaps in knowledge very hard, and to top it off her offense is absolutely not to be slept on in this iteration of the game.\n\n(Page is still very WIP.)"
+          "heading": [],
+          "text": "[[File:Xiaoyu-BT-trick.mp4|300px|thumb|Don't let this happen to you.]]\n= Overview =\nXiaoyu is notoriously one of, if not the hardest matchup to learn in Tekken. She's an extremely tricky character that exploits your gaps in knowledge very hard, and to top it off her offense is absolutely not to be slept on in this iteration of the game."
         },
         {
           "id": "Xiaoyu counterplay#Checking with mids",
@@ -4838,7 +5355,7 @@
           "heading": [
             "Checking with mids"
           ],
-          "text": "One of the most pronounced aspects of Xiaoyu's moveset is just how many moves she has to duck under highs. This is why it's vitally important to first and foremost check her with mids. There are some situations where she can actually go under a lot of mids, though she has to commit to dodging them far harder than highs. To counter this, you can try to do a mid with a hitbox low to the ground, but this is heavily on a character-by-character basis and requires experimentation."
+          "text": "One of the most pronounced aspects of Xiaoyu's moveset is just how many moves she has to duck under highs. This is why it's vitally important to first and foremost check her with mids. There are some situations where she can actually go under a lot of mids, though she has to commit to dodging them far harder than highs. To counter this, you can try to do a mid with a hitbox low to the ground, but this is heavily on a character-by-character basis and requires experimentation. You need to know what you are doing with your own character at all times to be able to deal with Xiaoyu."
         },
         {
           "id": "Xiaoyu counterplay#Checking with mids / Punishing Cali Roll",
@@ -4847,10 +5364,18 @@
             "Checking with mids",
             "Punishing Cali Roll"
           ],
-          "text": "As shown in the video above, Xiaoyu has a high crushing launcher out of her Backturn stance.\n\nIf not punished properly, she can crush a high you press to take your turn and launch you for free. If you do manage to block it, your mileage on punishing it may vary, as although it is -11 in BT, she can BT parry many mids and highs slower than i11. Damaging jab strings are usually the safest bet, or a hopkick if your character has one; however, if the hopkick is the only thing you do, she can instantly go airborne and render the punish far less damaging. Some throws are also i11 or faster (King, Dragunov, and Paul come to mind), with King in particular getting the best BT throw punish at 75 damage and a floor break."
+          "text": "As shown in the video above, Xiaoyu has a high crushing launcher out of her Backturn stance.\n\nIf not punished properly, she can crush a high you press to take your turn and launch you for free. If you do manage to block it, your mileage on punishing it may vary, as although it is -11 in BT, she can BT parry many mids and highs slower than i11. Damaging jab strings are usually the safest bet, or a hopkick if your character has one; however, if the hopkick is the only thing you do, she can instantly go airborne and render the punish far less damaging. Some throws are also i11 or faster (King, Dragunov, and Paul come to mind), with King in particular getting the best BT throw punish at 75 damage and a floor break.\n\n=Key Moves="
+        },
+        {
+          "id": "Xiaoyu counterplay#AOP (Phoenix)",
+          "page": "Xiaoyu counterplay",
+          "heading": [
+            "AOP (Phoenix)"
+          ],
+          "text": "d+1+2\n\nAnytime she goes into AOP, she lowers her hitbox a ton and does a little SSR : some mids and low won't work.\nShe can also teabag, that removes her hitbox almost entirely. She can also cancel her teabag into a counterattack."
         }
       ],
-      "coverage": 1480
+      "coverage": 1885
     },
     "strategy": {
       "page": "Xiaoyu strategy",

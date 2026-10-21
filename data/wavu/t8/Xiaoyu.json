@@ -61,13 +61,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i20~23",
-      "recv": "BT",
-      "tot": null,
+      "recv": "r21 BT",
+      "tot": "52",
       "crush": null,
       "block": "-3",
       "hit": "+8",
       "ch": "+10",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st hit with 5F delay\n* Interrupt with i1 from 1st block\n* Move can be delayed by 10F\n* Transition to standing with 1,D+2 or 1,d+2,F (-4, +7, +9)\n* Transition to HYP with 1,d+2~B (-2, +9, +11)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st hit with 5F delay\n* Interrupt with i1 from 1st block\n* 3rd and 4th active frames are inactive when transitioning to BT or HYP (i20~21 actual startup)\n* Move can be delayed by 10F\n* Transition to standing t53 r20 with 1,D+2 or F_DF_DB_U_UF (-4/+7/+9)\n* Transition to HYP r20 with B_UB (-2/+9/+11)\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-1,d+2,1+2",
@@ -193,8 +193,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i26~27",
-      "recv": null,
-      "tot": null,
+      "recv": "r32",
+      "tot": "96",
       "crush": null,
       "block": "-13",
       "hit": "+17a (+8)",
@@ -325,13 +325,13 @@
       "tracksLeft": "15",
       "tracksRight": "9",
       "startup": "i14",
-      "recv": "BT",
-      "tot": null,
-      "crush": "cs6~14",
+      "recv": "r21 BT",
+      "tot": "35",
+      "crush": "cs6~13",
       "block": "-2",
       "hit": "+9",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to standing by holding any direction (-4, +7)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to standing r23 by holding any direction (-4/+7)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-df+2,3",
@@ -353,7 +353,7 @@
       "block": "-1",
       "hit": "+35a (+9)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Cancel to r15 FC with DB, D, or DF (-3, -16)\n* Combo from 1st hit with 8F delay\n* Interrupt with i6 from 1st block\n* Move can be delayed by 6F\n* Input can be delayed by 9F\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Cancel to r32 FC with DB, D, or DF at frame 15 (-3, -16)\n* Combo from 1st hit with 8F delay\n* Interrupt with i6 from 1st block\n* Move can be delayed by 6F\n* Input can be delayed by 9F\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-df+2,1+2",
@@ -391,13 +391,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i29~30",
-      "recv": null,
-      "tot": null,
-      "crush": "cs6~29",
+      "recv": "r32",
+      "tot": "62",
+      "crush": "cs6~48",
       "block": "-23",
       "hit": "+71a (+55)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* Instant Tornado\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt;\n* Cancel to BT with B (r31)\n* On hit of whiff, transition to AOP with D\n* [[Snake_Edge|Snake Edge]]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* Instant Tornado\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt;\n* Cancel to BT r31 with B at frame 16\n* Transition to AOP r32 cs1~ with D at frame 32 on hit or whiff\n* [[Snake_Edge|Snake Edge]]&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+1",
@@ -413,13 +413,13 @@
       "tracksLeft": "27",
       "tracksRight": "27",
       "startup": "i17~19 i4~6 i3~9",
-      "recv": "FC",
-      "tot": null,
+      "recv": "r22 FC",
+      "tot": "54",
       "crush": null,
-      "block": "-5",
-      "hit": "+8c",
-      "ch": "+9c",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP with D+1 (-10, +4c, +5c)\n* This move can become more minus if the final hit whiffs\n** Standing (-13, -2c) \n** AOP (-17, -5c)&lt;/div&gt;"
+      "block": "-9~-3",
+      "hit": "+7c~13c",
+      "ch": null,
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP r26 cs4~ with D+1 (-13~-7/+3c~+9c)\n* Typically -8~-6 on block and +8c on hit\n* This move can become more minus if the final hit whiffs\n** Standing (-14~-12/-3c~-1c) \n** AOP (-18~-16/-7c~-1c)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+3,4",
@@ -435,13 +435,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i25~26",
-      "recv": null,
-      "tot": null,
+      "recv": "r23",
+      "tot": "67",
       "crush": null,
       "block": "+0",
       "hit": "+26a (+17)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st CH\n* Interrupt with i9 from 1st block\n* Whiffs vs SSR, SWR from 1st block&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st CH with 1F delay\n* Interrupt with i9 from 1st block\n* Whiffs vs SSR, SWR from 1st block\n* i29~30 effective startup\n* Move is delayed 4F\n* Move cannot be delayed\n* Input can be delayed by 1F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+3+4",
@@ -451,7 +451,7 @@
       "alias": null,
       "alt": "u+3+4",
       "parent": null,
-      "target": "special",
+      "target": "sp",
       "damage": null,
       "reach": null,
       "tracksLeft": null,
@@ -463,7 +463,7 @@
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Alternate input u+3+4&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Sidesteps to the foreground\n* u+3+4: Sidesteps to the background&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-db+1",
@@ -479,13 +479,13 @@
       "tracksLeft": "26",
       "tracksRight": "9",
       "startup": "i18",
-      "recv": null,
-      "tot": null,
+      "recv": "r30",
+      "tot": "48",
       "crush": null,
       "block": "-9",
       "hit": "+14a (+5)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +5, +36a (+26)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Clean hit damage: 30&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +5, +36a (+26)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Clean hit damage: 30\n* 20f timeestop on hit&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-db+2",
@@ -567,13 +567,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i8~13",
-      "recv": null,
-      "tot": null,
+      "recv": "r26",
+      "tot": "39",
       "crush": null,
       "block": "-12",
       "hit": "+1~+6",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT on hit\n* Transition to standing on hit with B+1 (-1~+4) &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT r29 on hit\n* Transition to standing r26 on hit with B+1 (-1~+4) &lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+2,2",
@@ -589,13 +589,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i21~23",
-      "recv": "BT",
-      "tot": null,
+      "recv": "r24 BT",
+      "tot": "67",
       "crush": null,
       "block": "-7",
       "hit": "+4",
       "ch": "+22a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT\n* Combo from 1st hit with 9F delay\n* Interrupt with i6 from 1st block\n* Move can be delayed by 6F\n* Input can be delayed by 11F\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT\n* Combo from 1st hit with 8F delay\n* Interrupt with i6 from 1st block\n* +4c on crouching hit\n* i25~26 effective startup\n* Move can be delayed by 6F\n* Input can be delayed by 10F\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+3",
@@ -611,13 +611,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i18~19",
-      "recv": "BT",
-      "tot": null,
+      "recv": "r21 BT",
+      "tot": "40",
       "crush": null,
       "block": "+3",
       "hit": "+8c",
       "ch": "+32d",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unparryable by standard kick parries (backturned heel?)\n* 6 chip damage on block\n* Transition to BT\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT\n* Unparryable by standard kick parries (backturned heel?)\n* 6 chip damage on block\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+4,1",
@@ -633,13 +633,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i27~28",
-      "recv": null,
-      "tot": null,
+      "recv": "r33",
+      "tot": "77",
       "crush": null,
       "block": "-14",
       "hit": "+14cg",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +43d (+35)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 8F delay\n* Interrupt with i3 from 1st block\n* Forces tech back roll on hit\n* Move can be delayed by 5F\n* Input can be delayed by 8F&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +43d (+35)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 7F delay\n* Interrupt with i3 from 1st block\n* Forces tech back roll on hit\n* i29~30 effective startup\n* Move can be delayed by 5F\n* Input can be delayed by 7F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+1+2",
@@ -654,14 +654,14 @@
       "reach": null,
       "tracksLeft": "24",
       "tracksRight": "24",
-      "startup": "i15~16 i5~6",
-      "recv": null,
-      "tot": null,
+      "startup": "i15~16, i5~6",
+      "recv": "r32",
+      "tot": "55",
       "crush": null,
       "block": "-13",
       "hit": "+29a (+19)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Recovers 2F faster on hit (t53 r30)\n* Pseudo homing (strong realign properties)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-ub+3",
@@ -703,9 +703,9 @@
       "tot": "59",
       "crush": "pc7~21",
       "block": "-13",
-      "hit": "+13d (-4)",
+      "hit": "+13a (-4)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* -9 and 5 chip damage on block after attack absorption\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-u+1+2,2,1",
@@ -727,7 +727,7 @@
       "block": "-12",
       "hit": "+16a (+7)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 2nd hit\n* Combo from 1st CH\n* Interrupt with i7 from 1st block\n* Cancel to BT with B (-19/-8)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 2nd hit\n* Combo from 1st CH\n* Interrupt with i7 from 1st block\n* Cancel to BT r38 with B (-19/-8) at frame 25&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-uf+2",
@@ -875,13 +875,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i18~19",
-      "recv": null,
-      "tot": null,
+      "recv": "r24",
+      "tot": "61",
       "crush": null,
       "block": "-1",
       "hit": "+20a (+11)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combos from 1st hit\n* Interrupt with i1 from 1st block&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit\n* Interrupt with i1 from 1st block\n* i21~22 effective startup\n* Move is delayed 3F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+1,4",
@@ -897,13 +897,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i21~22",
-      "recv": null,
-      "tot": null,
+      "recv": "r30",
+      "tot": "70",
       "crush": null,
       "block": "-12",
-      "hit": "+22d",
+      "hit": "+22a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combos from 1st CH\n* Interrupt with i4 from 1st block&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st CH\n* Interrupt with i4 from 1st block\n* i24~25 effective startup\n* Move is delayed 3F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+2,1",
@@ -919,13 +919,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i27~28",
-      "recv": null,
-      "tot": null,
+      "recv": "r27",
+      "tot": "70",
       "crush": null,
       "block": "-12",
       "hit": "+16a (+7)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 2F delay\n* Move can be delayed by 12F\n* Interrupt with i7 from 1st block\n* Cancel to BT with B (-19,-8)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 3F delay\n* Interrupt with i7 from 1st block\n* 20f timestop on hit\n* Move can be delayed by 12F\n* Cancel to BT r38 with B (-19/-8) at frame 25&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+3",
@@ -941,13 +941,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i14~15",
-      "recv": "BT",
-      "tot": null,
+      "recv": "r23 BT",
+      "tot": "38",
       "crush": null,
-      "block": "-5",
-      "hit": "+6",
-      "ch": "+12",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* &lt;/div&gt;"
+      "block": "-5~-4",
+      "hit": "+6~+7",
+      "ch": "+12~+13",
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* +6c~+7c on crouching hit &lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+4",
@@ -963,13 +963,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i20~23",
-      "recv": null,
-      "tot": null,
-      "crush": null,
+      "recv": "r27",
+      "tot": "50",
+      "crush": "js15~31, fs32~34",
       "block": "+9",
-      "hit": "+13g c",
+      "hit": "+13cg",
       "ch": "+58a (+38)",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to HYP on hit or block\n* Chip on block [6]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to HYP r34 on hit or block\n** r30 when performing HYP.2+3 (+13/+17cg)\n* 6 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+1+2,1+2",
@@ -985,13 +985,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i19~20",
-      "recv": null,
-      "tot": null,
+      "recv": "r32",
+      "tot": "68",
       "crush": null,
       "block": "-8",
       "hit": "+7c",
       "ch": "+43a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Combo from 1st hit with 8F delay\n* Jail from 1st block with no delay\n* Move can be delayed by 14F\n* Input can be delayed by 16F\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Combo from 1st hit with 6F delay\n* Jail from 1st block with no delay\n* Move can be delayed by 14F\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-ws+1+2,1+2",
@@ -1007,13 +1007,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i19~20",
-      "recv": null,
-      "tot": null,
+      "recv": "r32",
+      "tot": "68",
       "crush": null,
       "block": "-8",
       "hit": "+7c",
       "ch": "+43a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Combo from 1st hit with 8F delay\n* Jail from 1st block with no delay\n* Move can be delayed by 14F\n* Input can be delayed by 16F\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Combo from 1st hit with 6F delay\n* Jail from 1st block with no delay\n* Move can be delayed by 14F\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+3+4",
@@ -1029,13 +1029,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i37~45",
-      "recv": null,
-      "tot": null,
-      "crush": "js9~",
-      "block": "-3",
-      "hit": "+39a",
+      "recv": "r16",
+      "tot": "61",
+      "crush": "js9~41, fs42~44",
+      "block": "-5~+3",
+      "hit": "+36a~+44a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Chip on block [9]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Typically -5~-2 on block and +37a~+39a on hit\n* 9 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,f,F+3",
@@ -1052,12 +1052,12 @@
       "tracksRight": null,
       "startup": "i23~30",
       "recv": "r14 AOP",
-      "tot": null,
+      "tot": "44",
       "crush": "&lt;div class=&quot;plainlist&quot;&gt;\n* js3~31\n* fs32~34\n&lt;/div&gt;",
       "block": "+7g~+14g",
       "hit": "+29a (+19)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to AOP\n* Chip on block [9]\n* Alternate input wr3&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to AOP\n* 6 chip damage on block\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-1+3+4",
@@ -1145,7 +1145,7 @@
       "block": "-10",
       "hit": "+12g",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 8F delay\n* Interrupt with i3 from 1st block\n* Move can be delayed by 7F\n* Input can be delayed by 9F&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 7F delay\n* Interrupt with i3 from 1st block\n* Move can be delayed by 7F\n* Input can be delayed by 8F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-ws2",
@@ -1321,7 +1321,7 @@
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT FC&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT FC\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-ss4",
@@ -1365,7 +1365,7 @@
       "block": "-13",
       "hit": "+17a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; \n* Combo from 1st hit\n* Interrupt with i6 from 1st block\n* Move is delayed 2F\n* Move cannot be delayed\n* Cancel to r15 FC with D at frame 18 (-16/-7/+53a)\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange tornado&quot;\n&gt;Tornado&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; \n* Combo from 1st hit\n* Interrupt with i6 from 1st block\n* i26~27 effective startup\n* Move is delayed 2F\n* Move cannot be delayed\n* Cancel to FC r33 with D at frame 18 (-16/-7/+53a)\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-BT.2,1,4",
@@ -1406,10 +1406,10 @@
       "recv": "FC",
       "tot": null,
       "crush": null,
-      "block": "-11",
-      "hit": "+5c",
+      "block": "-14~-8",
+      "hit": "+3c~+9c",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to FC\n* Transition to AOP with D (-10, +5c)\n* Combos from 2nd hit\n* Jail from 2nd block with ?F delay&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to FC\n* Transition to AOP with D (-10, +5c)\n* Combos from 2nd hit\n* Frame advantage on block is character-dependent (-13 on bigger characters down to -10 on smaller ones)\n* -11 on block and +4c on hit on average\n* Jail from 2nd block with ?F delay\n* This move can become more minus if the final hit whiffs\n** Standing (-20~-18/-7~-5))\n** AOP (-17~-15/-6~-4)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-BT.3",
@@ -1475,7 +1475,7 @@
       "block": "+3",
       "hit": "+19a (+10)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +5, +62a (+42)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 14F delay\n* Interrupt with i6 from 1st block\n* Whiffs vs SSR from 1st block\n* Move can be delayed by 8F\n* Input can be delayed by 15F\n* 6 chip damage on block\n* Transition to BT&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +62a (+42)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit with 14F delay\n* Interrupt with i6 from 1st block\n* Whiffs vs SSR from 1st block\n* Move can be delayed by 8F\n* Input can be delayed by 15F\n* 6 chip damage on block\n* Transition to BT&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-BT.1+2,1+2",
@@ -1578,14 +1578,14 @@
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i19",
-      "recv": null,
-      "tot": null,
+      "startup": "i19~20",
+      "recv": "r29",
+      "tot": "67",
       "crush": null,
       "block": "-5",
       "hit": "+20a (+11)",
       "ch": "+37a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st CH with 12F delay\n* Interrupt with i1 from 1st block\n* Move can be delayed by 10F\n* Input can be delayed by 12F&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st CH with 12F delay\n* Interrupt with i1 from 1st block\n* i21~22 effective startup\n* Move is delayed 2F\n* Move can be delayed by 10F\n* Input can be delayed by 12F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-BT.d+4",
@@ -1673,7 +1673,7 @@
       "block": "-14",
       "hit": "+21a (+16)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Shoulder&lt;/div&gt;\n* -9 on block if an attack is absorbed\n* 10 chip damage on block after absorbing an attack in power crush state\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Shoulder&lt;/div&gt;\n* -9 and 10 chip damage on block after attack absorption\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-BT.f,F+3+4",
@@ -1684,18 +1684,18 @@
       "alt": null,
       "parent": null,
       "target": "M (t)",
-      "damage": "15 (43)",
+      "damage": "23 (20)",
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i39",
-      "recv": "BT",
-      "tot": null,
-      "crush": "js10~",
-      "block": "+4",
-      "hit": "+39a",
+      "startup": "i39~51",
+      "recv": "r10 BT",
+      "tot": "61",
+      "crush": "js10~46, fs47~49",
+      "block": "-3~+9",
+      "hit": "+38a~+50a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unbreakable throw when connecting at close range on front standing hit\n* Chip on block [9] &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Shift to unbreakable attack throw (+0d) when connecting at close range on front standing block/hit (i44+?)\n** Sideswitch\n** Opponent recovers FDFT\n* Typically connects on i43~48 at +1~+6 on block and +42a~+47a\n* +2 to +4? on block on average\n* Transition to BT FC r1 with D at frame 55\n* 9 chip damage on block\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-HYP.2",
@@ -1715,9 +1715,9 @@
       "tot": null,
       "crush": null,
       "block": "-4",
-      "hit": "+22 (-13)",
+      "hit": "+22a (+13)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +5, +36a (+26)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* &lt;span class=&quot;tooltip-label&quot;&gt;Powered Up&lt;/span&gt;&lt;span class=&quot;tooltip-body&quot; style=&quot;display: none&quot;&gt;Based on the number of steps taken in HYP:&lt;span class=&quot;tooltip-hr&quot;&gt;&lt;/span&gt;HYP.2 damage increases and becomes plus on block. See the charts in th [[Xiaoyu_movelist#HYP_(Hypnotist)|HYP]] section for more details.&lt;/span&gt; up when in Heat or based on the number of steps taken.\n* Consumes 240?F of heat timer during heat\n* 9 chip damage on block (2 steps)\n* 14 chip damage on block (3 steps)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Engager\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Dash +36a (+26)\n&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* &lt;span class=&quot;tooltip-label&quot;&gt;Powered Up&lt;/span&gt;&lt;span class=&quot;tooltip-body&quot; style=&quot;display: none&quot;&gt;Based on the number of steps taken in HYP:&lt;span class=&quot;tooltip-hr&quot;&gt;&lt;/span&gt;HYP.2 damage increases and becomes plus on block. See the charts in th [[Xiaoyu_movelist#HYP_(Hypnotist)|HYP]] section for more details.&lt;/span&gt; up when in Heat or based on the number of steps taken.\n* Consumes 240?F of heat timer during heat\n* 9 chip damage on block (2 steps)\n* 14 chip damage on block (3 steps)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-HYP.3",
@@ -1776,14 +1776,36 @@
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i25",
+      "startup": "i25~26",
       "recv": null,
       "tot": null,
-      "crush": "js12~",
+      "crush": "js12~27, fs28~30",
       "block": "+8",
       "hit": "+30a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* Cancel to BT with B\n* Chip on block [8]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* Cancel to BT r40 (js1~8 fs9~11) with B at frame 19\n* 8 chip damage on block&lt;/div&gt;"
+    },
+    {
+      "id": "Xiaoyu-HYP.1+2",
+      "num": "104",
+      "name": "Hypnotist",
+      "input": "HYP.1+2",
+      "alias": null,
+      "alt": null,
+      "parent": null,
+      "target": null,
+      "damage": null,
+      "reach": null,
+      "tracksLeft": null,
+      "tracksRight": null,
+      "startup": null,
+      "recv": "r20 HYP",
+      "tot": null,
+      "crush": "ps2~10",
+      "block": null,
+      "hit": null,
+      "ch": null,
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Starts taking steps in the opposite direction\n** Can be performed at frame 25 of manual stance transition&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-HYP.2+3",
@@ -1803,9 +1825,9 @@
       "tot": null,
       "crush": null,
       "block": null,
-      "hit": "+10d",
+      "hit": "+10a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unblockable\n* Cancel to BT with BB&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Unblockable\n* High evasion\n* 20F timestop on hit\n* Cancel to BT FC r56 with b,b at frame 30\n** Cannot buffer stance moves&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-AOP.1,2",
@@ -2003,7 +2025,7 @@
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Xiaoyu ducks lower\n* will evade most mids\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Xiaoyu ducks lower\n* will evade most mids especially at frames 6~21\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-AOP.d+1",
@@ -2150,14 +2172,14 @@
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i14",
+      "startup": "i12~16 (i27~31)",
       "recv": null,
       "tot": null,
-      "crush": "js",
-      "block": "-2",
+      "crush": "cs1~5, js9~15, fs16~",
+      "block": "-4~+0",
       "hit": "+29d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to AOP with D (-3, +28) &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-orange sat&quot;\n&gt;Strong Aerial Tailspin&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to AOP with D (-3, +28)\n* Typically connects on frame 14 at -2/+29d\n* Jump for 6~15F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-While in the air 4",
@@ -2172,14 +2194,14 @@
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i8",
+      "startup": "i8 (i39)",
       "recv": null,
       "tot": null,
       "crush": "js",
       "block": "-8",
       "hit": "+23a (+13)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; \n* Jump for 6~15F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-While landing 3",
@@ -2201,7 +2223,7 @@
       "block": "-18",
       "hit": "+27a",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* i46 effective startup (Jump takes 31F)\n* Jump for 16~31F&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-1+3",
@@ -2377,7 +2399,7 @@
       "block": "-6",
       "hit": "+1d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Actual startup: i32\n* AOP.1+3: Xiaoyu rolls to her left and throws (Throw break 1)\n* AOP.2+4: Xiaoyu rolls to her right and throws (Throw break 2)\n* Cancel to r40 FC with D &lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Actual startup: i32\n* AOP.1+3: Xiaoyu rolls to her left and throws (Throw break 1)\n* AOP.2+4: Xiaoyu rolls to her right and throws (Throw break 2)\n* Cancel to r40 FC with D at frame 30&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-(back to wall).b,b,UB",
@@ -2404,7 +2426,7 @@
     {
       "id": "Xiaoyu-1",
       "num": null,
-      "name": null,
+      "name": "Jab",
       "input": "1",
       "alias": null,
       "alt": null,
@@ -2415,13 +2437,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i10",
-      "recv": null,
-      "tot": null,
+      "recv": "r19",
+      "tot": "29",
       "crush": null,
       "block": "+1",
       "hit": "+8",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt; &lt;/div&gt;"
+      "notes": "Recovers 2f faster on hit or block (t27 r17)"
     },
     {
       "id": "Xiaoyu-2",
@@ -2605,7 +2627,7 @@
       "name": "Jumping",
       "input": "AOP.uf",
       "alias": null,
-      "alt": null,
+      "alt": "&lt;div class=&quot;dotlist&quot;&gt;\n\n* AOP.u\n* AOP.ub\n\n&lt;/div&gt;",
       "parent": null,
       "target": null,
       "damage": null,
@@ -2613,9 +2635,9 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": null,
-      "recv": "FC",
+      "recv": "r40 FC",
       "tot": null,
-      "crush": "js",
+      "crush": "cs1~5, js9~35, fs36~38",
       "block": null,
       "hit": null,
       "ch": null,
@@ -2679,13 +2701,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": null,
-      "recv": null,
-      "tot": null,
-      "crush": "&lt;div class=&quot;plainlist&quot;&gt;\n* ps5~12?\n* ps1~7? (BT)&lt;/div&gt;",
+      "recv": "r23",
+      "tot": "35",
+      "crush": "&lt;div class=&quot;plainlist&quot;&gt;\n* ps5~12\n* ps1~16 (BT)&lt;/div&gt;",
       "block": null,
       "hit": "+6",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT on successful parry\n* Alternate input b+2+4\n* Also possible during HYP and BT&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT r39 on successful parry\n* Alternate input b+2+4\n* Also possible during HYP and BT&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+2",
@@ -2701,13 +2723,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i15~16",
-      "recv": "BT",
-      "tot": null,
+      "recv": "r24 BT",
+      "tot": "40",
       "crush": null,
       "block": "-6",
       "hit": "+5",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt; \n* Transition to BT\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue homing&quot;\n&gt;Homing&lt;/div&gt; \n* Transition to BT\n* +5c on crouching hit\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+3+4",
@@ -2724,12 +2746,12 @@
       "tracksRight": null,
       "startup": null,
       "recv": "r21 BT",
-      "tot": null,
+      "tot": "30",
       "crush": null,
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT\n* r25 BT when performed from BT\n* r15 BT when performed from AOP\n* Alternate input BT.b+3+4 (r25), AOP.b+3+4 (r15)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to BT\n* BT.b+3+4: t40 r25 BT (spins backwards)\n* AOP.b+3+4: t25 r15 BT cs1~15\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-b+4",
@@ -2745,8 +2767,8 @@
       "tracksLeft": "6",
       "tracksRight": "21",
       "startup": "i13~14",
-      "recv": null,
-      "tot": null,
+      "recv": "r34",
+      "tot": "48",
       "crush": null,
       "block": "-9",
       "hit": "+0",
@@ -2943,8 +2965,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i16",
-      "recv": null,
-      "tot": null,
+      "recv": "r31",
+      "tot": "47",
       "crush": null,
       "block": "-12",
       "hit": "+7c",
@@ -3001,21 +3023,21 @@
       "name": "Silver Needle",
       "input": "BT.uf+1",
       "alias": null,
-      "alt": null,
+      "alt": "BT.u+1",
       "parent": null,
       "target": "L",
       "damage": "15",
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
-      "startup": "i33",
+      "startup": "i33~35",
       "recv": "AOP",
       "tot": null,
       "crush": "js9~",
-      "block": "-7",
-      "hit": "+12",
+      "block": "-7~-5",
+      "hit": "+12c~+14c",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP\n* Cancel to FC with D\n* Alternate input BT.u+1&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP\n* Cancel to FC r42 with D at frame 27\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+1+2",
@@ -3031,21 +3053,21 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": null,
-      "recv": "r20 AOP",
+      "recv": "r15 AOP",
       "tot": null,
       "crush": "cs1~",
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP\n* Transition to r10 FC with AOP.u \n* Alternate input BT.d+1+2&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP\n* Stays in stance indefinitely\n* Cannot block in stance\n* Transition to r10 FC with AOP.u\n** i11 block\n* Can move forwards or backwards with f or b\n* Transition to r5 BT when performing an action while facing away from the opponent\n* BT.d+1+2: r20 AOP&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+2",
       "num": null,
-      "name": null,
+      "name": "Crouch Straight",
       "input": "d+2",
       "alias": null,
-      "alt": "FC.2",
+      "alt": "hFC.2",
       "parent": null,
       "target": "sl",
       "damage": "8",
@@ -3053,13 +3075,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i11",
-      "recv": "FC",
-      "tot": null,
-      "crush": "cs4~",
+      "recv": "r23 FC",
+      "tot": "34",
+      "crush": "cs4~34",
       "block": "-4",
       "hit": "+7",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Alternate input FC.2&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* +7c on crouching hit\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-d+3",
@@ -3075,9 +3097,9 @@
       "tracksLeft": "20",
       "tracksRight": "21",
       "startup": "i14",
-      "recv": "FC",
+      "recv": "r31 FC",
       "tot": null,
-      "crush": "cs6~",
+      "crush": "cs6~45",
       "block": "-12",
       "hit": "-3",
       "ch": "+1",
@@ -3086,10 +3108,10 @@
     {
       "id": "Xiaoyu-d+4",
       "num": null,
-      "name": null,
+      "name": "Crouch Shin Kick",
       "input": "d+4",
       "alias": null,
-      "alt": "FC.4",
+      "alt": "hFC.4",
       "parent": null,
       "target": "l",
       "damage": "6",
@@ -3097,13 +3119,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i12",
-      "recv": "FC",
-      "tot": null,
-      "crush": null,
+      "recv": "r34 FC",
+      "tot": "46",
+      "crush": "cs4~46",
       "block": "-15",
       "hit": "-4",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Alternate input FC.4&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* -4c on crouching hit\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-db+1+2",
@@ -3121,11 +3143,11 @@
       "startup": null,
       "recv": "r20 HYP",
       "tot": null,
-      "crush": "ps2~10?",
+      "crush": "ps2~10",
       "block": null,
       "hit": null,
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to HYP\n* db+1+2: perform Hypnotist right\n* ub+1+2: perform Hypnotist left\n* Actionable for 70F\n* Stance move properties change with amount of time spent in stance:\n* 1 step: 20~24F\n* 2 steps: 45~50F\n* 3 steps: 70~90F\n* Can cancel stance after 20F with b, db, u, uf, f, df or 1 jab\n* Punch parry (+9 HYP, opponent BT)\n* Alternate input ub+1+2&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to HYP\n* db+1+2: perform Hypnotist right\n* ub+1+2: perform Hypnotist left\n* Actionable for 70F\n* Stance move properties change with amount of time spent in stance:\n** 1 step: 20~25F\n** 2 steps: 45~50F\n** 3 steps: 70~90F\n* Cannot block during stance\n* Transition to r1 standing with b_db_u_uf_f_df or 1 at frame 40\n* Transition to HYP r20 (reverse direction) with 1+2\n** Can be performed at frame 25 of manual stance transition\n* Punch parry (+9 HYP, opponent BT)\n* Alternate input ub+1+2&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-df+2",
@@ -3185,13 +3207,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i15",
-      "recv": null,
-      "tot": null,
+      "recv": "r30",
+      "tot": "45",
       "crush": null,
       "block": "-11",
       "hit": "+7c",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Transition to AOP with D (-5, +13c)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Transition to AOP r24 cs1~ with D (-5/+13c)&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+1,H.2",
@@ -3202,18 +3224,18 @@
       "alt": null,
       "parent": "Xiaoyu-f,F+1",
       "target": ",m",
-      "damage": "20",
+      "damage": ",20",
       "reach": null,
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i26~28",
-      "recv": "BT",
-      "tot": null,
-      "crush": "js",
+      "recv": "r25 BT",
+      "tot": "71",
+      "crush": "js9~27, fs28",
       "block": "+6",
-      "hit": "+24d",
-      "ch": "+50a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Partially uses remaining Heat time\n* Combos from 1st hit\n* Interrupt with i9 from 1st block\n* Whiffs vs SSR, SWR from 1st block\n* Transition to with F (+4, +22d, +48a)&lt;/div&gt;"
+      "hit": "+23a~+25a",
+      "ch": "+49a~+51a",
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 1st hit\n* Interrupt with i9 from 1st block\n* Whiffs vs SSR, SWR from 1st block\n* Typically +24a from 1st hit\n* i29~30 effective startup\n* Move is delayed 3F\n* Transition to standing r27 with F (+4/+21a/+47a)\n** js9~27, fs28~30\n* Consumes 240F of remaining Heat time\n* 6 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f,F+1+2",
@@ -3229,8 +3251,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i14~16",
-      "recv": null,
-      "tot": null,
+      "recv": "r28",
+      "tot": "44",
       "crush": null,
       "block": "-9",
       "hit": "+5",
@@ -3251,8 +3273,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i15",
-      "recv": null,
-      "tot": null,
+      "recv": "r24",
+      "tot": "39",
       "crush": null,
       "block": "-5",
       "hit": "+6",
@@ -3273,8 +3295,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i16~17",
-      "recv": null,
-      "tot": null,
+      "recv": "r25",
+      "tot": "42",
       "crush": null,
       "block": "-5",
       "hit": "+4",
@@ -3295,13 +3317,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i20",
-      "recv": null,
-      "tot": null,
+      "recv": "r25",
+      "tot": "62",
       "crush": null,
       "block": "-6",
       "hit": "+5",
       "ch": "+7",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st hit\n* Jails from 1st block with ?F delay\n* Transition to HYP with B (+0, +11)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Jail from 1st block\n* Combo from 1st hit\n* Transition to HYP r21 with B (+0/+11/+13)\n** r19 +0/+11 when performing HYP.2\n** -2/+9/+11 effective frame advantage when performing other stance actions (framedata display bug?)\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f+2,1,H.2",
@@ -3317,13 +3339,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i26~28",
-      "recv": "BT",
-      "tot": null,
-      "crush": "js",
+      "recv": "r25 BT",
+      "tot": "90",
+      "crush": "js9~27, fs28",
       "block": "+6",
-      "hit": "+23d",
+      "hit": "+23a",
       "ch": "+50a",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Partially uses remaining Heat time\n* Combo from 1st hit with no delay\n* Combo from 2nd CH with 6F delay\n* Interrupt with i6 from 1st block\n* Whiffs vs SSR, SWR from 1st block\n* Move can be delayed by 5-10F\n* Transition to standing with F (+4, +21d, +47a)&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Consumes 240F of remaining Heat time\n* Combo from 1st hit with no delay\n* Combo from 2nd CH with 6F delay\n* Interrupt with i6 from 1st block\n* Whiffs vs SSR, SWR from 1st block\n* Move can be delayed by 10F (Cannot be delayed by 1-4F)\n* Transition to standing r27 with F (+4/+21a/+47a)\n** js9~27, fs28~30\n* 6 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-f+2+3",
@@ -3499,7 +3521,7 @@
       "block": "+9",
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Smash&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Shift to attack throw on 1st hit (50 damage)\n* +9a (-8) BT or +5a (-12) standing from 2nd hit\n* Transition to standing r42 with F_B_U_D (+5 oB)\n* 7 chip damage on block&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Smash&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Shift to attack throw on 1st hit (50 damage)\n* +9a (-8) BT or +5a (-12) standing from 2nd hit\n* 20f timestop on 4th hit\n* Transition to standing r42 with F_B_U_D (+5 oB)\n* 7 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-H.BT.2+3",
@@ -3521,7 +3543,7 @@
       "block": "+9",
       "hit": "+20g",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Smash&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Transition to HYP 2nd step\n* Transition to standing with F (+3/+5)\n* Chip on block [7]&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-purple heat&quot;\n&gt;Heat Smash&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-yellow spike&quot;\n&gt;Spike&lt;/div&gt;\n* Transition to HYP 2nd step\n* 20f timestop on hit\n* Can be +10 on block against smaller characters\n* Transition to standing r48 with F (+3/+5)\n** Opponent blockstun extended by 9F (r46 -&gt; r55)\n* 7 chip damage on block&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-hFC.1",
@@ -3656,28 +3678,6 @@
       "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* &lt;/div&gt;"
     },
     {
-      "id": "Xiaoyu-HYP.1+2",
-      "num": null,
-      "name": "Hypnotist",
-      "input": "HYP.1+2",
-      "alias": null,
-      "alt": null,
-      "parent": null,
-      "target": null,
-      "damage": null,
-      "reach": null,
-      "tracksLeft": null,
-      "tracksRight": null,
-      "startup": null,
-      "recv": "r20 HYP",
-      "tot": null,
-      "crush": "ps2?~11?",
-      "block": null,
-      "hit": null,
-      "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Starts taking steps in the opposite direction\n* Can be performed any time in HYP after 25F from manual stance transition, or 20?F after other stance transitions?\n&lt;/div&gt;"
-    },
-    {
       "id": "Xiaoyu-R.df+1+2",
       "num": null,
       "name": "Wang&#039;s Celestial Epic",
@@ -3691,13 +3691,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i20",
-      "recv": "r39",
-      "tot": null,
-      "crush": "pc8~",
+      "recv": "r42",
+      "tot": "62",
+      "crush": "pc8~20",
       "block": "-18",
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation and on hit\n* Restores recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation equal to (total frame idle recovery - 5F) or 57F when canceled by any action\n* Freezes match timer on hit by 15F\n* 114F timestop on activation\n* 20F timestop on block\n* r24 opponent blockstun (r44 effective blockstun w/ timestop)\n* Restores 13 recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-u+1+2",
@@ -3800,14 +3800,14 @@
       "reach": null,
       "tracksLeft": "26",
       "tracksRight": "26",
-      "startup": "i33",
+      "startup": "i33~35",
       "recv": "AOP",
       "tot": null,
       "crush": "js9~",
-      "block": "-7",
-      "hit": "+10g c",
+      "block": "-7~-5",
+      "hit": "+10c~+12c",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Cancel to r42? FC with D\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to AOP\n* Cancel to FC r42 with D at frame 27\n&lt;/div&gt;"
     },
     {
       "id": "Xiaoyu-ws+1+2",
@@ -3823,8 +3823,8 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i14~16",
-      "recv": null,
-      "tot": null,
+      "recv": "r28",
+      "tot": "44",
       "crush": null,
       "block": "-9",
       "hit": "+5",

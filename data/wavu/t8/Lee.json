@@ -749,7 +749,7 @@
       "block": "-20",
       "hit": "+11a (+2)",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Transition to -11, +20a (+11) HMS with 3\n* Combos from 3rd hit CH\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* Combo from 3rd CH with 6F delay\n* Interrupt with i4 from 3rd block\n* Interrupt with i5 from 3rd hit\n* Transition to HMS r29 with 3 (-11/+20a (+11))\n** Cancel to r11? standing or FC with b_db_d_df\n** Cancel to r2? standing or r7 FC with u_d~b_db_d_df\n&lt;/div&gt;"
     },
     {
       "id": "Lee-db+3",
@@ -3251,13 +3251,13 @@
       "tracksLeft": null,
       "tracksRight": null,
       "startup": "i20",
-      "recv": "r39",
-      "tot": null,
-      "crush": "pc8~",
+      "recv": "r42",
+      "tot": "62",
+      "crush": "pc8~20",
       "block": "-18",
       "hit": "+0d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation and on hit\n* Restores recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red rage-art&quot;\n&gt;Rage Art&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-red recoverable-gauge&quot;\n&gt;Removes Recoverable Health&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue reversal-break&quot;\n&gt;Reversal Break&lt;/div&gt;\n* Damage increases with lower health, maximum 82\n* Freezes match timer on activation equal to (total frame idle recovery - 5F) or 57F when canceled by any action\n* Freezes match timer on hit by 15F\n* 114F timestop on activation\n* 20F timestop on block\n* r24 opponent blockstun (r44 effective blockstun w/ timestop)\n* Restores 13 recoverable health on hit\n* Transition to attack throw on hit\n* Consumes Rage&lt;/div&gt;"
     },
     {
       "id": "Lee-u+3",

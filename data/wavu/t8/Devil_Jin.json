@@ -177,7 +177,7 @@
       "block": "-9",
       "hit": "+15a (+6)",
       "ch": "[[Devil Jin combos#Staples|+59a]]",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; on normal hit\n* Interrupt with i7 from 2nd block\n* Whiffs vs SSR, SWR from 2nd block\n* Move can be delayed 4F\n* Input can be delayed 12F&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; on normal hit\n* Interrupt with i7 from 2nd block\n* Whiffs vs SSR, SWR from 2nd block\n* 4f timestop on CH\n* Move can be delayed 4F\n* Input can be delayed 12F&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-3,1,f,F",
@@ -309,7 +309,7 @@
       "block": "-11",
       "hit": "+0",
       "ch": "+29a (+23)",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Knee&lt;/div&gt;\n* Jail from 1st block with 3F delay\n* Combo from 1st hit with 14F delay\n* Move can be delayed 13F\n* Input can be delayed by 14F&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-teal tip&quot;\n&gt;Knee&lt;/div&gt;\n* Jail from 1st block with 3F delay\n* Combo from 1st hit with 14F delay\n* 4f timestop on CH\n* Move can be delayed 13F\n* Input can be delayed by 14F&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-f+4,3",
@@ -375,7 +375,7 @@
       "block": "-9",
       "hit": "+6",
       "ch": "+9",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to MCR r25 with F on hit or CH (+14/+17)\n** -11/-8 on an empty MCR transition\n* Has good right sidestep tracking\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Transition to MCR r25 with F on hit or CH (+14/+17)\n** -11/-8 on an empty MCR transition\n* Has good right sidestep tracking\n* 4f timestop on CH\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-df+3,2,4",
@@ -551,7 +551,7 @@
       "block": "[[Devil Jin combos#Mini-combos|+10]]",
       "hit": "+37d",
       "ch": null,
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue guard-break&quot;\n&gt;Guard Break&lt;/div&gt;\n* Cancel to r27 MCR with F (js27~)\n* 16 chip damage on block\n* +11d on BT hit\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-blue guard-break&quot;\n&gt;Guard Break&lt;/div&gt;\n* Cancel to r27 MCR with F (js27~)\n* 16 chip damage on block\n* 20f timestop on hit\n* +11d on BT hit\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-b+1,2",
@@ -661,7 +661,7 @@
       "block": "-8",
       "hit": "+6",
       "ch": "[[Devil Jin combos#Staples|+30a (+24)]]",
-      "notes": "Opponent recovers FDFA on grounded hit"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* 4f timestop on CH\n* Opponent recovers FDFA on grounded hit\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-b+1+2",
@@ -903,7 +903,7 @@
       "block": "-6",
       "hit": "+16cg",
       "ch": "[[Devil Jin combos#Staples|+55a]]",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; on normal hit\n* Active frame 1 range: 3.70\n* +11a (+2) on BT hit\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* \n&lt;div\n  style=&quot;display: block; border-width: 0 0 0 0.5em; padding-left: 0.2em; border-style: solid;&quot;\n  class=&quot;movedata-icon border-green balcony-break&quot;\n&gt;Balcony Break&lt;/div&gt; on normal hit\n* Active frame 1 range: 3.70\n* +11a (+2) on BT hit\n* 4f timestop on CH\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-b,f+2,1,2",
@@ -2214,12 +2214,12 @@
       "target": "l",
       "damage": "6",
       "reach": null,
-      "tracksLeft": "8 or 15-20? (Fully Tracking?)",
-      "tracksRight": "21+? (Fully Tracking?)",
+      "tracksLeft": null,
+      "tracksRight": null,
       "startup": "i12",
       "recv": "r34 FC",
       "tot": "46",
-      "crush": "cs4~",
+      "crush": "cs4~46",
       "block": "-15",
       "hit": "-4",
       "ch": null,
@@ -3059,7 +3059,7 @@
       "block": "-11",
       "hit": "+6",
       "ch": "+10",
-      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st hit with 7F delay\n* Combo from 1st CH with 10F delay\n* Interrupt with i4 from 1st block\n* Transition to MCR r25 with F on hit or CH (+14/+17)\n** -11/-8 on an empty MCR transition\n* Move can be delayed 9F\n* Input can be delayed 10F\n&lt;/div&gt;"
+      "notes": "&lt;div class=&quot;plainlist&quot;&gt;\n* Combo from 1st hit with 7F delay\n* Combo from 1st CH with 10F delay\n* 4f timestop on CH\n* Interrupt with i4 from 1st block\n* Transition to MCR r25 with F on hit or CH (+14/+17)\n** -11/-8 on an empty MCR transition\n* Move can be delayed 9F\n* Input can be delayed 10F\n&lt;/div&gt;"
     },
     {
       "id": "Devil Jin-ws1,4",
